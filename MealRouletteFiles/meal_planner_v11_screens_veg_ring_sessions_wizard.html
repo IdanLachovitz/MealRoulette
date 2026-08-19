@@ -1,0 +1,155 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Suez+One&family=Rubik:wght@400;500&family=Heebo:wght@300;500&display=swap');
+.mk{--a-bg:#F7F3F8;--a-surf:#FFFFFF;--a-line:#E6DEEA;--a-txt:#2A2136;--a-mut:#6E6379;--a-saf:#F5B841;--a-safi:#4A3305;--a-beet:#C13E66;--a-pist:#4F8F53;--a-veg:#2F8C8C;--a-w1:#EAE1EF;--a-w2:#DFD3E6;--a-beetw:#F0CBD8;--a-pistw:#CFE4CF;--a-vegw:#C4E2E2}
+.mk.dark{--a-bg:#1E1726;--a-surf:#2A2136;--a-line:#3B2F49;--a-txt:#F6F1E9;--a-mut:#A79BB0;--a-saf:#F5B841;--a-safi:#1E1726;--a-beet:#D24C74;--a-pist:#8FC08C;--a-veg:#63B5B5;--a-w1:#3B2F49;--a-w2:#453757;--a-beetw:#7A2C45;--a-pistw:#3F5E40;--a-vegw:#2C5B5B}
+.ph{background:var(--a-bg);border:0.5px solid var(--a-line);border-radius:20px;padding:12px 11px 0;font-family:'Rubik',var(--font-sans);color:var(--a-txt);direction:rtl;min-height:430px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.cap{font-size:12px;color:var(--text-secondary);margin:6px 2px 0;font-family:var(--font-sans)}
+.chip{font-family:'Heebo';font-size:11px;padding:4px 9px;border-radius:999px;border:0.5px solid var(--a-line);color:var(--a-mut);white-space:nowrap}
+.chip.on{background:var(--a-w1);color:var(--a-txt);border-color:var(--a-w2)}
+.card{background:var(--a-surf);border:0.5px solid var(--a-line);border-radius:12px;padding:9px 11px;margin-bottom:7px}
+.cta{background:var(--a-saf);color:var(--a-safi);font-family:'Rubik';font-weight:500;font-size:13px;text-align:center;padding:10px;border-radius:10px}
+.nav{display:flex;justify-content:space-around;border-top:0.5px solid var(--a-line);padding:8px 0 10px;margin-top:auto;color:var(--a-mut);font-size:19px}
+.nav .on{color:var(--a-saf)}
+.disp{font-family:'Suez One',serif;font-size:17px;text-align:center;margin:8px 0 2px;line-height:1.4}
+.lb{font-family:'Heebo';font-size:11px;color:var(--a-mut);letter-spacing:.06em}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+</style>
+<h2 class="sr-only">Updated mockups for version 1.1: three-ring combo roulette with vegetables, the weekly planning wizard, the cook-sessions screen, and the week view with leftover days.</h2>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+  <button id="tg2" style="font-size:13px">החלף למצב כהה</button>
+  <span style="font-size:13px;color:var(--text-secondary)" id="tgl2">מצב בהיר</span>
+</div>
+<div class="mk" id="mk2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(275px,1fr));gap:16px">
+
+  <div>
+    <div class="ph">
+      <div style="display:flex;gap:4px;background:var(--a-w1);border-radius:999px;padding:3px;font-size:12px;margin-bottom:8px">
+        <span style="flex:1;text-align:center;padding:5px;color:var(--a-mut)">מנה מלאה</span>
+        <span style="flex:1;text-align:center;background:var(--a-surf);border-radius:999px;padding:5px">הרכבה</span>
+      </div>
+      <div style="display:flex;justify-content:center;align-items:center;gap:7px;margin-bottom:2px">
+        <span class="lb">עם ירק</span>
+        <span style="width:32px;height:18px;border-radius:999px;background:var(--a-veg);position:relative;display:inline-block"><span style="position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:50%;background:#fff"></span></span>
+      </div>
+      <svg viewBox="0 0 200 200" style="width:100%;max-width:252px;margin:0 auto;display:block" role="img"><title>גלגל חלבון, פחמימה וירק</title>
+        <path d="M101.23,12.01 A88,88 0 0,1 183.31,71.64 L162.48,78.73 A66,66 0 0,0 100.92,34.01 Z" fill="var(--a-beet)"/>
+        <path d="M184.06,73.98 A88,88 0 0,1 152.71,170.46 L139.54,152.85 A66,66 0 0,0 163.05,80.48 Z" fill="var(--a-beetw)"/>
+        <path d="M150.73,171.91 A88,88 0 0,1 49.27,171.91 L61.96,153.93 A66,66 0 0,0 138.04,153.93 Z" fill="var(--a-beetw)" opacity=".72"/>
+        <path d="M47.29,170.46 A88,88 0 0,1 15.94,73.98 L36.95,80.48 A66,66 0 0,0 60.46,152.85 Z" fill="var(--a-beetw)"/>
+        <path d="M16.69,71.64 A88,88 0 0,1 98.77,12.01 L99.08,34.01 A66,66 0 0,0 37.52,78.73 Z" fill="var(--a-beetw)" opacity=".72"/>
+        <path d="M101.21,37.01 A63,63 0 0,1 153.94,67.46 L138.53,76.76 A45,45 0 0,0 100.86,55.01 Z" fill="var(--a-pist)"/>
+        <path d="M155.15,69.55 A63,63 0 0,1 155.15,130.45 L139.40,121.75 A45,45 0 0,0 139.40,78.25 Z" fill="var(--a-pistw)"/>
+        <path d="M153.94,132.54 A63,63 0 0,1 101.21,162.99 L100.86,144.99 A45,45 0 0,0 138.53,123.24 Z" fill="var(--a-pistw)" opacity=".72"/>
+        <path d="M98.79,162.99 A63,63 0 0,1 46.06,132.54 L61.47,123.24 A45,45 0 0,0 99.14,144.99 Z" fill="var(--a-pistw)"/>
+        <path d="M44.85,130.45 A63,63 0 0,1 44.85,69.55 L60.60,78.25 A45,45 0 0,0 60.60,121.75 Z" fill="var(--a-pistw)" opacity=".72"/>
+        <path d="M46.06,67.46 A63,63 0 0,1 98.79,37.01 L99.14,55.01 A45,45 0 0,0 61.47,76.76 Z" fill="var(--a-pistw)"/>
+        <path d="M101.10,58.01 A42,42 0 0,1 141.99,98.90 L125.99,99.32 A26,26 0 0,0 100.68,74.01 Z" fill="var(--a-vegw)"/>
+        <path d="M141.99,101.10 A42,42 0 0,1 101.10,141.99 L100.68,125.99 A26,26 0 0,0 125.99,100.68 Z" fill="var(--a-vegw)" opacity=".72"/>
+        <path d="M98.90,141.99 A42,42 0 0,1 58.01,101.10 L74.01,100.68 A26,26 0 0,0 99.32,125.99 Z" fill="var(--a-vegw)"/>
+        <path d="M58.01,98.90 A42,42 0 0,1 98.90,58.01 L99.32,74.01 A26,26 0 0,0 74.01,99.32 Z" fill="var(--a-veg)"/>
+        <g font-family="Heebo" font-size="10" text-anchor="middle" fill="var(--a-txt)">
+          <text x="145.3" y="41">חזה עוף</text><text x="173.2" y="127">דג</text><text x="100" y="181">בשר טחון</text><text x="26.8" y="127">טופו</text><text x="54.7" y="41">ביצים</text>
+        </g>
+        <g font-family="Heebo" font-size="9" text-anchor="middle" fill="var(--a-txt)">
+          <text x="127" y="56">בורגול</text><text x="154" y="103">אורז</text><text x="127" y="150">בטטה</text><text x="73" y="150">פירה</text><text x="46" y="103">פסטה</text><text x="73" y="56">תפו״א</text>
+        </g>
+        <g font-family="Heebo" font-size="8.5" text-anchor="middle" fill="var(--a-txt)">
+          <text x="124" y="79">ברוקולי</text><text x="124" y="127">סלט</text><text x="76" y="127">ירקות</text><text x="76" y="79">שעועית</text>
+        </g>
+        <circle cx="100" cy="100" r="24" fill="var(--a-surf)" stroke="var(--a-line)" stroke-width="0.5"/>
+        <text x="100" y="104" font-family="Rubik" font-size="11" fill="var(--a-txt)" text-anchor="middle">סובבי</text>
+        <g fill="var(--a-saf)"><rect x="93.2" y="5" width="2.4" height="9" rx="1.2"/><rect x="98.8" y="5" width="2.4" height="9" rx="1.2"/><rect x="104.4" y="5" width="2.4" height="9" rx="1.2"/><rect x="92.8" y="13" width="14.4" height="5" rx="2"/><rect x="98.2" y="18" width="3.6" height="12" rx="1.8"/></g>
+      </svg>
+      <div style="display:flex;gap:5px;justify-content:center;margin-top:6px">
+        <span class="chip on" style="color:var(--a-beet)"><i class="ti ti-lock" aria-hidden="true"></i> חלבון</span>
+        <span class="chip"><i class="ti ti-lock-open" aria-hidden="true"></i> פחמימה</span>
+        <span class="chip"><i class="ti ti-lock-open" aria-hidden="true"></i> ירק</span>
+      </div>
+      <div class="disp">חזה עוף + בורגול<br>+ שעועית ירוקה</div>
+      <div style="text-align:center" class="lb">45 דק׳ · הזמן הארוך מבין הרכיבים</div>
+      <div style="display:flex;gap:7px;margin-top:10px"><div class="cta" style="flex:1">שבצי ליום…</div><div style="flex:1;text-align:center;padding:10px;border:0.5px solid var(--a-line);border-radius:10px;font-size:13px">סובבי הכל</div></div>
+      <div class="nav"><i class="ti ti-calendar-week" aria-hidden="true"></i><i class="ti ti-circles on" aria-hidden="true"></i><i class="ti ti-list-details" aria-hidden="true"></i><i class="ti ti-shopping-cart" aria-hidden="true"></i></div>
+    </div>
+    <p class="cap">הרכבה — שלוש טבעות, מתג "עם ירק" מעל הגלגל</p>
+  </div>
+
+  <div>
+    <div class="ph" style="padding-bottom:0">
+      <div style="opacity:.28">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:10px"><span>17–23 באוגוסט</span></div>
+        <div class="card"><div class="lb">ראשון · 17</div><div style="font-size:14px">לזניה</div></div>
+        <div class="card"><div class="lb">שני · 18</div><div style="font-size:14px">שאריות</div></div>
+        <div class="card"><div class="lb">שלישי · 19</div><div style="font-size:14px">עוד לא נבחר</div></div>
+      </div>
+      <div style="margin-top:auto;background:var(--a-surf);border:0.5px solid var(--a-line);border-radius:16px 16px 0 0;padding:14px 14px 18px;margin-inline:-11px">
+        <div style="width:34px;height:4px;border-radius:2px;background:var(--a-line);margin:0 auto 14px"></div>
+        <div style="font-size:15px;font-weight:500;margin-bottom:14px">תכנני לי את השבוע</div>
+        <div class="lb" style="margin-bottom:6px">כמה פעמים לבשל השבוע?</div>
+        <div style="display:flex;gap:6px;margin-bottom:14px"><span class="chip">2</span><span class="chip on" style="border-color:var(--a-saf)">3</span><span class="chip">4</span><span class="chip">5</span></div>
+        <div class="lb" style="margin-bottom:6px">לשלב שאריות?</div>
+        <div style="display:flex;gap:6px;margin-bottom:14px"><span class="chip on" style="border-color:var(--a-saf)">כן</span><span class="chip">לא</span></div>
+        <div class="lb" style="margin-bottom:6px">זמן הכנה מקסימלי</div>
+        <div style="display:flex;gap:6px;margin-bottom:16px"><span class="chip">עד 20 דק׳</span><span class="chip on" style="border-color:var(--a-saf)">עד 40 דק׳</span><span class="chip">ללא הגבלה</span></div>
+        <div class="cta">תכנני</div>
+      </div>
+    </div>
+    <p class="cap">אשף התכנון — שלוש שאלות לפני שהאפליקציה מחליטה</p>
+  </div>
+
+  <div>
+    <div class="ph">
+      <div style="font-size:15px;font-weight:500;margin-bottom:3px">תכנון בישולים</div>
+      <div class="lb" style="margin-bottom:12px">3 בישולים · 6 ימים מכוסים · שעתיים מטבח</div>
+      <div class="card" style="border-right:3px solid var(--a-saf);border-radius:12px 0 0 12px">
+        <div style="display:flex;justify-content:space-between"><span class="lb">ראשון · 17</span><span class="lb">60 דק׳</span></div>
+        <div style="font-size:15px;font-weight:500;margin:3px 0">לזניה</div>
+        <div class="lb">6 מנות · מכסה ראשון ושני</div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between"><span class="lb">שלישי · 19</span><span class="lb">45 דק׳</span></div>
+        <div style="font-size:14px;margin:3px 0"><span style="color:var(--a-beet)">●</span> חזה עוף <span style="color:var(--a-pist)">●</span> בורגול <span style="color:var(--a-veg)">●</span> שעועית</div>
+        <div class="lb">4 מנות · מכסה שלישי ורביעי</div>
+      </div>
+      <div class="card" style="border:0.5px dashed var(--a-saf)">
+        <div style="display:flex;justify-content:space-between"><span class="lb">חמישי · 21</span><span class="lb">25 דק׳</span></div>
+        <div style="font-size:15px;font-weight:500;margin:3px 0">מוקפץ</div>
+        <div style="font-size:12px;color:var(--a-saf)"><i class="ti ti-bulb" aria-hidden="true"></i> אפשר להכפיל ולכסות גם את שישי</div>
+      </div>
+      <div class="nav"><i class="ti ti-calendar-week" aria-hidden="true"></i><i class="ti ti-circles" aria-hidden="true"></i><i class="ti ti-list-details on" aria-hidden="true"></i><i class="ti ti-shopping-cart" aria-hidden="true"></i></div>
+    </div>
+    <p class="cap">מסך חדש — השבוע לפי בישולים, לא לפי ימים</p>
+  </div>
+
+  <div>
+    <div class="ph">
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:10px">
+        <span style="color:var(--a-mut)"><i class="ti ti-chevron-right" aria-hidden="true"></i> 17–23 באוגוסט <i class="ti ti-chevron-left" aria-hidden="true"></i></span>
+        <span class="lb">2 סועדים</span>
+      </div>
+      <div class="card" style="border-right:3px solid var(--a-saf);border-radius:12px 0 0 12px">
+        <div style="display:flex;justify-content:space-between"><span class="lb">ראשון · 17</span><span style="font-size:13px"><i class="ti ti-tools-kitchen-2" aria-hidden="true"></i></span></div>
+        <div style="font-size:15px;font-weight:500">לזניה</div>
+      </div>
+      <div class="card" style="background:transparent;border-style:dashed">
+        <div class="lb">שני · 18</div>
+        <div style="font-size:14px;color:var(--a-mut)"><i class="ti ti-refresh" aria-hidden="true"></i> שאריות מהלזניה</div>
+      </div>
+      <div class="card">
+        <div class="lb">שלישי · 19</div>
+        <div style="font-size:14px"><span style="color:var(--a-beet)">●</span> חזה עוף <span style="color:var(--a-pist)">●</span> בורגול <span style="color:var(--a-veg)">●</span> שעועית</div>
+      </div>
+      <div class="card" style="background:transparent;border-style:dashed">
+        <div class="lb">רביעי · 20</div>
+        <div style="font-size:14px;color:var(--a-mut)"><i class="ti ti-refresh" aria-hidden="true"></i> שאריות</div>
+      </div>
+      <div style="opacity:.5;font-size:13px;padding:4px 2px 10px"><span class="lb">חמישי · 21</span> &nbsp;·&nbsp; לא מבשלים</div>
+      <div class="cta">תכנני לי את השבוע</div>
+      <div class="nav"><i class="ti ti-calendar-week on" aria-hidden="true"></i><i class="ti ti-circles" aria-hidden="true"></i><i class="ti ti-list-details" aria-hidden="true"></i><i class="ti ti-shopping-cart" aria-hidden="true"></i></div>
+    </div>
+    <p class="cap">השבוע — בישול, שאריות ו"לא מבשלים" נראים שונה</p>
+  </div>
+</div>
+<script>
+(function(){var b=document.getElementById('tg2'),m=document.getElementById('mk2'),l=document.getElementById('tgl2');
+b.addEventListener('click',function(){var d=m.classList.toggle('dark');b.textContent=d?'החלף למצב בהיר':'החלף למצב כהה';l.textContent=d?'מצב כהה':'מצב בהיר';});})();
+</script>

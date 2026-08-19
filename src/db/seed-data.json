@@ -1,0 +1,799 @@
+{
+  "schema": "meal-planner v1.1",
+  "household": {
+    "name": "המטבח שלנו",
+    "default_diners": 2
+  },
+  "dishes": [
+    {
+      "name": "פרגית בתנור בדבש וחרדל עם תפו\"א, בטטה, בצל וגזר",
+      "prep_time_minutes": 70,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "פרגיות בתנור בסויה וסילאן עם בצל ובטטה",
+      "prep_time_minutes": 70,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "עוף בטריאקי עם ברוקולי ואורז",
+      "prep_time_minutes": 40,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "עוף בתנור עם אורז וגזר",
+      "prep_time_minutes": 70,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "עוף עם פטריות",
+      "prep_time_minutes": 45,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "עוף בקארי עם פטריות ואורז",
+      "prep_time_minutes": 45,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "עוף בקוביות מתובל עם ברוקולי מוקפץ ואורז לבן",
+      "prep_time_minutes": 40,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "תבשיל עוף עם זיתים ואורז לבן",
+      "prep_time_minutes": 60,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "שוקיים עם אפונה ברוטב אדום ואורז עם אטריות",
+      "prep_time_minutes": 70,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "Marry me chicken",
+      "prep_time_minutes": 45,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "Chicken fajita bowl — עוף ואורז מתובלים עם סלט ואבוקדו",
+      "prep_time_minutes": 40,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "Fajitas",
+      "prep_time_minutes": 35,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "מרק עוף",
+      "prep_time_minutes": 90,
+      "max_cover_days": 3,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "נגטס",
+      "prep_time_minutes": 25,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "בשר עם פטריות וערמונים",
+      "prep_time_minutes": 60,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "בשר עם תפו\"א ובטטה בתנור",
+      "prep_time_minutes": 75,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "אסאדו רך",
+      "prep_time_minutes": 180,
+      "max_cover_days": 3,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "קציצות בשר ברוטב אדום",
+      "prep_time_minutes": 50,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "קובה במיה",
+      "prep_time_minutes": 60,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "קובה סלק",
+      "prep_time_minutes": 60,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "קובה קישואים",
+      "prep_time_minutes": 60,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "ממולאים",
+      "prep_time_minutes": 75,
+      "max_cover_days": 3,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "כרוב ממולא",
+      "prep_time_minutes": 90,
+      "max_cover_days": 3,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "קישוא ממולא",
+      "prep_time_minutes": 80,
+      "max_cover_days": 3,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "מוסקה — חציל ממולא בבשר",
+      "prep_time_minutes": 80,
+      "max_cover_days": 3,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "מפרום — תפוח אדמה ממולא בבשר",
+      "prep_time_minutes": 90,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "לזניה",
+      "prep_time_minutes": 75,
+      "max_cover_days": 3,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "בורקס בשר עם צנוברים ורוטב פטריות",
+      "prep_time_minutes": 50,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "לחמניות בשר",
+      "prep_time_minutes": 50,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "קבבים",
+      "prep_time_minutes": 40,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "המבורגרים",
+      "prep_time_minutes": 30,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "Burger bowl",
+      "prep_time_minutes": 30,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "סטרוגנוף",
+      "prep_time_minutes": 50,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "קוביות בשר מקורמל",
+      "prep_time_minutes": 50,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "אורז לבן עם קוביות בשר ושעועית ברוטב אדום",
+      "prep_time_minutes": 60,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "אטריות מוקפצות עם פטריות, רצועות בשר וקשיו",
+      "prep_time_minutes": 35,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "טאקוס",
+      "prep_time_minutes": 35,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "עראיס בשר",
+      "prep_time_minutes": 30,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "טבחה שעועית",
+      "prep_time_minutes": 60,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "בטטה חצויה בתנור עם בשר טחון וסלט קוטג'",
+      "prep_time_minutes": 50,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "טורטיות עם מאסה, עגבנייה ואבוקדו",
+      "prep_time_minutes": 30,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "שניצל",
+      "prep_time_minutes": 30,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "Milanesa napolitana",
+      "prep_time_minutes": 40,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "פתיתים ברוטב אדום עם שניצלים",
+      "prep_time_minutes": 35,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "אורז צהוב עם שניצל ושעועית ברוטב אדום",
+      "prep_time_minutes": 50,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "סלמון בטריאקי עם אורז",
+      "prep_time_minutes": 35,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "קערת אורז, סלמון ואבוקדו",
+      "prep_time_minutes": 25,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "סלמון עם פטריות בשמנת",
+      "prep_time_minutes": 30,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "חריימה — דג מרוקאי",
+      "prep_time_minutes": 40,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "Sushi bake עם טונה וסלמון",
+      "prep_time_minutes": 45,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "עראיס טונה",
+      "prep_time_minutes": 25,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "פסטה ברוטב פטריות",
+      "prep_time_minutes": 25,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "פסטה ברוטב ערמונים",
+      "prep_time_minutes": 30,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "פסטה רוזה עם עגבניות שרי",
+      "prep_time_minutes": 25,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "פסטה בשמנת ופסטו",
+      "prep_time_minutes": 25,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "פסטה בשמנת וסלמון",
+      "prep_time_minutes": 30,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "פסטה בולונז",
+      "prep_time_minutes": 60,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "פסטה ברוטב אדום עם נקניקיות",
+      "prep_time_minutes": 30,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "מוקפץ עם ברוקולי, בוק צ'וי ואטריות אורז",
+      "prep_time_minutes": 30,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "פולנטה עם פטריות",
+      "prep_time_minutes": 35,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "פשטידת קישואים (Tarta de zucchini)",
+      "prep_time_minutes": 60,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "פשטידת בצל (Tarta de cebolla)",
+      "prep_time_minutes": 60,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "פשטידת עוף בגבינת שמנת עם סלט (Tarta de pollo)",
+      "prep_time_minutes": 60,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "קציצות ירקות — ערוק",
+      "prep_time_minutes": 40,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "מרק עגבניות",
+      "prep_time_minutes": 45,
+      "max_cover_days": 3,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "מרק פטריות",
+      "prep_time_minutes": 40,
+      "max_cover_days": 3,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "מרק בטטה",
+      "prep_time_minutes": 40,
+      "max_cover_days": 3,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "קוסקוס עם מרק ירקות",
+      "prep_time_minutes": 60,
+      "max_cover_days": 3,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "קוסקוס ברוטב אדום",
+      "prep_time_minutes": 50,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "ג'חנון",
+      "prep_time_minutes": 30,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "חמין",
+      "prep_time_minutes": 40,
+      "max_cover_days": 2,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "צ'יפס עם רוטב שמנת פטריות",
+      "prep_time_minutes": 30,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "צ'יפס עם צ'דר",
+      "prep_time_minutes": 25,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    },
+    {
+      "name": "טוסט גבינת עזים, ריבת בצל ורוקט",
+      "prep_time_minutes": 15,
+      "max_cover_days": 1,
+      "is_active": true,
+      "fixed_servings": null,
+      "ingredients": []
+    }
+  ],
+  "components": [
+    {
+      "name": "חזה עוף",
+      "type": "protein",
+      "prep_time_minutes": 25,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "פרגיות",
+      "type": "protein",
+      "prep_time_minutes": 45,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "שניצל",
+      "type": "protein",
+      "prep_time_minutes": 30,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "בשר טחון",
+      "type": "protein",
+      "prep_time_minutes": 25,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "קוביות בשר",
+      "type": "protein",
+      "prep_time_minutes": 45,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "סלמון",
+      "type": "protein",
+      "prep_time_minutes": 20,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "קבב",
+      "type": "protein",
+      "prep_time_minutes": 30,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "נקניקיות",
+      "type": "protein",
+      "prep_time_minutes": 15,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "טונה",
+      "type": "protein",
+      "prep_time_minutes": 5,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "אורז לבן",
+      "type": "carb",
+      "prep_time_minutes": 25,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "אורז צהוב",
+      "type": "carb",
+      "prep_time_minutes": 30,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "קוסקוס",
+      "type": "carb",
+      "prep_time_minutes": 15,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "פתיתים",
+      "type": "carb",
+      "prep_time_minutes": 20,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "פסטה",
+      "type": "carb",
+      "prep_time_minutes": 15,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "אטריות אורז",
+      "type": "carb",
+      "prep_time_minutes": 10,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "תפו\"א ובטטה בתנור",
+      "type": "carb",
+      "prep_time_minutes": 45,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "צ'יפס",
+      "type": "carb",
+      "prep_time_minutes": 30,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "פולנטה",
+      "type": "carb",
+      "prep_time_minutes": 25,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "פירה",
+      "type": "carb",
+      "prep_time_minutes": 25,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "ברוקולי מוקפץ בשום",
+      "type": "veg",
+      "prep_time_minutes": 15,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "שעועית ירוקה ברוטב אדום",
+      "type": "veg",
+      "prep_time_minutes": 25,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "אפונה ברוטב אדום",
+      "type": "veg",
+      "prep_time_minutes": 20,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "סלט קייסר",
+      "type": "veg",
+      "prep_time_minutes": 15,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "סלט בוראטה",
+      "type": "veg",
+      "prep_time_minutes": 10,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "קרפצ'יו סלק",
+      "type": "veg",
+      "prep_time_minutes": 15,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "סלט חסה ברוטב ירוק",
+      "type": "veg",
+      "prep_time_minutes": 10,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "סלט מלפפון, עגבנייה ובצל סגול",
+      "type": "veg",
+      "prep_time_minutes": 10,
+      "is_active": true,
+      "ingredients": []
+    },
+    {
+      "name": "בוק צ'וי מוקפץ",
+      "type": "veg",
+      "prep_time_minutes": 10,
+      "is_active": true,
+      "ingredients": []
+    }
+  ]
+}
