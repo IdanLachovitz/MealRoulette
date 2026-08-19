@@ -77,21 +77,23 @@ function Shell() {
         {tab === 'settings' && <SettingsScreen householdId={household.id} />}
       </main>
 
-      <nav className="nav" aria-label="ניווט ראשי">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            className="nav__item"
-            aria-current={tab === t.id ? 'page' : undefined}
-            onClick={() => setTab(t.id)}
-          >
-            <span className="nav__icon">
-              <Icon name={t.icon} size={21} strokeWidth={tab === t.id ? 2.1 : 1.7} />
-            </span>
-            {t.label}
-          </button>
-        ))}
-      </nav>
+      <div className="nav-dock">
+        <nav className="nav" aria-label="ניווט ראשי">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              className="nav__item"
+              aria-current={tab === t.id ? 'page' : undefined}
+              onClick={() => setTab(t.id)}
+            >
+              <span className="nav__icon">
+                <Icon name={t.icon} size={21} strokeWidth={tab === t.id ? 2.2 : 1.7} />
+              </span>
+              {t.label}
+            </button>
+          ))}
+        </nav>
+      </div>
     </div>
   )
 }

@@ -209,6 +209,7 @@ export function WeekScreen({
 
             const classes = ['day']
             if (day.date === today) classes.push('day--today')
+            if (day.role === 'cook') classes.push('day--cook')
             if (day.role === 'leftovers') classes.push('day--leftovers')
             if (day.role === 'empty') classes.push('day--empty')
 

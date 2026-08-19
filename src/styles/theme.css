@@ -1,8 +1,14 @@
-/* Palette lifted from the v1.1 mockup. The veg ring gets its own turquoise so the
-   two inner rings never read as the same colour in the combo wheel. */
+/* Design language: the app's original five brand hues (saffron / beet / pistachio /
+   veg, on a warm cream base) stay exactly as reviewed in the v1.1 mockup — that
+   palette was deliberately chosen and signed off. What changes here is the shape
+   and depth language around it: pill-everything (buttons, chips, nav), tonal
+   colour-tinted surfaces instead of plain white-with-a-thin-border, a bolder type
+   scale, and a floating card nav. Grounded in the ui-ux-pro-max skill's own
+   guidance for "Recipe & Cooking App" (Claymorphism + tonal Material-You style
+   surfaces, warm food tones) rather than a generic flat-with-shadows treatment. */
 :root {
   --bg: #f7f3f8;
-  --surf: #ffffff;
+  --surf: #fffdfb;
   --surf-2: #fbf9fc;
   --line: #e6deea;
   --txt: #2a2136;
@@ -18,14 +24,29 @@
   --pist-w: #cfe4cf;
   --veg-w: #c4e2e2;
   --danger: #c1443e;
+
+  /* Tonal container washes — a light tint of each accent used as a whole card
+     background (Material-You "tonal surface" pattern), computed from the accent
+     itself so light/dark stay in sync automatically. */
+  --saf-tonal: color-mix(in srgb, var(--saf) 18%, var(--surf));
+  --beet-tonal: color-mix(in srgb, var(--beet) 13%, var(--surf));
+  --pist-tonal: color-mix(in srgb, var(--pist) 13%, var(--surf));
+  --veg-tonal: color-mix(in srgb, var(--veg) 14%, var(--surf));
+
   --shadow: 0 1px 2px rgba(42, 33, 54, 0.05), 0 10px 28px rgba(42, 33, 54, 0.07);
   --shadow-lift: 0 4px 10px rgba(42, 33, 54, 0.08), 0 16px 36px rgba(42, 33, 54, 0.1);
-  --glow-saf: 0 6px 18px rgba(245, 184, 65, 0.35);
-  --grad-saf: linear-gradient(155deg, #f8c664, var(--saf) 55%, #efaa3a);
-  --grad-hero: radial-gradient(120% 130% at 50% -10%, var(--w1), var(--bg) 65%);
-  --radius: 18px;
-  --radius-sm: 12px;
-  --radius-lg: 26px;
+  --glow-saf: 0 6px 18px rgba(245, 184, 65, 0.4);
+  --grad-saf: linear-gradient(150deg, #f9d078, var(--saf) 55%, #ec9f2e);
+  --grad-hero: radial-gradient(120% 140% at 50% -10%, var(--w1) 0%, var(--bg) 70%);
+
+  /* Chunkier, pill-leaning shape scale — the single biggest lever for making the
+     app read as a different, more contemporary design than a generic form UI. */
+  --radius-pill: 999px;
+  --radius: 26px;
+  --radius-sm: 18px;
+  --radius-lg: 32px;
+
+  --ease-em: cubic-bezier(0.2, 0, 0, 1);
   --font-body: 'Rubik', 'Heebo', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: 'Suez One', 'Rubik', system-ui, serif;
   --font-label: 'Heebo', 'Rubik', system-ui, sans-serif;
@@ -51,9 +72,9 @@
   --danger: #e2695f;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 28px rgba(0, 0, 0, 0.28);
   --shadow-lift: 0 4px 10px rgba(0, 0, 0, 0.32), 0 18px 40px rgba(0, 0, 0, 0.36);
-  --glow-saf: 0 6px 20px rgba(245, 184, 65, 0.22);
-  --grad-saf: linear-gradient(155deg, #f8c976, var(--saf) 55%, #e6a132);
-  --grad-hero: radial-gradient(120% 130% at 50% -10%, var(--w1), var(--bg) 65%);
+  --glow-saf: 0 6px 20px rgba(245, 184, 65, 0.24);
+  --grad-saf: linear-gradient(150deg, #f8c976, var(--saf) 55%, #e6a132);
+  --grad-hero: radial-gradient(120% 140% at 50% -10%, var(--w1) 0%, var(--bg) 70%);
 }
 
 * {
@@ -110,7 +131,7 @@ button {
 
 .app__main {
   flex: 1;
-  padding: 12px 14px calc(84px + env(safe-area-inset-bottom));
+  padding: 14px 16px calc(96px + env(safe-area-inset-bottom));
 }
 
 .topbar {
@@ -120,15 +141,15 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
-  background: color-mix(in srgb, var(--bg) 86%, transparent);
-  backdrop-filter: blur(14px);
+  padding: calc(14px + env(safe-area-inset-top)) 18px 14px;
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(16px);
   box-shadow: 0 1px 0 var(--line), 0 8px 20px -12px rgba(42, 33, 54, 0.18);
 }
 
 .topbar__title {
   font-family: var(--font-display);
-  font-size: 19px;
+  font-size: 21px;
   margin: 0;
   flex: 1;
   line-height: 1.3;
@@ -141,21 +162,30 @@ button {
   font-weight: 400;
 }
 
-/* ---- Bottom navigation ---------------------------------------------------- */
+/* ---- Bottom navigation ------------------------------------------------------
+   A floating pill dock, detached from the screen edges, rather than an
+   edge-to-edge bar — the shape signature that reads most clearly as "not the
+   same app as before" at a glance. */
 
-.nav {
+.nav-dock {
   position: fixed;
-  bottom: 0;
-  inset-inline: 0;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  inset-inline: 14px;
   z-index: 30;
   display: flex;
+  justify-content: center;
+}
+
+.nav {
+  display: flex;
   justify-content: space-around;
-  max-width: 560px;
-  margin: 0 auto;
-  padding: 10px 8px calc(12px + env(safe-area-inset-bottom));
-  background: color-mix(in srgb, var(--surf) 90%, transparent);
-  backdrop-filter: blur(16px);
-  box-shadow: 0 -1px 0 var(--line), 0 -8px 24px -14px rgba(42, 33, 54, 0.2);
+  width: 100%;
+  max-width: 480px;
+  padding: 8px;
+  background: color-mix(in srgb, var(--surf) 94%, transparent);
+  backdrop-filter: blur(18px);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-lift), 0 0 0 1px var(--line);
 }
 
 .nav__item {
@@ -163,45 +193,42 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  min-width: 60px;
-  min-height: 44px;
-  padding: 6px 10px;
+  gap: 2px;
+  flex: 1;
+  min-height: 48px;
+  padding: 7px 6px;
   color: var(--mut);
   font-family: var(--font-label);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 500;
-  border-radius: var(--radius-sm);
-  transition: color 0.18s ease;
+  border-radius: var(--radius-pill);
+  transition: color 0.18s var(--ease-em);
 }
 
 .nav__item[aria-current='page'] {
   color: var(--saf-ink);
 }
 
-/* A soft pill grows in behind the active tab instead of only recoloring the
-   icon — reads as a single deliberate "current tab" state at a glance. */
+/* A solid tonal pill grows in behind the active tab instead of only
+   recolouring the icon — the current-tab state reads as one deliberate shape,
+   not a colour change alone (also satisfies "don't rely on colour only"). */
 .nav__item[aria-current='page']::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background: color-mix(in srgb, var(--saf) 22%, transparent);
-  border-radius: var(--radius-sm);
+  inset: 2px 4px;
+  background: var(--grad-saf);
+  border-radius: var(--radius-pill);
   z-index: -1;
-  animation: nav-pill-in 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
+  animation: nav-pill-in 0.22s var(--ease-em);
 }
 
 :root[data-theme='dark'] .nav__item[aria-current='page'] {
-  color: var(--saf);
-}
-
-:root[data-theme='dark'] .nav__item[aria-current='page']::before {
-  background: color-mix(in srgb, var(--saf) 16%, transparent);
+  color: var(--saf-ink);
 }
 
 @keyframes nav-pill-in {
   from {
-    transform: scale(0.85);
+    transform: scale(0.8);
     opacity: 0;
   }
 }
@@ -223,8 +250,8 @@ button {
   background: var(--surf);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 12px 14px;
-  margin-bottom: 9px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
   box-shadow: var(--shadow);
 }
 
@@ -265,10 +292,10 @@ button {
 
 .display {
   font-family: var(--font-display);
-  font-size: 20px;
-  line-height: 1.45;
+  font-size: 23px;
+  line-height: 1.4;
   text-align: center;
-  margin: 10px 0 2px;
+  margin: 12px 0 2px;
 }
 
 .muted {
@@ -281,18 +308,18 @@ button {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 44px;
-  padding: 11px 18px;
-  border-radius: var(--radius-sm);
+  min-height: 46px;
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
   font-weight: 500;
   font-size: 14px;
   border: 1px solid transparent;
-  transition: transform 0.1s ease, opacity 0.15s ease, box-shadow 0.18s ease,
-    background 0.18s ease;
+  transition: transform 0.12s var(--ease-em), opacity 0.15s ease,
+    box-shadow 0.18s var(--ease-em), background 0.18s ease;
 }
 
 .btn:active:not(:disabled) {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
 .btn:disabled {
@@ -328,33 +355,31 @@ button {
 }
 
 .btn--sm {
-  min-height: 36px;
-  padding: 7px 13px;
+  min-height: 38px;
+  padding: 8px 15px;
   font-size: 13px;
-  border-radius: 10px;
 }
 
 /* Icon-only buttons (settings gear, sheet close, row delete) get their own
-   square/circular shape instead of stretching the text-button padding
-   around a single glyph. */
+   circular shape instead of stretching text-button padding around a glyph. */
 .btn--icon {
-  width: 40px;
-  height: 40px;
-  min-height: 40px;
+  width: 42px;
+  height: 42px;
+  min-height: 42px;
   padding: 0;
   border-radius: 50%;
   flex: none;
 }
 
 .btn--icon.btn--sm {
-  width: 34px;
-  height: 34px;
-  min-height: 34px;
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
 }
 
 @media (hover: hover) {
   .btn--primary:hover:not(:disabled) {
-    box-shadow: 0 8px 22px rgba(245, 184, 65, 0.45);
+    box-shadow: 0 8px 22px rgba(245, 184, 65, 0.5);
     transform: translateY(-1px);
   }
 
@@ -370,36 +395,43 @@ button {
 
 .chip {
   font-family: var(--font-label);
-  font-size: 12px;
-  padding: 7px 13px;
-  min-height: 36px;
+  font-size: 12.5px;
+  padding: 8px 15px;
+  min-height: 38px;
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--line);
   background: var(--surf);
   color: var(--mut);
   white-space: nowrap;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease,
-    box-shadow 0.15s ease, transform 0.1s ease;
+    box-shadow 0.15s ease, transform 0.1s var(--ease-em);
 }
 
 .chip:active {
-  transform: scale(0.96);
+  transform: scale(0.95);
 }
 
 .chip[aria-pressed='true'],
 .chip--on {
-  background: var(--w1);
-  color: var(--txt);
-  border-color: var(--w2);
-  box-shadow: 0 2px 8px rgba(42, 33, 54, 0.08);
+  background: var(--txt);
+  color: var(--bg);
+  border-color: var(--txt);
+  box-shadow: 0 2px 8px rgba(42, 33, 54, 0.16);
+}
+
+:root[data-theme='dark'] .chip[aria-pressed='true'],
+:root[data-theme='dark'] .chip--on {
+  background: var(--saf);
+  color: var(--saf-ink);
+  border-color: var(--saf);
 }
 
 .chips {
   display: flex;
-  gap: 6px;
+  gap: 7px;
   overflow-x: auto;
   padding-bottom: 4px;
   scrollbar-width: none;
@@ -413,26 +445,26 @@ button {
   display: flex;
   gap: 4px;
   background: var(--w1);
-  border-radius: 999px;
-  padding: 3px;
+  border-radius: var(--radius-pill);
+  padding: 4px;
 }
 
 .segmented__btn {
   flex: 1;
   text-align: center;
-  padding: 9px 6px;
-  border-radius: 999px;
+  padding: 10px 6px;
+  border-radius: var(--radius-pill);
   font-size: 13px;
   color: var(--mut);
-  min-height: 40px;
-  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  min-height: 42px;
+  transition: background 0.18s var(--ease-em), color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .segmented__btn[aria-pressed='true'] {
   background: var(--surf);
   color: var(--txt);
-  font-weight: 500;
-  box-shadow: 0 2px 8px rgba(42, 33, 54, 0.1);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(42, 33, 54, 0.12);
 }
 
 .field {
@@ -446,8 +478,8 @@ button {
 .field__select,
 .field__textarea {
   width: 100%;
-  min-height: 44px;
-  padding: 10px 13px;
+  min-height: 46px;
+  padding: 11px 15px;
   border-radius: var(--radius-sm);
   border: 1.5px solid var(--line);
   background: var(--surf-2);
@@ -486,9 +518,9 @@ button {
 
 .switch {
   position: relative;
-  width: 44px;
-  height: 26px;
-  border-radius: 999px;
+  width: 46px;
+  height: 27px;
+  border-radius: var(--radius-pill);
   background: var(--line);
   flex: none;
   transition: background 0.18s ease;
@@ -507,16 +539,16 @@ button {
      never updates). Physical left/right + transform sidesteps that bug
      entirely and is simpler since there is no LTR variant to support. */
   right: 3px;
-  width: 20px;
-  height: 20px;
+  width: 21px;
+  height: 21px;
   border-radius: 50%;
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
-  transition: transform 0.18s ease;
+  transition: transform 0.18s var(--ease-em);
 }
 
 .switch[aria-checked='true'] .switch__dot {
-  transform: translateX(-18px);
+  transform: translateX(-19px);
 }
 
 /* ---- Week screen ---------------------------------------------------------- */
@@ -524,17 +556,17 @@ button {
 .day {
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 12px 14px;
+  gap: 12px;
+  padding: 13px 16px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
   background: var(--surf);
-  margin-bottom: 8px;
+  margin-bottom: 9px;
   width: 100%;
   text-align: start;
-  min-height: 62px;
+  min-height: 66px;
   box-shadow: var(--shadow);
-  transition: box-shadow 0.18s ease, transform 0.12s ease;
+  transition: box-shadow 0.18s var(--ease-em), transform 0.12s var(--ease-em);
 }
 
 .day:active {
@@ -548,7 +580,16 @@ button {
   }
 }
 
+/* Tonal colour per role — a cook day gets a warm saffron wash, leftovers get a
+   cool veg wash (a visual echo of "reuse"), instead of every day looking like
+   the same plain white card regardless of what is happening on it. */
+.day--cook {
+  background: var(--saf-tonal);
+  border-color: color-mix(in srgb, var(--saf) 30%, var(--line));
+}
+
 .day--today {
+  border-width: 2px;
   border-color: var(--saf);
   box-shadow: 0 0 0 1.5px var(--saf), var(--shadow);
 }
@@ -557,17 +598,18 @@ button {
    "Not cooking" is a bare row with no card at all — that is what separates
    the two at a glance, including in dark mode and in greyscale. */
 .day--leftovers {
-  background: var(--surf-2);
+  background: var(--veg-tonal);
   border-style: dashed;
+  border-color: color-mix(in srgb, var(--veg) 30%, var(--line));
 }
 
 .day--none {
   background: transparent;
   border: none;
   box-shadow: none;
-  min-height: 44px;
+  min-height: 46px;
   padding-block: 6px;
-  opacity: 0.72;
+  opacity: 0.7;
 }
 
 .day--empty {
@@ -591,7 +633,7 @@ button {
 
 .day__num {
   font-family: var(--font-display);
-  font-size: 17px;
+  font-size: 19px;
   line-height: 1.2;
 }
 
@@ -624,23 +666,36 @@ button {
 
 .summary {
   display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 9px;
+  margin-bottom: 14px;
 }
 
 .summary__cell {
   flex: 1;
-  background: var(--surf);
-  border: 1px solid var(--line);
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  padding: 12px 8px;
+  padding: 13px 8px;
   text-align: center;
   box-shadow: var(--shadow);
 }
 
+/* Each summary stat gets its own tonal colour, so the row reads as three
+   distinct facts instead of three identical grey boxes. */
+.summary__cell:nth-child(1) {
+  background: var(--saf-tonal);
+}
+
+.summary__cell:nth-child(2) {
+  background: var(--pist-tonal);
+}
+
+.summary__cell:nth-child(3) {
+  background: var(--beet-tonal);
+}
+
 .summary__num {
   font-family: var(--font-display);
-  font-size: 19px;
+  font-size: 21px;
   line-height: 1.2;
 }
 
@@ -654,12 +709,15 @@ button {
 /* ---- Roulette ------------------------------------------------------------- */
 
 /* The wheel is the app's centrepiece, so it gets a hero treatment: a soft
-   radial wash behind it rather than sitting flat on the page background. */
+   radial wash and a warm ring behind it rather than sitting flat on the page
+   background like every other element. */
 .wheel-card {
   background: var(--grad-hero);
+  border: 1.5px solid color-mix(in srgb, var(--saf) 22%, var(--line));
   border-radius: var(--radius-lg);
-  padding: 20px 12px 8px;
-  margin-bottom: 4px;
+  padding: 22px 12px 10px;
+  margin-bottom: 6px;
+  box-shadow: var(--shadow);
 }
 
 .wheel {
@@ -668,7 +726,7 @@ button {
   margin: 0 auto;
   display: block;
   touch-action: manipulation;
-  filter: drop-shadow(0 12px 20px rgba(42, 33, 54, 0.1));
+  filter: drop-shadow(0 12px 22px rgba(42, 33, 54, 0.12));
 }
 
 .wheel__group {
@@ -702,7 +760,7 @@ button {
 /* ---- Shopping list -------------------------------------------------------- */
 
 .aisle {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .aisle__head {
@@ -710,7 +768,7 @@ button {
   font-size: 11.5px;
   letter-spacing: 0.07em;
   color: var(--mut);
-  margin: 0 2px 6px;
+  margin: 0 4px 7px;
   display: flex;
   justify-content: space-between;
 }
@@ -720,12 +778,12 @@ button {
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 11px 13px;
-  min-height: 48px;
+  padding: 12px 15px;
+  min-height: 50px;
   background: var(--surf);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  margin-bottom: 6px;
+  margin-bottom: 7px;
   text-align: start;
   box-shadow: var(--shadow);
   transition: box-shadow 0.18s ease, opacity 0.18s ease;
@@ -743,9 +801,9 @@ button {
 
 .item__box {
   flex: none;
-  width: 21px;
-  height: 21px;
-  border-radius: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 8px;
   border: 1.5px solid var(--line);
   display: grid;
   place-items: center;
@@ -778,15 +836,15 @@ button {
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 12px 13px;
-  min-height: 56px;
+  padding: 13px 15px;
+  min-height: 58px;
   background: var(--surf);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  margin-bottom: 6px;
+  margin-bottom: 7px;
   text-align: start;
   box-shadow: var(--shadow);
-  transition: box-shadow 0.18s ease, transform 0.12s ease;
+  transition: box-shadow 0.18s ease, transform 0.12s var(--ease-em);
 }
 
 .list-row:active {
@@ -812,8 +870,8 @@ button {
 }
 
 .dot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   flex: none;
 }
@@ -836,7 +894,7 @@ button {
   position: fixed;
   inset: 0;
   z-index: 60;
-  background: rgba(20, 14, 28, 0.45);
+  background: rgba(20, 14, 28, 0.5);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -851,21 +909,21 @@ button {
   background: var(--bg);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   padding: 10px 18px calc(22px + env(safe-area-inset-bottom));
-  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.16);
-  animation: rise 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18);
+  animation: rise 0.24s var(--ease-em);
 }
 
 .sheet__grip {
-  width: 38px;
+  width: 40px;
   height: 4px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--line);
   margin: 6px auto 12px;
 }
 
 .sheet__title {
   font-family: var(--font-display);
-  font-size: 17px;
+  font-size: 18px;
   margin: 0 0 4px;
 }
 
@@ -894,20 +952,20 @@ button {
 .toast {
   position: fixed;
   inset-inline: 14px;
-  bottom: calc(84px + env(safe-area-inset-bottom));
+  bottom: calc(96px + env(safe-area-inset-bottom));
   z-index: 70;
   max-width: 532px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 14px;
+  padding: 13px 16px;
   border-radius: var(--radius-sm);
   background: var(--txt);
   color: var(--bg);
   font-size: 13.5px;
   box-shadow: var(--shadow-lift);
-  animation: rise 0.2s ease;
+  animation: rise 0.2s var(--ease-em);
 }
 
 .toast__action {
@@ -922,7 +980,7 @@ button {
 .notice {
   display: flex;
   gap: 9px;
-  padding: 12px 14px;
+  padding: 13px 15px;
   border-radius: var(--radius-sm);
   background: var(--w1);
   border: 1px solid var(--w2);
@@ -932,30 +990,31 @@ button {
 }
 
 .notice--warn {
-  background: color-mix(in srgb, var(--saf) 16%, var(--surf));
+  background: var(--saf-tonal);
   border-color: color-mix(in srgb, var(--saf) 40%, var(--line));
 }
 
 .empty {
   text-align: center;
-  padding: 40px 20px;
+  padding: 44px 20px;
   color: var(--mut);
 }
 
 .empty__icon {
   display: grid;
   place-items: center;
-  width: 76px;
-  height: 76px;
-  margin: 0 auto 14px;
-  font-size: 34px;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 16px;
+  font-size: 36px;
   border-radius: 50%;
   background: var(--grad-hero);
+  box-shadow: var(--shadow);
 }
 
 .empty__title {
   font-family: var(--font-display);
-  font-size: 17px;
+  font-size: 18px;
   color: var(--txt);
   margin-bottom: 6px;
 }
