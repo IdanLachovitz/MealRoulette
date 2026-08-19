@@ -5,6 +5,7 @@ import { alive, save } from '../db/repo'
 import { useApp } from '../state'
 import { Notice, Sheet, Switch } from '../components/ui'
 import { Icon } from '../components/Icon'
+import { PickDishSheet } from './PickDishSheet'
 import { dayName, dayOfMonth, formatWeekRange, toISODate } from '../engine/dates'
 import type { Notice as PlanNotice } from '../engine/planner'
 import {
@@ -32,6 +33,8 @@ export function WeekScreen({
   const [notices, setNotices] = useState<PlanNotice[]>([])
   const [editing, setEditing] = useState<CookSession | null>(null)
   const [view, setView] = useState<'days' | 'sessions'>('days')
+  const [chooserDate, setChooserDate] = useState<string | null>(null)
+  const [pickingDate, setPickingDate] = useState<string | null>(null)
 
   const weekStart = currentWeekStart(settings)
 
@@ -219,7 +222,7 @@ export function WeekScreen({
                 className={classes.join(' ')}
                 onClick={() => {
                   if (session) setEditing(session)
-                  else onGoToRoulette()
+                  else setChooserDate(day.date)
                 }}
               >
                 <div className="day__date">
@@ -308,6 +311,50 @@ export function WeekScreen({
           }
           onClose={() => setEditing(null)}
           householdId={householdId}
+          onPickDifferent={(date) => {
+            setEditing(null)
+            setPickingDate(date)
+          }}
+        />
+      )}
+
+      {/* Tapping an unplanned day asks how to fill it — spin, or pick straight
+          from the library — rather than assuming the wheel is always wanted. */}
+      {chooserDate && (
+        <Sheet title={`מה מבשלים ב${dayName(chooserDate)}?`} onClose={() => setChooserDate(null)}>
+          <div className="stack">
+            <button
+              className="btn btn--primary btn--block"
+              onClick={() => {
+                setChooserDate(null)
+                onGoToRoulette()
+              }}
+            >
+              <Icon name="wheel" size={16} />
+              סובבי רולטה
+            </button>
+            <button
+              className="btn btn--ghost btn--block"
+              onClick={() => {
+                setPickingDate(chooserDate)
+                setChooserDate(null)
+              }}
+            >
+              <Icon name="list" size={16} />
+              בחרי מנה מהמאגר
+            </button>
+          </div>
+        </Sheet>
+      )}
+
+      {pickingDate && (
+        <PickDishSheet
+          householdId={householdId}
+          plan={plan}
+          date={pickingDate}
+          settings={settings}
+          onClose={() => setPickingDate(null)}
+          onAssigned={(name) => toast(`${name} שובץ ל${dayName(pickingDate)}`)}
         />
       )}
     </div>
@@ -475,6 +522,7 @@ function SessionSheet({
   maxCoverDays,
   onClose,
   householdId,
+  onPickDifferent,
 }: {
   session: CookSession
   title: string
@@ -482,6 +530,7 @@ function SessionSheet({
   maxCoverDays: number
   onClose: () => void
   householdId: string
+  onPickDifferent: (date: string) => void
 }) {
   const { settings, toast } = useApp()
   const [note, setNote] = useState(session.note ?? '')
@@ -523,6 +572,13 @@ function SessionSheet({
       </div>
 
       <div className="stack">
+        <button
+          className="btn btn--ghost btn--block"
+          onClick={() => onPickDifferent(session.cook_date)}
+        >
+          <Icon name="list" size={16} />
+          בחרי מנה אחרת מהמאגר
+        </button>
         <button
           className="btn btn--ghost btn--block"
           onClick={() => void save('cook_sessions', { ...session, is_locked: !session.is_locked })}
