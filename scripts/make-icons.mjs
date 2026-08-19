@@ -18,15 +18,15 @@ const hex = (h) => [
   parseInt(h.slice(5, 7), 16),
 ]
 
-const BG = hex('#FFFAF3')
-const SAFFRON = hex('#FF9F1C')
-const BEET = hex('#E0245E')
-const BEET_W = hex('#F6BDCF')
-const PIST = hex('#22B455')
-const PIST_W = hex('#C6ECD3')
-const VEG = hex('#0FB9B1')
-const VEG_W = hex('#C1EDEB')
-const SURF = hex('#FFFFFF')
+const BG = hex('#FDF6EC')
+const SAFFRON = hex('#5C3A21')
+const BEET = hex('#B33A3A')
+const BEET_W = hex('#E8C4C4')
+const PIST = hex('#345E8C')
+const PIST_W = hex('#CAD5E1')
+const VEG = hex('#3F7D4F')
+const VEG_W = hex('#CDDDD1')
+const SURF = hex('#FFFDFA')
 
 /** Ring bands as fractions of the icon's half-size, outermost first. */
 const RINGS = [
