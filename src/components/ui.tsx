@@ -72,7 +72,7 @@ export function Sheet({
         <div className="sheet__grip" />
         <div className="row row--between" style={{ marginBottom: 12 }}>
           <h2 className="sheet__title">{title}</h2>
-          <button className="btn btn--sm btn--ghost" onClick={onClose} aria-label="סגירה">
+          <button className="btn btn--ghost btn--icon btn--sm" onClick={onClose} aria-label="סגירה">
             ✕
           </button>
         </div>

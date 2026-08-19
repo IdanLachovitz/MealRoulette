@@ -130,7 +130,7 @@ export function ShoppingScreen({ householdId }: { householdId: string }) {
                 </button>
                 {item.source === 'manual' && (
                   <button
-                    className="btn btn--sm btn--danger"
+                    className="btn btn--danger btn--icon btn--sm"
                     aria-label={`מחיקת ${item.name}`}
                     onClick={() => void remove('shopping_items', item)}
                   >
