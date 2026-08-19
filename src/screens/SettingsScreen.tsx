@@ -215,7 +215,13 @@ function SyncSection({ household }: { household: Household }) {
               onClick={() =>
                 void guard(async () => {
                   const client = await getSupabase()!
-                  const { error: err } = await client.auth.signInWithOtp({ email })
+                  // Redirect back to wherever this was opened from — the deployed
+                  // site or a local dev server — instead of relying solely on
+                  // Supabase's dashboard "Site URL" default.
+                  const { error: err } = await client.auth.signInWithOtp({
+                    email,
+                    options: { emailRedirectTo: window.location.origin + window.location.pathname },
+                  })
                   if (err) throw err
                   setSent(true)
                 })
