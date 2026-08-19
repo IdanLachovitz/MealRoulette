@@ -4,6 +4,7 @@ import { db } from '../db/db'
 import { alive, remove, save } from '../db/repo'
 import { useApp } from '../state'
 import { EmptyState, Field, Notice, Sheet, Switch, TimeFilterChips } from '../components/ui'
+import { Icon } from '../components/Icon'
 import { QuickAddDish } from './QuickAddDish'
 import { IngredientsEditor } from './IngredientsEditor'
 import { passesTimeFilter } from '../engine/planner'
@@ -117,8 +118,16 @@ export function LibraryScreen({ householdId }: { householdId: string }) {
             {tab !== 'dish' && <span className={`dot dot--${tab}`} aria-hidden="true" />}
             <span className="list-row__name">{item.name}</span>
             <span className="item__qty">{item.prep_time_minutes} דק׳</span>
-            {item.is_excluded && <span aria-label="מודר">🚫</span>}
-            {!item.is_active && !item.is_excluded && <span aria-label="כבוי">💤</span>}
+            {item.is_excluded && (
+              <span aria-label="מודר" style={{ color: 'var(--danger)' }}>
+                <Icon name="ban" size={15} />
+              </span>
+            )}
+            {!item.is_active && !item.is_excluded && (
+              <span aria-label="כבוי" style={{ color: 'var(--mut)' }}>
+                <Icon name="moon" size={15} />
+              </span>
+            )}
           </button>
         ))
       )}

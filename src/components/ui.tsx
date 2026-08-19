@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
+import { Icon } from './Icon'
 
 export function Switch({
   checked,
@@ -107,7 +108,7 @@ export function EmptyState({
 export function Notice({ children, warn }: { children: ReactNode; warn?: boolean }) {
   return (
     <div className={warn ? 'notice notice--warn' : 'notice'} role="status">
-      <span aria-hidden="true">{warn ? '⚠️' : 'ℹ️'}</span>
+      <Icon name={warn ? 'warning' : 'info'} size={17} strokeWidth={2} style={{ flex: 'none', marginTop: 1 }} />
       <span>{children}</span>
     </div>
   )

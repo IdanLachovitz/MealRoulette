@@ -4,6 +4,7 @@ import { db } from '../db/db'
 import { save } from '../db/repo'
 import { useApp } from '../state'
 import { EmptyState, Notice, Sheet, Switch, TimeFilterChips } from '../components/ui'
+import { Icon } from '../components/Icon'
 import { Wheel, rotationFor } from '../components/Wheel'
 import type { RingSpec } from '../components/Wheel'
 import {
@@ -504,7 +505,7 @@ function ComboMode({
               onClick={() => onToggleLock(type)}
               style={{ color: slots[type].locked ? `var(--${dotVar(type)})` : undefined }}
             >
-              {slots[type].locked ? '🔒' : '🔓'} {COMPONENT_LABEL[type]}
+              <Icon name={slots[type].locked ? 'lock' : 'lockOpen'} size={13} /> {COMPONENT_LABEL[type]}
             </button>
             <button
               type="button"

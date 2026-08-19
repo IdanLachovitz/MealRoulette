@@ -6,16 +6,18 @@ import { LibraryScreen } from './screens/LibraryScreen'
 import { ShoppingScreen } from './screens/ShoppingScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
 import { Onboarding } from './screens/Onboarding'
+import { Icon } from './components/Icon'
+import type { IconName } from './components/Icon'
 import { formatWeekRange } from './engine/dates'
 import { currentWeekStart } from './services/week'
 
 type Tab = 'week' | 'roulette' | 'library' | 'shopping' | 'settings'
 
-const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'week', label: 'השבוע', icon: '🗓️' },
-  { id: 'roulette', label: 'רולטה', icon: '🎯' },
-  { id: 'library', label: 'מאגר', icon: '📋' },
-  { id: 'shopping', label: 'קניות', icon: '🛒' },
+const TABS: { id: Tab; label: string; icon: IconName }[] = [
+  { id: 'week', label: 'השבוע', icon: 'calendar' },
+  { id: 'roulette', label: 'רולטה', icon: 'wheel' },
+  { id: 'library', label: 'מאגר', icon: 'list' },
+  { id: 'shopping', label: 'קניות', icon: 'cart' },
 ]
 
 function Shell() {
@@ -48,8 +50,9 @@ function Shell() {
         </h1>
 
         {sync.state === 'offline' && (
-          <span className="label" title="נשמר מקומית, יסונכרן כשתהיה רשת">
-            ⌁ לא מחובר
+          <span className="row label" style={{ gap: 4 }} title="נשמר מקומית, יסונכרן כשתהיה רשת">
+            <Icon name="signal-off" size={14} />
+            לא מחובר
           </span>
         )}
         {sync.state === 'syncing' && <span className="label">מסנכרן…</span>}
@@ -60,7 +63,7 @@ function Shell() {
           aria-pressed={tab === 'settings'}
           onClick={() => setTab(tab === 'settings' ? 'week' : 'settings')}
         >
-          ⚙︎
+          <Icon name="gear" size={18} />
         </button>
       </header>
 
@@ -82,8 +85,8 @@ function Shell() {
             aria-current={tab === t.id ? 'page' : undefined}
             onClick={() => setTab(t.id)}
           >
-            <span className="nav__icon" aria-hidden="true">
-              {t.icon}
+            <span className="nav__icon">
+              <Icon name={t.icon} size={21} strokeWidth={tab === t.id ? 2.1 : 1.7} />
             </span>
             {t.label}
           </button>

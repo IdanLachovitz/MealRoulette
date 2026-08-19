@@ -4,6 +4,7 @@ import { db } from '../db/db'
 import { alive, save } from '../db/repo'
 import { useApp } from '../state'
 import { Notice, Sheet, Switch } from '../components/ui'
+import { Icon } from '../components/Icon'
 import { dayName, dayOfMonth, formatWeekRange, toISODate } from '../engine/dates'
 import type { Notice as PlanNotice } from '../engine/planner'
 import {
@@ -229,7 +230,10 @@ export function WeekScreen({
                     <>
                       <div className="day__title">{describe(session)}</div>
                       <div className="day__meta">
-                        <span>🍳 מבשלים</span>
+                        <span className="row" style={{ gap: 3 }}>
+                          <Icon name="flame" size={13} />
+                          מבשלים
+                        </span>
                         <span>·</span>
                         <span>{session?.estimated_minutes} דק׳</span>
                         {session && session.covers_days > 1 && (
@@ -247,14 +251,25 @@ export function WeekScreen({
                     <>
                       <div className="day__title">שאריות מ{describe(session)}</div>
                       <div className="day__meta">
-                        <span>♻️ בלי לבשל</span>
+                        <span className="row" style={{ gap: 3 }}>
+                          <Icon name="refresh" size={13} />
+                          בלי לבשל
+                        </span>
                       </div>
                     </>
                   )}
                   {day.role === 'empty' && <div className="day__title">אין תוכנית — הקישי לשיבוץ</div>}
                 </div>
-                {session?.is_locked && <span className="day__badge">🔒</span>}
-                {session?.is_cooked && <span className="day__badge">✓</span>}
+                {session?.is_locked && (
+                  <span className="day__badge">
+                    <Icon name="lock" size={15} />
+                  </span>
+                )}
+                {session?.is_cooked && (
+                  <span className="day__badge" style={{ color: 'var(--pist)' }}>
+                    <Icon name="check" size={16} strokeWidth={2.4} />
+                  </span>
+                )}
               </button>
             )
           })}
@@ -343,7 +358,8 @@ function SessionsView({
                 aria-pressed={s.is_cooked}
                 onClick={() => onToggleCooked(s)}
               >
-                {s.is_cooked ? '✓ בושל' : 'סמני בושל'}
+                {s.is_cooked && <Icon name="check" size={14} strokeWidth={2.4} />}
+                {s.is_cooked ? 'בושל' : 'סמני בושל'}
               </button>
             </div>
 
@@ -510,7 +526,8 @@ function SessionSheet({
           className="btn btn--ghost btn--block"
           onClick={() => void save('cook_sessions', { ...session, is_locked: !session.is_locked })}
         >
-          {session.is_locked ? '🔓 ביטול נעילה' : '🔒 נעילה — תכנון מחדש לא ישנה את זה'}
+          <Icon name={session.is_locked ? 'lockOpen' : 'lock'} size={16} />
+          {session.is_locked ? 'ביטול נעילה' : 'נעילה — תכנון מחדש לא ישנה את זה'}
         </button>
         <button
           className="btn btn--subtle btn--block"
