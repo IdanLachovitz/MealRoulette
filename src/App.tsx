@@ -63,7 +63,7 @@ function Shell() {
           aria-pressed={tab === 'settings'}
           onClick={() => setTab(tab === 'settings' ? 'week' : 'settings')}
         >
-          <Icon name="gear" size={19} />
+          <Icon name="sliders" size={19} />
         </button>
       </header>
 

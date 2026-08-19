@@ -14,7 +14,7 @@ export type IconName =
   | 'wheel'
   | 'list'
   | 'cart'
-  | 'gear'
+  | 'sliders'
   | 'lock'
   | 'lockOpen'
   | 'check'
@@ -34,7 +34,12 @@ const PATHS: Record<IconName, string> = {
   list: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
   cart:
     'M3 3h2l2.4 12.2a2 2 0 0 0 2 1.8h7.4a2 2 0 0 0 2-1.6L21 8H6M9.5 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm8 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z',
-  gear: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8.5-3a8.5 8.5 0 0 0-.14-1.53l2.06-1.6-2-3.46-2.43.98a8.6 8.6 0 0 0-1.32-.77L16.3 2.7h-4l-.37 2.92a8.6 8.6 0 0 0-1.32.77l-2.43-.98-2 3.46 2.06 1.6A8.5 8.5 0 0 0 8 12c0 .52.05 1.03.14 1.53l-2.06 1.6 2 3.46 2.43-.98c.4.31.85.57 1.32.77l.37 2.92h4l.37-2.92c.47-.2.92-.46 1.32-.77l2.43.98 2-3.46-2.06-1.6c.09-.5.14-1.01.14-1.53Z',
+  // Three horizontal tracks with a round knob at a different position on
+  // each — a settings/preferences icon built from straight lines and circles
+  // only, so there's no risk of the uneven-teeth look a hand-drawn gear path
+  // can end up with.
+  sliders:
+    'M4,6L20,6 M4,12L20,12 M4,18L20,18 M12.7,6A2.3,2.3 0 1,0 17.3,6A2.3,2.3 0 1,0 12.7,6Z M5.7,12A2.3,2.3 0 1,0 10.3,12A2.3,2.3 0 1,0 5.7,12Z M13.7,18A2.3,2.3 0 1,0 18.3,18A2.3,2.3 0 1,0 13.7,18Z',
   lock: 'M6 11V8a6 6 0 1 1 12 0v3m-13 0h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1Zm7 5v2',
   lockOpen:
     'M6 11V8a6 6 0 0 1 10.65-3.77M5 11h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1Zm7 5v2',
