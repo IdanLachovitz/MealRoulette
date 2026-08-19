@@ -15,17 +15,20 @@
   --line: #ead9c4;
   --txt: #2e2013;
   --mut: #7a6a57;
-  --saf: #5c3a21;
-  --saf-ink: #fbf0e3;
-  --beet: #b33a3a;
-  --pist: #345e8c;
-  --veg: #3f7d4f;
+  /* Punched up from the initial pick (#5c3a21 / #b33a3a / #345e8c / #3f7d4f) —
+     those read as soft/dusty at full size, not just in a small swatch. Same
+     hue family, meaningfully more saturated and a little deeper. */
+  --saf: #7a3b12;
+  --saf-ink: #fff1de;
+  --beet: #c62828;
+  --pist: #1565c0;
+  --veg: #2e8b44;
   --w1: #f2e4d0;
   --w2: #e8d3b3;
   --beet-w: color-mix(in srgb, var(--beet) 30%, var(--surf));
   --pist-w: color-mix(in srgb, var(--pist) 26%, var(--surf));
   --veg-w: color-mix(in srgb, var(--veg) 26%, var(--surf));
-  --danger: #dc3545;
+  --danger: #e4432b;
 
   /* Tonal container washes — a light tint of each accent used as a whole card
      background (Material-You "tonal surface" pattern), computed from the accent
@@ -37,8 +40,8 @@
 
   --shadow: 0 1px 2px rgba(46, 32, 19, 0.06), 0 10px 28px rgba(46, 32, 19, 0.09);
   --shadow-lift: 0 4px 10px rgba(46, 32, 19, 0.1), 0 16px 36px rgba(46, 32, 19, 0.13);
-  --glow-saf: 0 6px 20px rgba(92, 58, 33, 0.38);
-  --grad-saf: linear-gradient(150deg, #7a5439, var(--saf) 55%, #432a17);
+  --glow-saf: 0 6px 20px rgba(122, 59, 18, 0.42);
+  --grad-saf: linear-gradient(150deg, #9c5420, var(--saf) 55%, #5a2a0c);
   --grad-hero: radial-gradient(120% 140% at 50% -10%, var(--w1) 0%, var(--bg) 70%);
 
   /* Chunkier, pill-leaning shape scale — the single biggest lever for making the
@@ -55,12 +58,14 @@
 }
 
 :root[data-theme='dark'] {
-  --bg: #1c140d;
-  --surf: #2a1f16;
-  --surf-2: #241a12;
-  --line: #4a3826;
-  --txt: #f5e9da;
-  --mut: #b8a38c;
+  /* Neutral near-black, not a tinted-brown dark — the accent hues carry the
+     brand's warmth, the page itself should just be black. */
+  --bg: #0b0b0b;
+  --surf: #1a1a1a;
+  --surf-2: #151515;
+  --line: #2e2e2e;
+  --txt: #f2efea;
+  --mut: #9c9791;
   /* The primary flips to a lighter caramel here — a dark espresso button would
      have almost no contrast against an already-dark page, so --saf-ink flips
      back to a dark ink on top of it, matching the pattern the light palette
@@ -70,8 +75,8 @@
   --beet: #e2685f;
   --pist: #6fa3d0;
   --veg: #4fae68;
-  --w1: #4a3826;
-  --w2: #5c4530;
+  --w1: #262626;
+  --w2: #333333;
   --beet-w: color-mix(in srgb, var(--beet) 32%, var(--surf));
   --pist-w: color-mix(in srgb, var(--pist) 28%, var(--surf));
   --veg-w: color-mix(in srgb, var(--veg) 28%, var(--surf));

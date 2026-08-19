@@ -19,13 +19,13 @@ const hex = (h) => [
 ]
 
 const BG = hex('#FDF6EC')
-const SAFFRON = hex('#5C3A21')
-const BEET = hex('#B33A3A')
-const BEET_W = hex('#E8C4C4')
-const PIST = hex('#345E8C')
-const PIST_W = hex('#CAD5E1')
-const VEG = hex('#3F7D4F')
-const VEG_W = hex('#CDDDD1')
+const SAFFRON = hex('#7A3B12')
+const BEET = hex('#C62828')
+const BEET_W = hex('#EEBFBF')
+const PIST = hex('#1565C0')
+const PIST_W = hex('#C2D7EF')
+const VEG = hex('#2E8B44')
+const VEG_W = hex('#C9E1CE')
 const SURF = hex('#FFFDFA')
 
 /** Ring bands as fractions of the icon's half-size, outermost first. */
