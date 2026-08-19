@@ -67,17 +67,17 @@
   --beet: #ff1100;
   --saf-tonal: #55381e;
   --pist: #0088ff;
-  --veg: #206935;
+  --veg: #0088ff;
   --w1: #262626;
   --w2: #333333;
   --beet-w: color-mix(in srgb, var(--beet) 32%, var(--surf));
   --pist-w: color-mix(in srgb, var(--pist) 28%, var(--surf));
-  --veg-w: color-mix(in srgb, var(--veg) 28%, var(--surf));
+  --veg-w: #206935;
   --danger: #fa0000;
   --shadow: 0 1px 2px rgb(145, 145, 145), 0 10px 28px rgba(145, 145, 145, 0.32);
-  --shadow-lift: 0 4px 10px rgba(145, 145, 145, 0.32), 0 18px 40px rgba(145, 145, 145, 0.32);
+  --shadow-lift: 0 4px 10px rgba(108, 60, 19, 0.32), 0 18px 40px rgba(108, 60, 19, 0.32);
   --glow-saf: 0 6px 22px rgba(145, 145, 145, 0.32);
-  --grad-saf: linear-gradient(140deg, #6c3c13, var(--saf) 50%, #6c3c13);
+  --grad-saf: linear-gradient(140deg, rgb(108, 60, 19), var(--saf) 50%, #6c3c13);
   --grad-hero: radial-gradient(120% 140% at 50% -10%, var(--w1) 0%, var(--bg) 70%);
 }
 
