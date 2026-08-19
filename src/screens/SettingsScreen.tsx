@@ -351,11 +351,14 @@ function BackupSection({
           onClick={async () => {
             setBusy(true)
             const added = await importSeedLibrary(householdId)
-            onToast(
-              added.dishes + added.components === 0
-                ? 'הכל כבר במאגר'
-                : `נוספו ${added.dishes} מנות ו־${added.components} רכיבים`,
-            )
+            const parts: string[] = []
+            if (added.dishes + added.components > 0) {
+              parts.push(`נוספו ${added.dishes} מנות ו־${added.components} רכיבים`)
+            }
+            if (added.backfilled > 0) {
+              parts.push(`עודכנו מצרכים ב־${added.backfilled} פריטים קיימים`)
+            }
+            onToast(parts.length ? parts.join(' · ') : 'הכל כבר במאגר ומעודכן')
             setBusy(false)
           }}
         >
@@ -363,7 +366,8 @@ function BackupSection({
         </button>
       </div>
       <p className="field__hint" style={{ marginTop: 8 }}>
-        הייבוא מדלג על פריטים שכבר קיימים, אז אפשר להריץ אותו שוב בלי לשכפל.
+        הייבוא מדלג על פריטים שכבר קיימים ומעדכן מצרכים חסרים בפריטים שכבר יובאו, אז אפשר
+        להריץ אותו שוב בלי לשכפל.
       </p>
     </div>
   )

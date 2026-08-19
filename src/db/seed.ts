@@ -7,9 +7,9 @@
  */
 import seedData from './seed-data.json'
 import { db } from './db'
-import { newId, now, saveMany, setCurrentHouseholdId } from './repo'
+import { newId, now, save, saveMany, setCurrentHouseholdId } from './repo'
 import { DEFAULT_SETTINGS } from '../types'
-import type { Component, ComponentType, Dish, Household } from '../types'
+import type { Component, ComponentType, Dish, Household, Ingredient } from '../types'
 
 interface SeedDish {
   name: string
@@ -17,7 +17,7 @@ interface SeedDish {
   max_cover_days: number
   is_active: boolean
   fixed_servings: number | null
-  ingredients: unknown[]
+  ingredients: Ingredient[]
 }
 
 interface SeedComponent {
@@ -25,7 +25,7 @@ interface SeedComponent {
   type: string
   prep_time_minutes: number
   is_active: boolean
-  ingredients: unknown[]
+  ingredients: Ingredient[]
 }
 
 export function makeInviteCode(): string {
@@ -94,44 +94,76 @@ export async function createHousehold(name = 'המטבח שלנו', diners = 2):
   return household
 }
 
-/** Import the bundled starter library into an existing household. */
+/**
+ * Import the bundled starter library into a household.
+ *
+ * Safe to run more than once: a seed item whose name isn't in the household
+ * yet gets inserted. A seed item that's already there is normally left alone
+ * (it may have been edited since) — the one exception is ingredients, which
+ * get backfilled onto an already-imported item that still has none, so a
+ * household that imported before ingredient data existed picks it up on the
+ * next import without losing any other edits or duplicating anything.
+ */
 export async function importSeedLibrary(householdId: string): Promise<{
   dishes: number
   components: number
+  backfilled: number
 }> {
   const data = seedData as { dishes: SeedDish[]; components: SeedComponent[] }
 
-  const existingDishNames = new Set(
-    (await db.dishes.where('household_id').equals(householdId).toArray())
-      .filter((d) => !d.deleted_at)
-      .map((d) => d.name.trim()),
+  const existingDishes = (await db.dishes.where('household_id').equals(householdId).toArray()).filter(
+    (d) => !d.deleted_at,
   )
-  const existingComponentNames = new Set(
-    (await db.components.where('household_id').equals(householdId).toArray())
-      .filter((c) => !c.deleted_at)
-      .map((c) => `${c.type}:${c.name.trim()}`),
-  )
+  const existingComponents = (
+    await db.components.where('household_id').equals(householdId).toArray()
+  ).filter((c) => !c.deleted_at)
 
-  const dishes: Dish[] = data.dishes
-    .filter((d) => !existingDishNames.has(d.name.trim()))
-    .map((d) => ({
-      ...blankDish(householdId, d.name, d.prep_time_minutes),
-      max_cover_days: d.max_cover_days,
-      fixed_servings: d.fixed_servings,
-      is_active: d.is_active,
-    }))
+  const dishByName = new Map(existingDishes.map((d) => [d.name.trim(), d]))
+  const componentByKey = new Map(existingComponents.map((c) => [`${c.type}:${c.name.trim()}`, c]))
 
-  const components: Component[] = data.components
-    .filter((c) => !existingComponentNames.has(`${c.type}:${c.name.trim()}`))
-    .map((c) => ({
-      ...blankComponent(householdId, c.name, c.type as ComponentType, c.prep_time_minutes),
-      is_active: c.is_active,
-    }))
+  const newDishes: Dish[] = []
+  const backfillDishes: Dish[] = []
+  for (const d of data.dishes) {
+    const existing = dishByName.get(d.name.trim())
+    if (!existing) {
+      newDishes.push({
+        ...blankDish(householdId, d.name, d.prep_time_minutes),
+        max_cover_days: d.max_cover_days,
+        fixed_servings: d.fixed_servings,
+        is_active: d.is_active,
+        ingredients: d.ingredients,
+      })
+    } else if (existing.ingredients.length === 0 && d.ingredients.length > 0) {
+      backfillDishes.push({ ...existing, ingredients: d.ingredients })
+    }
+  }
 
-  if (dishes.length) await saveMany('dishes', dishes)
-  if (components.length) await saveMany('components', components)
+  const newComponents: Component[] = []
+  const backfillComponents: Component[] = []
+  for (const c of data.components) {
+    const key = `${c.type}:${c.name.trim()}`
+    const existing = componentByKey.get(key)
+    if (!existing) {
+      newComponents.push({
+        ...blankComponent(householdId, c.name, c.type as ComponentType, c.prep_time_minutes),
+        is_active: c.is_active,
+        ingredients: c.ingredients,
+      })
+    } else if (existing.ingredients.length === 0 && c.ingredients.length > 0) {
+      backfillComponents.push({ ...existing, ingredients: c.ingredients })
+    }
+  }
 
-  return { dishes: dishes.length, components: components.length }
+  if (newDishes.length) await saveMany('dishes', newDishes)
+  if (newComponents.length) await saveMany('components', newComponents)
+  for (const d of backfillDishes) await save('dishes', d)
+  for (const c of backfillComponents) await save('components', c)
+
+  return {
+    dishes: newDishes.length,
+    components: newComponents.length,
+    backfilled: backfillDishes.length + backfillComponents.length,
+  }
 }
 
 export const SEED_COUNTS = {

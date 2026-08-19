@@ -11,7 +11,64 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פרגיות",
+          "quantity": 600,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "דבש",
+          "quantity": 3,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": false
+        },
+        {
+          "name": "חרדל",
+          "quantity": 2,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": false
+        },
+        {
+          "name": "פפריקה",
+          "quantity": 1,
+          "unit": "כפית",
+          "aisle": "תבלינים",
+          "is_scalable": false
+        },
+        {
+          "name": "תפוח אדמה",
+          "quantity": 3,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בטטה",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בצל",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "גזר",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פרגיות בתנור בסויה וסילאן עם בצל ובטטה",
@@ -19,7 +76,50 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פרגיות",
+          "quantity": 600,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "רוטב סויה",
+          "quantity": 3,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": false
+        },
+        {
+          "name": "סילאן",
+          "quantity": 2,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": false
+        },
+        {
+          "name": "קורנפלור",
+          "quantity": 1,
+          "unit": "כפית",
+          "aisle": "יבשים",
+          "is_scalable": false
+        },
+        {
+          "name": "בצל",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בטטה",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "עוף בטריאקי עם ברוקולי ואורז",
@@ -27,7 +127,36 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חזה עוף",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "רוטב טריאקי",
+          "quantity": 4,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": false
+        },
+        {
+          "name": "ברוקולי",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "אורז",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "עוף בתנור עם אורז וגזר",
@@ -35,7 +164,29 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חזה עוף",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "אורז",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "גזר",
+          "quantity": 3,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "עוף עם פטריות",
@@ -43,7 +194,29 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חזה עוף",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "פטריות",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "שמנת מתוקה",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "עוף בקארי עם פטריות ואורז",
@@ -51,7 +224,36 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חזה עוף",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "פטריות",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "אורז",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "אבקת קארי",
+          "quantity": 2,
+          "unit": "כף",
+          "aisle": "תבלינים",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "עוף בקוביות מתובל עם ברוקולי מוקפץ ואורז לבן",
@@ -59,7 +261,50 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חזה עוף בקוביות",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "רוטב סויה",
+          "quantity": 1,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": false
+        },
+        {
+          "name": "סילאן",
+          "quantity": 1,
+          "unit": "כפית",
+          "aisle": "יבשים",
+          "is_scalable": false
+        },
+        {
+          "name": "פפריקה",
+          "quantity": 1,
+          "unit": "כפית",
+          "aisle": "תבלינים",
+          "is_scalable": false
+        },
+        {
+          "name": "ברוקולי",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "אורז לבן",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "תבשיל עוף עם זיתים ואורז לבן",
@@ -67,7 +312,29 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חזה עוף",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "זיתים",
+          "quantity": 200,
+          "unit": "גרם",
+          "aisle": "אחר",
+          "is_scalable": true
+        },
+        {
+          "name": "אורז לבן",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "שוקיים עם אפונה ברוטב אדום ואורז עם אטריות",
@@ -75,7 +342,43 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "שוקיים עוף",
+          "quantity": 6,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "אפונה",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "קפואים",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "אורז",
+          "quantity": 1,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "אטריות",
+          "quantity": 100,
+          "unit": "גרם",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "Marry me chicken",
@@ -83,7 +386,36 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חזה עוף",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "שמנת מתוקה",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "גבינת פרמזן",
+          "quantity": 0.3,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "עגבניות מיובשות",
+          "quantity": 0.3,
+          "unit": "כוס",
+          "aisle": "אחר",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "Chicken fajita bowl — עוף ואורז מתובלים עם סלט ואבוקדו",
@@ -91,7 +423,43 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חזה עוף",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "אורז",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "חסה",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "אבוקדו",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "תערובת תבלינים פחיטה",
+          "quantity": 1,
+          "unit": "כף",
+          "aisle": "תבלינים",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "Fajitas",
@@ -99,7 +467,36 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "רצועות עוף",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "פלפל",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בצל",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "טורטיות",
+          "quantity": 8,
+          "unit": "יח'",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "מרק עוף",
@@ -107,7 +504,43 @@
       "max_cover_days": 3,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חלקי עוף למרק",
+          "quantity": 1,
+          "unit": "ק\"ג",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "גזר",
+          "quantity": 3,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "סלרי",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בצל",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "פטרוזיליה",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "נגטס",
@@ -115,7 +548,15 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "נגטס עוף קפואים",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "קפואים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "בשר עם פטריות וערמונים",
@@ -123,7 +564,29 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר בקוביות",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "פטריות",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "ערמונים קלופים",
+          "quantity": 200,
+          "unit": "גרם",
+          "aisle": "אחר",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "בשר עם תפו\"א ובטטה בתנור",
@@ -131,7 +594,29 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "תפוח אדמה",
+          "quantity": 3,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בטטה",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "אסאדו רך",
@@ -139,7 +624,29 @@
       "max_cover_days": 3,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "אסאדו",
+          "quantity": 1,
+          "unit": "ק\"ג",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "מלח גס",
+          "quantity": 1,
+          "unit": "כף",
+          "aisle": "תבלינים",
+          "is_scalable": false
+        },
+        {
+          "name": "פלפל שחור גס",
+          "quantity": 1,
+          "unit": "כפית",
+          "aisle": "תבלינים",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "קציצות בשר ברוטב אדום",
@@ -147,7 +654,36 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר טחון",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "ביצה",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "פירורי לחם",
+          "quantity": 0.3,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 2,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "קובה במיה",
@@ -155,7 +691,29 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "קובה",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "קפואים",
+          "is_scalable": true
+        },
+        {
+          "name": "במיה",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 2,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "קובה סלק",
@@ -163,7 +721,29 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "קובה",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "קפואים",
+          "is_scalable": true
+        },
+        {
+          "name": "סלק",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 1,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "קובה קישואים",
@@ -171,7 +751,29 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "קובה",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "קפואים",
+          "is_scalable": true
+        },
+        {
+          "name": "קישואים",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 2,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "ממולאים",
@@ -179,7 +781,29 @@
       "max_cover_days": 3,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "עלים למילוי",
+          "quantity": 8,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "אורז",
+          "quantity": 1,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "בשר טחון",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "כרוב ממולא",
@@ -187,7 +811,36 @@
       "max_cover_days": 3,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "כרוב",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "אורז",
+          "quantity": 1,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "בשר טחון",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 2,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "קישוא ממולא",
@@ -195,7 +848,36 @@
       "max_cover_days": 3,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "קישואים",
+          "quantity": 6,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "אורז",
+          "quantity": 1,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "בשר טחון",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 2,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "מוסקה — חציל ממולא בבשר",
@@ -203,7 +885,29 @@
       "max_cover_days": 3,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חציל",
+          "quantity": 3,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בשר טחון",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "שמנת/בשמל",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "מפרום — תפוח אדמה ממולא בבשר",
@@ -211,7 +915,29 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "תפוח אדמה",
+          "quantity": 8,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בשר טחון",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "ביצה",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "לזניה",
@@ -219,7 +945,43 @@
       "max_cover_days": 3,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "דפי לזניה",
+          "quantity": 12,
+          "unit": "יח'",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "בשר טחון",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 2,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "גבינה לפיצה",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "בשמל",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "בורקס בשר עם צנוברים ורוטב פטריות",
@@ -227,7 +989,36 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "יריעות בצק בורקס",
+          "quantity": 8,
+          "unit": "יח'",
+          "aisle": "קפואים",
+          "is_scalable": true
+        },
+        {
+          "name": "בשר טחון",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "צנוברים",
+          "quantity": 3,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "פטריות",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "לחמניות בשר",
@@ -235,7 +1026,36 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר טחון",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "לחמניות",
+          "quantity": 8,
+          "unit": "יח'",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "עגבניה",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "חסה",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "קבבים",
@@ -243,7 +1063,36 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר טחון לקבב",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "בצל",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "פטרוזיליה",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": false
+        },
+        {
+          "name": "תבלינים לקבב",
+          "quantity": 1,
+          "unit": "כף",
+          "aisle": "תבלינים",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "המבורגרים",
@@ -251,7 +1100,36 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר טחון להמבורגר",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "לחמניות המבורגר",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "עגבניה",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "חסה",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "Burger bowl",
@@ -259,7 +1137,43 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר טחון",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "חסה",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "עגבניה",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "אבוקדו",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "רוטב בורגר",
+          "quantity": 3,
+          "unit": "כף",
+          "aisle": "אחר",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "סטרוגנוף",
@@ -267,7 +1181,36 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר/פרגיות לסטרוגנוף",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "פטריות",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "שמנת מתוקה",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "בצל",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "קוביות בשר מקורמל",
@@ -275,7 +1218,29 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר בקוביות",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "דבש",
+          "quantity": 2,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": false
+        },
+        {
+          "name": "חרדל",
+          "quantity": 2,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "אורז לבן עם קוביות בשר ושעועית ברוטב אדום",
@@ -283,7 +1248,36 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר בקוביות",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "אורז לבן",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "שעועית",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "קפואים",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "אטריות מוקפצות עם פטריות, רצועות בשר וקשיו",
@@ -291,7 +1285,36 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "אטריות",
+          "quantity": 250,
+          "unit": "גרם",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "רצועות בשר",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "פטריות",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "קשיו",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "טאקוס",
@@ -299,7 +1322,43 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר טחון",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "טורטיות טאקו",
+          "quantity": 10,
+          "unit": "יח'",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "חסה",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "עגבניה",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "גבינה מגוררת",
+          "quantity": 200,
+          "unit": "גרם",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "עראיס בשר",
@@ -307,7 +1366,36 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר טחון",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "פיתות",
+          "quantity": 6,
+          "unit": "יח'",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "בצל",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "פטרוזיליה",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "טבחה שעועית",
@@ -315,7 +1403,29 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "שעועית לבנה",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "בשר/עוף",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 2,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "בטטה חצויה בתנור עם בשר טחון וסלט קוטג'",
@@ -323,7 +1433,29 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בטטה",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בשר טחון",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "קוטג׳",
+          "quantity": 250,
+          "unit": "גרם",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "טורטיות עם מאסה, עגבנייה ואבוקדו",
@@ -331,7 +1463,36 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר טחון (מאסה)",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "טורטיות",
+          "quantity": 8,
+          "unit": "יח'",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "עגבניה",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "אבוקדו",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "שניצל",
@@ -339,7 +1500,36 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חזה עוף לשניצל",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "ביצה",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "פירורי לחם",
+          "quantity": 1,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "קמח",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "Milanesa napolitana",
@@ -347,7 +1537,36 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "שניצל מוכן",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 4,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "גבינה צהובה",
+          "quantity": 150,
+          "unit": "גרם",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "נקניק/הם",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פתיתים ברוטב אדום עם שניצלים",
@@ -355,7 +1574,29 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פתיתים",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "שניצל",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 2,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "אורז צהוב עם שניצל ושעועית ברוטב אדום",
@@ -363,7 +1604,36 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "אורז",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "שניצל",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "שעועית",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "קפואים",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "סלמון בטריאקי עם אורז",
@@ -371,7 +1641,29 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פילה סלמון",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "רוטב טריאקי",
+          "quantity": 4,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": false
+        },
+        {
+          "name": "אורז",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "קערת אורז, סלמון ואבוקדו",
@@ -379,7 +1671,36 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "אורז",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "פילה סלמון",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "אבוקדו",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "רוטב סויה",
+          "quantity": 2,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "סלמון עם פטריות בשמנת",
@@ -387,7 +1708,29 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פילה סלמון",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "פטריות",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "שמנת מתוקה",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "חריימה — דג מרוקאי",
@@ -395,7 +1738,43 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פילה דג",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "פלפל אדום",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "שום",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": false
+        },
+        {
+          "name": "פפריקה חריפה",
+          "quantity": 2,
+          "unit": "כף",
+          "aisle": "תבלינים",
+          "is_scalable": false
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 2,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "Sushi bake עם טונה וסלמון",
@@ -403,7 +1782,43 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "אורז לסושי",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "קופסת טונה",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "סלמון",
+          "quantity": 200,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "מיונז",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "אחר",
+          "is_scalable": true
+        },
+        {
+          "name": "דפי נורי",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "אחר",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "עראיס טונה",
@@ -411,7 +1826,36 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "קופסת טונה",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "פיתות",
+          "quantity": 6,
+          "unit": "יח'",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "בצל",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "מלפפון חמוץ",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "אחר",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פסטה ברוטב פטריות",
@@ -419,7 +1863,29 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פסטה",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "פטריות",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "שמנת מתוקה",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פסטה ברוטב ערמונים",
@@ -427,7 +1893,29 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פסטה",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "ערמונים קלופים",
+          "quantity": 250,
+          "unit": "גרם",
+          "aisle": "אחר",
+          "is_scalable": true
+        },
+        {
+          "name": "שמנת מתוקה",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פסטה רוזה עם עגבניות שרי",
@@ -435,7 +1923,36 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פסטה",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "עגבניות שרי",
+          "quantity": 250,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 1,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "שמנת מתוקה",
+          "quantity": 0.3,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פסטה בשמנת ופסטו",
@@ -443,7 +1960,29 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פסטה",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "שמנת מתוקה",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "פסטו",
+          "quantity": 4,
+          "unit": "כף",
+          "aisle": "אחר",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פסטה בשמנת וסלמון",
@@ -451,7 +1990,29 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פסטה",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "סלמון",
+          "quantity": 200,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "שמנת מתוקה",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פסטה בולונז",
@@ -459,7 +2020,43 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פסטה",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "בשר טחון",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 2,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "בצל",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "גזר",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פסטה ברוטב אדום עם נקניקיות",
@@ -467,7 +2064,29 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פסטה",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "נקניקיות",
+          "quantity": 6,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 2,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "מוקפץ עם ברוקולי, בוק צ'וי ואטריות אורז",
@@ -475,7 +2094,36 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "אטריות אורז",
+          "quantity": 250,
+          "unit": "גרם",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "ברוקולי",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בוק צ׳וי",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "רוטב סויה",
+          "quantity": 3,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "פולנטה עם פטריות",
@@ -483,7 +2131,29 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "גריסי פולנטה",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "פטריות",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "גבינת פרמזן",
+          "quantity": 0.3,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פשטידת קישואים (Tarta de zucchini)",
@@ -491,7 +2161,36 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "קישואים",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "ביצה",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "קמח",
+          "quantity": 1,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "גבינה מגוררת",
+          "quantity": 200,
+          "unit": "גרם",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פשטידת בצל (Tarta de cebolla)",
@@ -499,7 +2198,36 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בצל",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "ביצה",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "קמח",
+          "quantity": 1,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "גבינה מגוררת",
+          "quantity": 200,
+          "unit": "גרם",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פשטידת עוף בגבינת שמנת עם סלט (Tarta de pollo)",
@@ -507,7 +2235,36 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חזה עוף מבושל וקצוץ",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "גבינת שמנת",
+          "quantity": 250,
+          "unit": "גרם",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "בצק עלים",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "קפואים",
+          "is_scalable": true
+        },
+        {
+          "name": "חסה לסלט",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "קציצות ירקות — ערוק",
@@ -515,7 +2272,36 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "קישואים וגזר מגוררים",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "ביצה",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "פירורי לחם",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "קמח",
+          "quantity": 0.3,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "מרק עגבניות",
@@ -523,7 +2309,36 @@
       "max_cover_days": 3,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "עגבניות",
+          "quantity": 1,
+          "unit": "ק\"ג",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בצל",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "שום",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": false
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 2,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "מרק פטריות",
@@ -531,7 +2346,36 @@
       "max_cover_days": 3,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פטריות",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בצל",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "שמנת מתוקה",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "ציר ירקות",
+          "quantity": 3,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "מרק בטטה",
@@ -539,7 +2383,36 @@
       "max_cover_days": 3,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בטטה",
+          "quantity": 3,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בצל",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "ציר ירקות",
+          "quantity": 3,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "שמנת מתוקה",
+          "quantity": 0.3,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "קוסקוס עם מרק ירקות",
@@ -547,7 +2420,43 @@
       "max_cover_days": 3,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "קוסקוס",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "גזר",
+          "quantity": 3,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "קישוא",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בטטה",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בצל",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "קוסקוס ברוטב אדום",
@@ -555,7 +2464,29 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "קוסקוס",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 2,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "בצל",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "ג'חנון",
@@ -563,7 +2494,29 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בצק ג׳חנון קפוא",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "קפואים",
+          "is_scalable": true
+        },
+        {
+          "name": "ביצה",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות חריף",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "חמין",
@@ -571,7 +2524,43 @@
       "max_cover_days": 2,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר לחמין",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "גרעיני חיטה",
+          "quantity": 1,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "תפוח אדמה",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "שעועית",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "ביצה",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "צ'יפס עם רוטב שמנת פטריות",
@@ -579,7 +2568,29 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "תפוחי אדמה לצ׳יפס",
+          "quantity": 600,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "פטריות",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "שמנת מתוקה",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "צ'יפס עם צ'דר",
@@ -587,7 +2598,22 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "תפוחי אדמה לצ׳יפס",
+          "quantity": 600,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "גבינת צ׳דר מגוררת",
+          "quantity": 150,
+          "unit": "גרם",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "טוסט גבינת עזים, ריבת בצל ורוקט",
@@ -595,7 +2621,36 @@
       "max_cover_days": 1,
       "is_active": true,
       "fixed_servings": null,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "לחם",
+          "quantity": 8,
+          "unit": "יח'",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "גבינת עזים",
+          "quantity": 200,
+          "unit": "גרם",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "ריבת בצל",
+          "quantity": 3,
+          "unit": "כף",
+          "aisle": "אחר",
+          "is_scalable": true
+        },
+        {
+          "name": "עלי רוקט",
+          "quantity": 50,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     }
   ],
   "components": [
@@ -604,196 +2659,609 @@
       "type": "protein",
       "prep_time_minutes": 25,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חזה עוף",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פרגיות",
       "type": "protein",
       "prep_time_minutes": 45,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פרגיות",
+          "quantity": 600,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "שניצל",
       "type": "protein",
       "prep_time_minutes": 30,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חזה עוף לשניצל",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "ביצה",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "פירורי לחם",
+          "quantity": 1,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "קמח",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "בשר טחון",
       "type": "protein",
       "prep_time_minutes": 25,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר טחון",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "קוביות בשר",
       "type": "protein",
       "prep_time_minutes": 45,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר בקוביות",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "סלמון",
       "type": "protein",
       "prep_time_minutes": 20,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פילה סלמון",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "קבב",
       "type": "protein",
       "prep_time_minutes": 30,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בשר טחון לקבב",
+          "quantity": 500,
+          "unit": "גרם",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        },
+        {
+          "name": "בצל",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "פטרוזיליה",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "ירקות",
+          "is_scalable": false
+        },
+        {
+          "name": "תבלינים לקבב",
+          "quantity": 1,
+          "unit": "כף",
+          "aisle": "תבלינים",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "נקניקיות",
       "type": "protein",
       "prep_time_minutes": 15,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "נקניקיות",
+          "quantity": 6,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "טונה",
       "type": "protein",
       "prep_time_minutes": 5,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "קופסת טונה",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "בשר ודגים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "אורז לבן",
       "type": "carb",
       "prep_time_minutes": 25,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "אורז לבן",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "אורז צהוב",
       "type": "carb",
       "prep_time_minutes": 30,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "אורז",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "תבלין אורז צהוב",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "תבלינים",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "קוסקוס",
       "type": "carb",
       "prep_time_minutes": 15,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "קוסקוס",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פתיתים",
       "type": "carb",
       "prep_time_minutes": 20,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פתיתים",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פסטה",
       "type": "carb",
       "prep_time_minutes": 15,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "פסטה",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "אטריות אורז",
       "type": "carb",
       "prep_time_minutes": 10,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "אטריות אורז",
+          "quantity": 250,
+          "unit": "גרם",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "תפו\"א ובטטה בתנור",
       "type": "carb",
       "prep_time_minutes": 45,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "תפוח אדמה",
+          "quantity": 4,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בטטה",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "שמן זית",
+          "quantity": 2,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "צ'יפס",
       "type": "carb",
       "prep_time_minutes": 30,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "תפוחי אדמה לצ׳יפס",
+          "quantity": 600,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פולנטה",
       "type": "carb",
       "prep_time_minutes": 25,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "גריסי פולנטה",
+          "quantity": 1.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "פירה",
       "type": "carb",
       "prep_time_minutes": 25,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "תפוח אדמה",
+          "quantity": 6,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "חלב",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "חמאה",
+          "quantity": 30,
+          "unit": "גרם",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "ברוקולי מוקפץ בשום",
       "type": "veg",
       "prep_time_minutes": 15,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "ברוקולי",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "שום",
+          "quantity": 3,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": false
+        },
+        {
+          "name": "שמן שומשום",
+          "quantity": 1,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "שעועית ירוקה ברוטב אדום",
       "type": "veg",
       "prep_time_minutes": 25,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "שעועית ירוקה",
+          "quantity": 400,
+          "unit": "גרם",
+          "aisle": "קפואים",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 1,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "אפונה ברוטב אדום",
       "type": "veg",
       "prep_time_minutes": 20,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "אפונה קפואה",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "קפואים",
+          "is_scalable": true
+        },
+        {
+          "name": "רסק עגבניות",
+          "quantity": 1,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "סלט קייסר",
       "type": "veg",
       "prep_time_minutes": 15,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חסה רומית",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "קרוטונים",
+          "quantity": 0.5,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        },
+        {
+          "name": "גבינת פרמזן",
+          "quantity": 0.3,
+          "unit": "כוס",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "רוטב קייסר",
+          "quantity": 4,
+          "unit": "כף",
+          "aisle": "אחר",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "סלט בוראטה",
       "type": "veg",
       "prep_time_minutes": 10,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "גבינת בוראטה",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "מוצרי חלב",
+          "is_scalable": true
+        },
+        {
+          "name": "עגבניה",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "עלי בזיליקום",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": false
+        },
+        {
+          "name": "שמן זית איכותי",
+          "quantity": 2,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": false
+        }
+      ]
     },
     {
       "name": "קרפצ'יו סלק",
       "type": "veg",
       "prep_time_minutes": 15,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "סלק מבושל",
+          "quantity": 3,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "שמן זית",
+          "quantity": 2,
+          "unit": "כף",
+          "aisle": "יבשים",
+          "is_scalable": false
+        },
+        {
+          "name": "אגוזי מלך",
+          "quantity": 0.3,
+          "unit": "כוס",
+          "aisle": "יבשים",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "סלט חסה ברוטב ירוק",
       "type": "veg",
       "prep_time_minutes": 10,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "חסה",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "רוטב טחינה ירוק",
+          "quantity": 3,
+          "unit": "כף",
+          "aisle": "אחר",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "סלט מלפפון, עגבנייה ובצל סגול",
       "type": "veg",
       "prep_time_minutes": 10,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "מלפפון",
+          "quantity": 3,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "עגבניה",
+          "quantity": 3,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "בצל סגול",
+          "quantity": 1,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": true
+        }
+      ]
     },
     {
       "name": "בוק צ'וי מוקפץ",
       "type": "veg",
       "prep_time_minutes": 10,
       "is_active": true,
-      "ingredients": []
+      "ingredients": [
+        {
+          "name": "בוק צ׳וי",
+          "quantity": 300,
+          "unit": "גרם",
+          "aisle": "ירקות",
+          "is_scalable": true
+        },
+        {
+          "name": "שום",
+          "quantity": 2,
+          "unit": "יח'",
+          "aisle": "ירקות",
+          "is_scalable": false
+        }
+      ]
     }
   ]
 }
