@@ -10,6 +10,9 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // Registered by hand in main.tsx instead of the auto-injected script, so we
+      // can poll for updates on an interval — see the comment there for why.
+      injectRegister: false,
       includeAssets: ['icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'],
       manifest: {
         name: 'מה מבשלים השבוע',
