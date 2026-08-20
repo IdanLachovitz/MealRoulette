@@ -89,6 +89,50 @@
   --grad-hero: radial-gradient(120% 140% at 50% -10%, var(--w1) 0%, var(--bg) 70%);
 }
 
+/*
+ * "לפי המכשיר" (system) leaves data-theme unset entirely — see the effect in
+ * state.tsx — so it only ever worked if the palette also had a plain
+ * prefers-color-scheme fallback. It never did; every dark rule above was
+ * gated behind an explicit [data-theme='dark'], so "system" silently rendered
+ * light regardless of the OS setting. This block is a duplicate of the dark
+ * palette above, scoped to :not([data-theme='light']) so it applies whenever
+ * dark isn't explicitly turned off by the user — i.e. both "system" (no
+ * attribute) and an explicit dark choice, while a real light choice always
+ * wins over what the OS prefers.
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #171717;
+    --surf: #171717;
+    --surf-2: #171717;
+    --line: #939393;
+    --txt: #ffffff;
+    --mut: #ffffff;
+    --saf: #3D1F04;
+    --saf-ink: #ffffff;
+    --beet: #D9CAB3;
+    --saf-tonal: #AA8F66;
+    --pist: #c89c5a;
+    --veg: #c89c5a;
+    --pointer: #ffffff;
+    --w1: #262626;
+    --w2: #262626;
+    --saf-tonal: color-mix(in srgb, var(--saf) 40%, var(--surf));
+    --beet-tonal: color-mix(in srgb, var(--beet) 50%, var(--surf));
+    --pist-tonal: color-mix(in srgb, var(--pist) 30%, var(--surf));
+    --veg-tonal: color-mix(in srgb, var(--veg) 30%, var(--surf));
+    --beet-w: color-mix(in srgb, #ff0000 30%, var(--surf));
+    --pist-w: color-mix(in srgb, var(--pist) 30%, var(--surf));
+    --veg-w: color-mix(in srgb, #206935 60%, var(--surf));
+    --danger: #fa0000;
+    --shadow: 0 1px 2px rgb(145, 145, 145), 0 10px 28px rgba(145, 145, 145, 0.32);
+    --shadow-lift: 0 4px 10px rgba(108, 60, 19, 0.32), 0 18px 40px rgba(108, 60, 19, 0.32);
+    --glow-saf: 0 6px 22px rgba(145, 145, 145, 0.32);
+    --grad-saf: linear-gradient(150deg, color-mix(in srgb, rgb(108, 60, 19) 70%, var(--surf)), color-mix(in srgb, var(--saf) 50%, var(--surf)) 40% 60%, color-mix(in srgb, rgb(108, 60, 19) 70%, var(--surf)));
+    --grad-hero: radial-gradient(120% 140% at 50% -10%, var(--w1) 0%, var(--bg) 70%);
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -236,6 +280,12 @@ button {
 
 :root[data-theme='dark'] .nav__item[aria-current='page'] {
   color: var(--saf-ink);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .nav__item[aria-current='page'] {
+    color: var(--saf-ink);
+  }
 }
 
 @keyframes nav-pill-in {
@@ -439,6 +489,15 @@ button {
   background: var(--saf);
   color: var(--saf-ink);
   border-color: var(--saf);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .chip[aria-pressed='true'],
+  :root:not([data-theme='light']) .chip--on {
+    background: var(--saf);
+    color: var(--saf-ink);
+    border-color: var(--saf);
+  }
 }
 
 .chips {

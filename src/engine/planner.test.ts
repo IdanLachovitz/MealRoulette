@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { planWeek, spreadEvenly } from './planner'
 import type { PlannerInput } from './planner'
-import { weekDates } from './dates'
+import { addDays, weekDates } from './dates'
 import { DEFAULT_SETTINGS } from '../types'
 import type { CookHistory, Dish } from '../types'
 
@@ -179,6 +179,136 @@ describe('planWeek — FR-5 cooldown, exclusion and repetition', () => {
     )
     expect(result.sessions).toHaveLength(3)
     expect(result.notices.some((n) => n.code === 'repeated_dish')).toBe(true)
+  })
+})
+
+describe('planWeek — full-library rotation (no repeat until every dish has had a turn)', () => {
+  // dish_cooldown_days: 0 isolates the cycle rule from the day-based cooldown
+  // in every test below, so a pick only ever tells us about the cycle logic.
+  const noCooldown = { ...DEFAULT_SETTINGS, dish_cooldown_days: 0 }
+
+  it('keeps a dish resting until every other dish has had a more recent turn', () => {
+    const dishes = [dish('א'), dish('ב'), dish('ג')]
+    const result = planWeek(
+      input({
+        dishes,
+        settings: noCooldown,
+        // א is the oldest turn; both ב and ג have gone since — its lap is done.
+        history: [history('א', '2026-08-01'), history('ב', '2026-08-05'), history('ג', '2026-08-10')],
+        params: { cook_days_count: 1, include_leftovers: false, max_prep_time: null },
+      }),
+    )
+    expect(result.sessions[0].dish_id).toBe('א')
+  })
+
+  it('does not offer a dish only one other dish has passed since (lap incomplete)', () => {
+    const dishes = [dish('א'), dish('ב'), dish('ג')]
+    const result = planWeek(
+      input({
+        dishes,
+        settings: noCooldown,
+        // ב has only been passed by ג, not by א — one turn short of a full lap.
+        history: [history('א', '2026-08-01'), history('ב', '2026-08-05'), history('ג', '2026-08-10')],
+        params: { cook_days_count: 1, include_leftovers: false, max_prep_time: null },
+      }),
+    )
+    expect(result.sessions[0].dish_id).not.toBe('ב')
+  })
+
+  it('restarts the lap once every dish has had an equal turn, and says so distinctly', () => {
+    const dishes = [dish('א'), dish('ב'), dish('ג')]
+    const result = planWeek(
+      input({
+        dishes,
+        settings: noCooldown,
+        // All three landed in the same week — no dish has overtaken any other.
+        history: [history('א', '2026-08-10'), history('ב', '2026-08-10'), history('ג', '2026-08-10')],
+        params: { cook_days_count: 1, include_leftovers: false, max_prep_time: null },
+      }),
+    )
+    expect(result.sessions).toHaveLength(1)
+    expect(result.notices.some((n) => n.code === 'cycle_restarted')).toBe(true)
+    // The day-based cooldown had options (it's off), so this must not also
+    // read as the small-library "cooldown_relaxed" case.
+    expect(result.notices.some((n) => n.code === 'cooldown_relaxed')).toBe(false)
+  })
+
+  it('still uses cooldown_relaxed, not cycle_restarted, when the library is genuinely too small', () => {
+    // A real cooldown (not 0) with every dish freshly cooked: no dish clears
+    // the day-based cooldown at all, cycle logic aside.
+    const dishes = [dish('א'), dish('ב'), dish('ג')]
+    const result = planWeek(
+      input({
+        dishes,
+        history: [
+          history('א', '2026-08-15'),
+          history('ב', '2026-08-14'),
+          history('ג', '2026-08-13'),
+        ],
+        params: { cook_days_count: 1, include_leftovers: false, max_prep_time: null },
+      }),
+    )
+    expect(result.notices.some((n) => n.code === 'cooldown_relaxed')).toBe(true)
+    expect(result.notices.some((n) => n.code === 'cycle_restarted')).toBe(false)
+  })
+
+  it('does not repeat the previous plan when re-rolled before anything was cooked', () => {
+    // Re-running the wizard on the same week replaces the unlocked sessions
+    // outright — nothing gets marked cooked, so CookHistory never grows.
+    // Without previousSessionDishIds, the second run would have no memory of
+    // the first and could trivially repeat it.
+    const dishes = Array.from({ length: 10 }, (_, i) => dish(`מנה ${i + 1}`))
+    const first = planWeek(
+      input({ dishes, params: { cook_days_count: 3, include_leftovers: false, max_prep_time: null } }),
+    )
+    const firstIds = first.sessions.map((s) => s.dish_id)
+
+    const second = planWeek(
+      input({
+        dishes,
+        seed: 99999, // a different draw, standing in for "pressed the button again"
+        params: { cook_days_count: 3, include_leftovers: false, max_prep_time: null },
+        previousSessionDishIds: firstIds,
+      }),
+    )
+    const secondIds = second.sessions.map((s) => s.dish_id)
+
+    expect(secondIds.some((id) => firstIds.includes(id))).toBe(false)
+  })
+
+  it('never repeats a dish across repeated wizard runs until the whole library has cycled', () => {
+    // Ten dishes, three cook days a week, cooldown off so only the cycle rule
+    // is in play — simulate several consecutive weekly plans and confirm no
+    // dish repeats until all ten have appeared at least once.
+    const dishes = Array.from({ length: 10 }, (_, i) => dish(`מנה ${i + 1}`))
+    let cookHistory: CookHistory[] = []
+    const seenBeforeFullCycle = new Set<string>()
+    let cycleCompleted = false
+
+    for (let week = 0; week < 4 && !cycleCompleted; week++) {
+      const weekStart = addDays('2026-08-01', week * 7)
+      const result = planWeek(
+        input({
+          dishes,
+          settings: noCooldown,
+          history: cookHistory,
+          today: weekStart,
+          dates: weekDates(weekStart),
+          params: { cook_days_count: 3, include_leftovers: false, max_prep_time: null },
+        }),
+      )
+      for (const s of result.sessions) {
+        if (seenBeforeFullCycle.has(s.dish_id)) {
+          // Only acceptable once every dish has already appeared once.
+          expect(seenBeforeFullCycle.size).toBe(dishes.length)
+          cycleCompleted = true
+        }
+        seenBeforeFullCycle.add(s.dish_id)
+      }
+      cookHistory = [...cookHistory, ...result.sessions.map((s) => history(s.dish_id, s.cook_date))]
+    }
+
+    expect(cycleCompleted).toBe(true)
   })
 })
 

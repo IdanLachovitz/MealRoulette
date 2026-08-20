@@ -75,6 +75,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (theme === 'system') root.removeAttribute('data-theme')
     else root.setAttribute('data-theme', theme)
     localStorage.setItem('theme', theme)
+
+    // The status/address bar colour on Android — a live <meta name="theme-color">
+    // update, separate from the page's own colours (which theme.css's
+    // prefers-color-scheme block already keeps in sync on its own). Resolves
+    // to the app's actual white/near-black backgrounds, matching whichever
+    // theme is really in effect, "system" included.
+    const meta = document.querySelector('meta[name="theme-color"]')
+    const media = window.matchMedia('(prefers-color-scheme: dark)')
+    const paintStatusBar = () => {
+      const dark = theme === 'dark' || (theme === 'system' && media.matches)
+      meta?.setAttribute('content', dark ? '#171717' : '#ffffff')
+    }
+    paintStatusBar()
+
+    // Only matters in "system" mode: the OS can flip its own light/dark
+    // setting while this tab stays open, and the meta tag doesn't repaint
+    // itself the way the CSS media query does — this is the one piece that
+    // still needs a listener.
+    if (theme === 'system') {
+      media.addEventListener('change', paintStatusBar)
+      return () => media.removeEventListener('change', paintStatusBar)
+    }
   }, [theme])
 
   // Merged with the defaults so a household saved before a settings key existed

@@ -187,7 +187,7 @@ export function WeekScreen({
       </div>
 
       {notices.map((n) => (
-        <Notice key={n.code} warn={n.code !== 'cooldown_relaxed'}>
+        <Notice key={n.code} warn={n.code !== 'cooldown_relaxed' && n.code !== 'cycle_restarted'}>
           {n.message}
         </Notice>
       ))}

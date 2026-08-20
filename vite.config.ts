@@ -25,7 +25,13 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#FDF6EC',
-        theme_color: '#7A3B12',
+        // Neither this nor the splash screen can react to light/dark — a
+        // manifest has one static value, read once at install/cold-launch,
+        // before any of the app's own theme logic runs. White is the neutral
+        // choice for that first instant; main.tsx repaints the live status
+        // bar to match the resolved theme within a moment of launch, and
+        // stays in sync with it (including system-theme changes) from then on.
+        theme_color: '#ffffff',
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },

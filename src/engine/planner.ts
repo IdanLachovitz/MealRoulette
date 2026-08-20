@@ -28,6 +28,15 @@ export interface PlannerInput {
   /** Reference date for cooldown maths — normally the week start. */
   today: string
   seed: number
+  /**
+   * Dishes from the plan this run is about to replace. CookHistory only
+   * grows when a session is actually marked cooked, so pressing "תכנני לי את
+   * השבוע" again to re-roll a plan nobody has cooked yet would otherwise
+   * leave the picker with no memory of what it just proposed — these are
+   * treated the same as this-week's picks (a hard exclusion, not just a
+   * cooldown) so an immediate re-roll never repeats itself.
+   */
+  previousSessionDishIds?: string[]
 }
 
 export interface DraftSession {
@@ -40,6 +49,7 @@ export interface DraftSession {
 
 export type NoticeCode =
   | 'cooldown_relaxed'
+  | 'cycle_restarted'
   | 'repeated_dish'
   | 'coverage_reduced'
   | 'truncated_at_week_end'
@@ -104,6 +114,32 @@ function isInCooldown(
   return daysBetween(last, today) < cooldownDays
 }
 
+/**
+ * `dish_cooldown_days` alone lets a dish return after N days even if the
+ * library is large enough to offer something that hasn't been touched yet —
+ * on request, no dish should repeat until every other eligible dish has had
+ * a turn. This is that guarantee, layered on top of the day-based cooldown
+ * rather than replacing it, derived purely from lastCooked timestamps so it
+ * needs no extra state and self-adjusts as the library grows or shrinks.
+ *
+ * A dish is "resting" until at least (pool.length - 1) *other* dishes have
+ * been cooked more recently than it — i.e. until the rest of the library has
+ * completed a full lap since its own last turn. Once every dish clears that
+ * bar together, planWeek's cooldownOnly/relaxable fallbacks are what
+ * naturally start the next lap, picking up with whichever dish has gone
+ * longest without a turn.
+ */
+function isRestingInCycle(dish: Dish, pool: Dish[], lastCooked: Map<string, string>): boolean {
+  const last = lastCooked.get(dish.id)
+  if (!last) return false // never cooked — always available
+  const overtakenBy = pool.filter((d) => {
+    if (d.id === dish.id) return false
+    const other = lastCooked.get(d.id)
+    return !!other && other > last
+  }).length
+  return overtakenBy < pool.length - 1
+}
+
 export function planWeek(input: PlannerInput): PlanResult {
   const { dates, excludedDates, lockedSessions, dishes, history, params, settings } = input
   const rng = makeRng(input.seed)
@@ -141,29 +177,51 @@ export function planWeek(input: PlannerInput): PlanResult {
   const lastCooked = lastCookedMap(history)
   const pool0 = eligibleDishes(dishes, params.max_prep_time)
 
-  // Hard rule FR-5.5: a dish already placed this week is out, locked ones included.
-  const usedThisWeek = new Set<string>(
-    lockedSessions.map((s) => s.dish_id).filter((id): id is string => !!id),
-  )
+  // Hard rule FR-5.5: a dish already placed this week is out, locked ones
+  // included — and so is the plan this run is replacing, so a re-roll never
+  // repeats what it just proposed (see previousSessionDishIds above).
+  const usedThisWeek = new Set<string>([
+    ...lockedSessions.map((s) => s.dish_id).filter((id): id is string => !!id),
+    ...(input.previousSessionDishIds ?? []),
+  ])
 
   const pickOne = (): { dish: Dish; covers: number } | null => {
     let cover = targetCover
     while (cover >= 1) {
+      const eligibleBase = (d: Dish) => !usedThisWeek.has(d.id) && (cover === 1 || d.max_cover_days >= cover)
+
       const fresh = pool0.filter(
         (d) =>
-          !usedThisWeek.has(d.id) &&
+          eligibleBase(d) &&
           !isInCooldown(d, lastCooked, input.today, settings.dish_cooldown_days) &&
-          (cover === 1 || d.max_cover_days >= cover),
+          !isRestingInCycle(d, pool0, lastCooked),
       )
       if (fresh.length > 0) {
         const dish = rng.pick(fresh)
         return { dish, covers: Math.min(cover, Math.max(1, dish.max_cover_days)) }
       }
 
-      // Step 4e — relax the cooldown, oldest first (FR-5.3). Excluded dishes are
-      // never re-admitted here: exclusion is a decision, not a stock limit (FR-5.4).
+      // The day-based cooldown alone still has options — it's specifically the
+      // *cycle* that's empty, meaning every remaining dish has already had its
+      // turn this lap. That's a full, healthy rotation completing, not a
+      // shortage, so it gets its own notice rather than "library too small."
+      const cooldownOnly = pool0
+        .filter(
+          (d) => eligibleBase(d) && !isInCooldown(d, lastCooked, input.today, settings.dish_cooldown_days),
+        )
+        .sort((a, b) => (lastCooked.get(a.id) ?? '').localeCompare(lastCooked.get(b.id) ?? ''))
+      if (cooldownOnly.length > 0) {
+        pushNotice('cycle_restarted', 'עברתי על כל המנות במאגר — מתחילה סבב חדש.')
+        const dish = cooldownOnly[0]
+        return { dish, covers: Math.min(cover, Math.max(1, dish.max_cover_days)) }
+      }
+
+      // Step 4e — relax the cooldown too, oldest first (FR-5.3). Excluded dishes
+      // are never re-admitted here: exclusion is a decision, not a stock limit
+      // (FR-5.4). This is the true small-library case: even ignoring the cycle
+      // entirely, the day-based cooldown alone has nothing left to offer.
       const relaxable = pool0
-        .filter((d) => !usedThisWeek.has(d.id) && (cover === 1 || d.max_cover_days >= cover))
+        .filter((d) => eligibleBase(d))
         .sort((a, b) => (lastCooked.get(a.id) ?? '').localeCompare(lastCooked.get(b.id) ?? ''))
       if (relaxable.length > 0) {
         pushNotice('cooldown_relaxed', 'חזרתי על מנה שבושלה לאחרונה — המאגר קטן מדי לשבוע שלם.')
