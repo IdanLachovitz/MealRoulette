@@ -103,7 +103,7 @@ export function QuickAddDish({
           פריט אחד
         </button>
         <button className="segmented__btn" aria-pressed={tab === 'bulk'} onClick={() => setTab('bulk')}>
-          הדבקה מרובה
+          הוספה מרובה
         </button>
       </div>
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { Icon } from './Icon'
+import type { TimeFilter } from '../types'
 
 export function Switch({
   checked,
@@ -140,18 +141,20 @@ export function Field({
 }
 
 /** Prep-time filter chips — FR-6.1. */
-export const TIME_FILTERS: { label: string; value: number | null }[] = [
-  { label: 'הכל', value: null },
-  { label: "עד 20 דק'", value: 20 },
-  { label: "עד 40 דק'", value: 40 },
+/** FR-6.1 — הכל / עד 20 / עד 40 / מעל 40. */
+export const TIME_FILTERS: { label: string; filter: TimeFilter }[] = [
+  { label: 'הכל', filter: { max: null, min: null } },
+  { label: "עד 20 דק'", filter: { max: 20, min: null } },
+  { label: "עד 40 דק'", filter: { max: 40, min: null } },
+  { label: "מעל 40 דק'", filter: { max: null, min: 40 } },
 ]
 
 export function TimeFilterChips({
   value,
   onChange,
 }: {
-  value: number | null
-  onChange: (v: number | null) => void
+  value: TimeFilter
+  onChange: (v: TimeFilter) => void
 }) {
   return (
     <div className="chips" role="group" aria-label="סינון לפי זמן הכנה">
@@ -160,8 +163,8 @@ export function TimeFilterChips({
           key={f.label}
           type="button"
           className="chip"
-          aria-pressed={value === f.value}
-          onClick={() => onChange(f.value)}
+          aria-pressed={value.max === f.filter.max && value.min === f.filter.min}
+          onClick={() => onChange(f.filter)}
         >
           {f.label}
         </button>

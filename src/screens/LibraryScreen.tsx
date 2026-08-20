@@ -32,7 +32,10 @@ export function LibraryScreen({ householdId }: { householdId: string }) {
     [] as Component[],
   )
 
-  const filter = settings.max_prep_time_filter
+  const filter = useMemo(
+    () => ({ max: settings.max_prep_time_filter, min: settings.min_prep_time_filter }),
+    [settings.max_prep_time_filter, settings.min_prep_time_filter],
+  )
   const query = search.trim().toLowerCase()
 
   const visible = useMemo(() => {
@@ -76,7 +79,9 @@ export function LibraryScreen({ householdId }: { householdId: string }) {
 
       <TimeFilterChips
         value={filter}
-        onChange={(v) => void updateSettings({ max_prep_time_filter: v })}
+        onChange={(v) =>
+          void updateSettings({ max_prep_time_filter: v.max, min_prep_time_filter: v.min })
+        }
       />
 
       <div className="row row--between" style={{ margin: '10px 0' }}>

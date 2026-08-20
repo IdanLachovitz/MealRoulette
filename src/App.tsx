@@ -71,7 +71,9 @@ function Shell() {
         {tab === 'week' && (
           <WeekScreen householdId={household.id} onGoToRoulette={() => setTab('roulette')} />
         )}
-        {tab === 'roulette' && <RouletteScreen householdId={household.id} />}
+        {tab === 'roulette' && (
+          <RouletteScreen householdId={household.id} onGoToLibrary={() => setTab('library')} />
+        )}
         {tab === 'library' && <LibraryScreen householdId={household.id} />}
         {tab === 'shopping' && <ShoppingScreen householdId={household.id} />}
         {tab === 'settings' && <SettingsScreen householdId={household.id} />}

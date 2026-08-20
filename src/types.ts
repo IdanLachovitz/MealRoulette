@@ -12,6 +12,12 @@ export const COMPONENT_LABEL: Record<ComponentType, string> = {
   carb: 'פחמימה',
   veg: 'ירק',
 }
+/** For counting: "9 חלבונים · 10 פחמימות". */
+export const COMPONENT_LABEL_PLURAL: Record<ComponentType, string> = {
+  protein: 'חלבונים',
+  carb: 'פחמימות',
+  veg: 'ירקות',
+}
 
 export interface Ingredient {
   name: string
@@ -128,6 +134,8 @@ export interface HouseholdSettings {
   week_starts_on: 0 | 1
   default_cook_days_count: number
   max_prep_time_filter: number | null
+  /** FR-6.1 — the "מעל 40 דק'" chip needs a lower bound, not an upper one. */
+  min_prep_time_filter: number | null
 }
 
 export const DEFAULT_SETTINGS: HouseholdSettings = {
@@ -138,6 +146,22 @@ export const DEFAULT_SETTINGS: HouseholdSettings = {
   week_starts_on: 0,
   default_cook_days_count: 3,
   max_prep_time_filter: null,
+  min_prep_time_filter: null,
+}
+
+/**
+ * FR-6.1 — the four filter chips. `max` is inclusive ("עד 40" keeps 40),
+ * `min` is exclusive ("מעל 40" drops 40). Both null = "הכל".
+ */
+export interface TimeFilter {
+  max: number | null
+  min: number | null
+}
+
+export const NO_TIME_FILTER: TimeFilter = { max: null, min: null }
+
+export function isFiltered(filter: TimeFilter): boolean {
+  return filter.max !== null || filter.min !== null
 }
 
 export interface Household extends Synced {

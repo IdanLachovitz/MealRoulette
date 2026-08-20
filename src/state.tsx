@@ -77,7 +77,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('theme', theme)
   }, [theme])
 
-  const settings = household?.settings ?? DEFAULT_SETTINGS
+  // Merged with the defaults so a household saved before a settings key existed
+  // still reads a real value for it instead of undefined.
+  const settings = useMemo(
+    () => ({ ...DEFAULT_SETTINGS, ...(household?.settings ?? {}) }),
+    [household?.settings],
+  )
 
   const updateSettings = useCallback(
     async (patch: Partial<HouseholdSettings>) => {

@@ -1,15 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
-import { save } from '../db/repo'
+import { alive, save } from '../db/repo'
 import { useApp } from '../state'
 import { EmptyState, Notice, Sheet, Switch, TimeFilterChips } from '../components/ui'
 import { Icon } from '../components/Icon'
 import { Wheel, rotationFor } from '../components/Wheel'
 import type { RingSpec } from '../components/Wheel'
 import {
-  DISH_WHEEL_CAPACITY,
-  RING_CAPACITY,
+  applyCooldown,
   availableComponents,
   availableDishes,
   comboLabel,
@@ -18,8 +17,9 @@ import {
 } from '../engine/roulette'
 import type { Drawable } from '../engine/roulette'
 import { makeRng, randomSeed } from '../engine/rng'
-import type { Component, ComponentType, Dish } from '../types'
-import { COMPONENT_LABEL } from '../types'
+import { toISODate } from '../engine/dates'
+import type { Component, ComponentType, CookHistory, Dish } from '../types'
+import { COMPONENT_LABEL, COMPONENT_LABEL_PLURAL, isFiltered } from '../types'
 import { AssignSheet } from './AssignSheet'
 import { QuickAddDish } from './QuickAddDish'
 
@@ -36,7 +36,13 @@ interface Slot {
 
 const emptySlot = (): Slot => ({ slices: [], winner: null, rotation: 0, locked: false })
 
-export function RouletteScreen({ householdId }: { householdId: string }) {
+export function RouletteScreen({
+  householdId,
+  onGoToLibrary,
+}: {
+  householdId: string
+  onGoToLibrary?: () => void
+}) {
   const { settings, updateSettings, toast } = useApp()
   const [mode, setMode] = useState<Mode>('dish')
   const [spinning, setSpinning] = useState(false)
@@ -51,7 +57,12 @@ export function RouletteScreen({ householdId }: { householdId: string }) {
     veg: emptySlot(),
   })
 
-  const maxPrepTime = settings.max_prep_time_filter
+  const timeFilter = useMemo(
+    () => ({ max: settings.max_prep_time_filter, min: settings.min_prep_time_filter }),
+    [settings.max_prep_time_filter, settings.min_prep_time_filter],
+  )
+  const hasFilter = isFiltered(timeFilter)
+  const today = useMemo(() => toISODate(new Date()), [])
 
   const dishes = useLiveQuery(
     () => db.dishes.where('household_id').equals(householdId).toArray(),
@@ -63,15 +74,37 @@ export function RouletteScreen({ householdId }: { householdId: string }) {
     [householdId],
     [] as Component[],
   )
+  const history = useLiveQuery(
+    async () => alive(await db.cookHistory.where('household_id').equals(householdId).toArray()),
+    [householdId],
+    [] as CookHistory[],
+  )
 
-  const dishPool = useMemo(() => availableDishes(dishes ?? [], maxPrepTime), [dishes, maxPrepTime])
+  const dishPool = useMemo(() => availableDishes(dishes ?? [], timeFilter), [dishes, timeFilter])
+
+  // FR-5.2 — a component cooked inside `component_cooldown_days` stays off its
+  // ring. FR-5.3's relaxation applies: if that empties a ring, it comes back.
+  const ringPools = useMemo(() => {
+    const cooldown = {
+      history: history ?? [],
+      today,
+      days: settings.component_cooldown_days,
+    }
+    const build = (type: ComponentType) => {
+      const all = availableComponents(components ?? [], type, timeFilter)
+      const { pool, relaxed } = applyCooldown(all, cooldown)
+      return { pool, relaxed, cooling: all.length - pool.length }
+    }
+    return { protein: build('protein'), carb: build('carb'), veg: build('veg') }
+  }, [components, timeFilter, history, today, settings.component_cooldown_days])
+
   const pools = useMemo(
     () => ({
-      protein: availableComponents(components ?? [], 'protein', maxPrepTime),
-      carb: availableComponents(components ?? [], 'carb', maxPrepTime),
-      veg: availableComponents(components ?? [], 'veg', maxPrepTime),
+      protein: ringPools.protein.pool,
+      carb: ringPools.carb.pool,
+      veg: ringPools.veg.pool,
     }),
-    [components, maxPrepTime],
+    [ringPools],
   )
 
   // FR-3.8 — with no veg components at all the ring disappears and the toggle
@@ -102,7 +135,7 @@ export function RouletteScreen({ householdId }: { householdId: string }) {
   const spinDish = useCallback(() => {
     if (spinning || dishPool.length < 2) return
     const rng = makeRng(randomSeed())
-    const result = draw(dishPool, DISH_WHEEL_CAPACITY, rng)
+    const result = draw(dishPool, rng)
     if (!result) return
     const index = result.slices.findIndex((s) => s.id === result.winner.id)
     setSpinning(true)
@@ -129,7 +162,7 @@ export function RouletteScreen({ householdId }: { householdId: string }) {
       const rng = makeRng(randomSeed())
       const next = { ...rings }
       for (const type of targets) {
-        const result = draw(pools[type], RING_CAPACITY[type], rng)
+        const result = draw(pools[type], rng)
         if (!result) continue
         const index = result.slices.findIndex((s) => s.id === result.winner.id)
         const prev = rings[type]
@@ -187,11 +220,11 @@ export function RouletteScreen({ householdId }: { householdId: string }) {
   const comboReady = activeRings.every((t) => rings[t].winner) && !spinning
   const comboParts = activeRings.map((t) => rings[t].winner)
 
+  // Every eligible item gets a slice, before and after a spin — the wheel is
+  // as big as the library, never a fixed number of wedges.
   const ringSpecs: RingSpec[] = activeRings.map((type) => ({
     type,
-    slices: rings[type].slices.length
-      ? rings[type].slices
-      : pools[type].slice(0, RING_CAPACITY[type]),
+    slices: rings[type].slices.length ? rings[type].slices : pools[type],
     winnerIndex: rings[type].winner
       ? rings[type].slices.findIndex((s) => s.id === rings[type].winner!.id)
       : null,
@@ -200,7 +233,7 @@ export function RouletteScreen({ householdId }: { householdId: string }) {
 
   const dishRing: RingSpec = {
     type: 'protein',
-    slices: dishSlot.slices.length ? dishSlot.slices : dishPool.slice(0, DISH_WHEEL_CAPACITY),
+    slices: dishSlot.slices.length ? dishSlot.slices : dishPool,
     winnerIndex: dishSlot.winner
       ? dishSlot.slices.findIndex((s) => s.id === dishSlot.winner!.id)
       : null,
@@ -227,8 +260,10 @@ export function RouletteScreen({ householdId }: { householdId: string }) {
       </div>
 
       <TimeFilterChips
-        value={maxPrepTime}
-        onChange={(v) => void updateSettings({ max_prep_time_filter: v })}
+        value={timeFilter}
+        onChange={(v) =>
+          void updateSettings({ max_prep_time_filter: v.max, min_prep_time_filter: v.min })
+        }
       />
 
       {mode === 'dish' ? (
@@ -238,11 +273,13 @@ export function RouletteScreen({ householdId }: { householdId: string }) {
           rotation={dishSlot.rotation}
           winner={dishSlot.winner}
           spinning={spinning}
-          hasFilter={maxPrepTime !== null}
+          hasFilter={hasFilter}
           onSpin={spinDish}
           onAssign={() => setAssigning(true)}
           onExclude={excludeCurrentDish}
-          onClearFilter={() => void updateSettings({ max_prep_time_filter: null })}
+          onClearFilter={() =>
+            void updateSettings({ max_prep_time_filter: null, min_prep_time_filter: null })
+          }
           onAddDish={() => setQuickAdd(true)}
         />
       ) : (
@@ -258,14 +295,19 @@ export function RouletteScreen({ householdId }: { householdId: string }) {
           allLocked={allLocked}
           comboReady={comboReady}
           parts={comboParts}
-          hasFilter={maxPrepTime !== null}
+          hasFilter={hasFilter}
+          cooling={activeRings.reduce((sum, t) => sum + ringPools[t].cooling, 0)}
+          relaxedRings={activeRings.filter((t) => ringPools[t].relaxed)}
           onToggleVeg={(v) => void updateSettings({ veg_enabled: v })}
           onSpinAll={() => spinRings()}
           onSpinRing={(t) => spinRings(t)}
           onToggleLock={toggleLock}
           onExcludeRing={excludeComponent}
           onAssign={() => setAssigning(true)}
-          onClearFilter={() => void updateSettings({ max_prep_time_filter: null })}
+          onClearFilter={() =>
+            void updateSettings({ max_prep_time_filter: null, min_prep_time_filter: null })
+          }
+          onGoToLibrary={onGoToLibrary}
         />
       )}
 
@@ -416,6 +458,8 @@ function ComboMode({
   comboReady,
   parts,
   hasFilter,
+  cooling,
+  relaxedRings,
   onToggleVeg,
   onSpinAll,
   onSpinRing,
@@ -423,6 +467,7 @@ function ComboMode({
   onExcludeRing,
   onAssign,
   onClearFilter,
+  onGoToLibrary,
 }: {
   rings: RingSpec[]
   slots: Record<ComponentType, Slot>
@@ -436,6 +481,10 @@ function ComboMode({
   comboReady: boolean
   parts: (Drawable | null)[]
   hasFilter: boolean
+  /** How many eligible components are sitting out their cooldown right now. */
+  cooling: number
+  /** Rings whose cooldown had to be released so they would not be empty. */
+  relaxedRings: ComponentType[]
   onToggleVeg: (v: boolean) => void
   onSpinAll: () => void
   onSpinRing: (t: ComponentType) => void
@@ -443,6 +492,7 @@ function ComboMode({
   onExcludeRing: (t: ComponentType) => void
   onAssign: () => void
   onClearFilter: () => void
+  onGoToLibrary?: () => void
 }) {
   const missing = activeRings.filter((t) => pools[t].length === 0)
   if (missing.length > 0) {
@@ -456,11 +506,18 @@ function ComboMode({
             : 'כדי להרכיב ארוחה צריך לפחות רכיב אחד מכל סוג. אפשר להוסיף במסך המאגר.'
         }
         action={
-          hasFilter ? (
-            <button className="btn btn--ghost" onClick={onClearFilter}>
-              נקי סינון
-            </button>
-          ) : undefined
+          <div className="row" style={{ justifyContent: 'center' }}>
+            {hasFilter && (
+              <button className="btn btn--ghost" onClick={onClearFilter}>
+                נקי סינון
+              </button>
+            )}
+            {onGoToLibrary && (
+              <button className="btn btn--primary" onClick={onGoToLibrary}>
+                למסך המאגר
+              </button>
+            )}
+          </div>
         }
       />
     )
@@ -480,7 +537,9 @@ function ComboMode({
       </div>
       {!hasVeg && (
         <p className="field__hint" style={{ textAlign: 'center', marginBottom: 8 }}>
-          אין רכיבי ירק פעילים במאגר, אז הטבעת השלישית מוסתרת.
+          {hasFilter
+            ? 'אין רכיבי ירק שעומדים בסינון הזמן, אז הטבעת השלישית מוסתרת.'
+            : 'אין רכיבי ירק פעילים במאגר, אז הטבעת השלישית מוסתרת.'}
         </p>
       )}
 
@@ -518,6 +577,33 @@ function ComboMode({
           </span>
         ))}
       </div>
+
+      {/* Same reassurance the dish wheel gives: how much is actually in play. */}
+      <p className="field__hint" style={{ textAlign: 'center', marginTop: 6 }}>
+        {activeRings
+          .map(
+            (t) =>
+              `${pools[t].length} ${
+                pools[t].length === 1 ? COMPONENT_LABEL[t] : COMPONENT_LABEL_PLURAL[t]
+              }`,
+          )
+          .join(' · ')}{' '}
+        בגלגל
+      </p>
+
+      {/* FR-5.2 — say why an item is missing, so it does not read as a bug. */}
+      {cooling > 0 && (
+        <p className="field__hint" style={{ textAlign: 'center' }}>
+          {cooling === 1 ? 'רכיב אחד בצינון' : `${cooling} רכיבים בצינון`} ולא מופיע
+          {cooling === 1 ? '' : 'ים'} בגלגל
+        </p>
+      )}
+      {relaxedRings.length > 0 && (
+        <Notice>
+          כל רכיבי ה{relaxedRings.map((t) => COMPONENT_LABEL[t]).join(' וה')} בצינון — החזרתי אותם
+          לגלגל כדי שיהיה ממה להגריל.
+        </Notice>
+      )}
 
       <div className="result" aria-live="polite">
         {comboReady ? (

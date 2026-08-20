@@ -1,24 +1,13 @@
 /**
- * Roulette draw logic — FR-2, FR-3 and FR-3.9.
+ * Roulette draw logic — FR-2, FR-3, FR-5.2 and FR-6.
  *
  * The wheel is only an animation of a decision that has already been made here,
  * so none of this needs a browser to test.
  */
-import type { Component, ComponentType, Dish } from '../types'
-import { passesTimeFilter } from './planner'
+import type { Component, ComponentType, CookHistory, Dish, TimeFilter } from '../types'
+import { lastCookedMap, passesTimeFilter } from './planner'
+import { daysBetween } from './dates'
 import type { Rng } from './rng'
-
-/** How many slices each ring can hold before it stops being readable. */
-export const RING_CAPACITY: Record<ComponentType, number> = {
-  protein: 6,
-  carb: 6,
-  // FR-3.9 — the inner ring is physically narrow. Past this it shows a rotating subset.
-  veg: 4,
-}
-
-/** FR-2.5 — the single-dish wheel. */
-export const DISH_WHEEL_CAPACITY = 12
-export const DISH_LABEL_LIMIT = 10
 
 export interface Drawable {
   id: string
@@ -26,20 +15,50 @@ export interface Drawable {
   prep_time_minutes: number
 }
 
-export function availableDishes(dishes: Dish[], maxPrepTime: number | null): Dish[] {
+/** FR-5.2 — how long an item stays off the wheel after it was cooked. */
+export interface Cooldown {
+  history: CookHistory[]
+  /** Reference date, YYYY-MM-DD. */
+  today: string
+  days: number
+}
+
+function inCooldown(id: string, lastCooked: Map<string, string>, today: string, days: number) {
+  const last = lastCooked.get(id)
+  if (!last) return false
+  return daysBetween(last, today) < days
+}
+
+/**
+ * FR-5.2 / FR-5.3 — drop what is still cooling down, but never hand back an
+ * empty wheel: if the cooldown would clear the pool completely, it is released
+ * for this pool and the caller is told, exactly like the planner's relaxation.
+ */
+export function applyCooldown<T extends Drawable>(
+  pool: T[],
+  cooldown: Cooldown | null,
+): { pool: T[]; relaxed: boolean } {
+  if (!cooldown || cooldown.days <= 0 || pool.length === 0) return { pool, relaxed: false }
+  const lastCooked = lastCookedMap(cooldown.history)
+  const fresh = pool.filter((p) => !inCooldown(p.id, lastCooked, cooldown.today, cooldown.days))
+  if (fresh.length === 0) return { pool, relaxed: true }
+  return { pool: fresh, relaxed: false }
+}
+
+export function availableDishes(dishes: Dish[], filter: TimeFilter): Dish[] {
   return dishes.filter(
     (d) =>
       !d.deleted_at &&
       d.is_active &&
       !d.is_excluded &&
-      passesTimeFilter(d.prep_time_minutes, maxPrepTime),
+      passesTimeFilter(d.prep_time_minutes, filter),
   )
 }
 
 export function availableComponents(
   components: Component[],
   type: ComponentType,
-  maxPrepTime: number | null,
+  filter: TimeFilter,
 ): Component[] {
   // FR-6.2 — in combo mode each ring is filtered on its own.
   return components.filter(
@@ -48,46 +67,23 @@ export function availableComponents(
       c.type === type &&
       c.is_active &&
       !c.is_excluded &&
-      passesTimeFilter(c.prep_time_minutes, maxPrepTime),
+      passesTimeFilter(c.prep_time_minutes, filter),
   )
 }
 
-/**
- * Pick the winner from the *whole* eligible pool, then build the visible slice
- * list around it. The winner is always on the wheel, but a large library never
- * makes the wheel unreadable.
- */
 export interface Draw<T extends Drawable> {
   winner: T
+  /** Every eligible item, in pool order — the wheel is drawn from this. */
   slices: T[]
-  /** True when the wheel is showing a subset rather than the full pool. */
-  isSubset: boolean
 }
 
-export function draw<T extends Drawable>(pool: T[], capacity: number, rng: Rng): Draw<T> | null {
+/**
+ * Pick a winner at uniform weight from the whole eligible pool. The wheel shows
+ * that same pool in full, so the number of slices always matches the library.
+ */
+export function draw<T extends Drawable>(pool: T[], rng: Rng): Draw<T> | null {
   if (pool.length === 0) return null
-  const winner = rng.pick(pool)
-  if (pool.length <= capacity) {
-    return { winner, slices: pool, isSubset: false }
-  }
-
-  const others = shuffle(
-    pool.filter((p) => p.id !== winner.id),
-    rng,
-  ).slice(0, capacity - 1)
-  // Drop the winner into a random position so it is not always the first slice.
-  const slices = [...others]
-  slices.splice(rng.int(slices.length + 1), 0, winner)
-  return { winner, slices, isSubset: true }
-}
-
-export function shuffle<T>(items: readonly T[], rng: Rng): T[] {
-  const out = [...items]
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = rng.int(i + 1)
-    ;[out[i], out[j]] = [out[j], out[i]]
-  }
-  return out
+  return { winner: rng.pick(pool), slices: pool }
 }
 
 /** FR-3.7 — a combo takes as long as its slowest part, not the sum. */

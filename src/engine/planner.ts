@@ -5,7 +5,7 @@
  * wizard parameters and a seed, and returns a plan. No Dexie, no network, no
  * clock. Same inputs + same seed => same plan, which is what the tests rely on.
  */
-import type { CookHistory, Dish, HouseholdSettings, PlanningParams } from '../types'
+import type { CookHistory, Dish, HouseholdSettings, PlanningParams, TimeFilter } from '../types'
 import { addDays, daysBetween } from './dates'
 import { makeRng } from './rng'
 
@@ -75,8 +75,11 @@ export function lastCookedMap(history: CookHistory[]): Map<string, string> {
   return map
 }
 
-export function passesTimeFilter(prepMinutes: number, maxPrepTime: number | null): boolean {
-  return maxPrepTime === null || prepMinutes <= maxPrepTime
+export function passesTimeFilter(prepMinutes: number, filter: TimeFilter): boolean {
+  if (filter.max !== null && prepMinutes > filter.max) return false
+  // "מעל 40 דק'" is exclusive, so a 40-minute item belongs to "עד 40" only.
+  if (filter.min !== null && prepMinutes <= filter.min) return false
+  return true
 }
 
 /** Active, not excluded, within the time filter. Spec step 4a. */
@@ -86,7 +89,7 @@ export function eligibleDishes(dishes: Dish[], maxPrepTime: number | null): Dish
       !d.deleted_at &&
       d.is_active &&
       !d.is_excluded &&
-      passesTimeFilter(d.prep_time_minutes, maxPrepTime),
+      passesTimeFilter(d.prep_time_minutes, { max: maxPrepTime, min: null }),
   )
 }
 
