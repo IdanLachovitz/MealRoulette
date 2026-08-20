@@ -5,6 +5,7 @@ import { alive, save } from '../db/repo'
 import { useApp } from '../state'
 import { Notice, Sheet, Switch } from '../components/ui'
 import { Icon } from '../components/Icon'
+import { DishPicture } from '../components/DishArt'
 import { PickDishSheet } from './PickDishSheet'
 import { dayName, dayOfMonth, formatWeekRange, toISODate } from '../engine/dates'
 import type { Notice as PlanNotice } from '../engine/planner'
@@ -18,7 +19,7 @@ import {
   setCoversDays,
   setDayRole,
 } from '../services/week'
-import type { CookSession, DaySlot, Dish, PlanningParams, WeekPlan } from '../types'
+import type { Component, CookSession, DaySlot, Dish, PlanningParams, WeekPlan } from '../types'
 
 export function WeekScreen({
   householdId,
@@ -83,6 +84,33 @@ export function WeekScreen({
       .map((id) => (id ? compById.get(id)?.name : null))
       .filter(Boolean)
       .join(' + ')
+  }
+
+  /**
+   * What to draw for a session. A combo has no dish row and so no photo, but its
+   * label ("חזה עוף + אורז + ברוקולי") classifies just as well as a dish name
+   * does, so it still gets a picture of roughly the right food.
+   */
+  const pictureFor = (session: CookSession | undefined) => {
+    if (!session) return null
+    if (session.source_type === 'dish') {
+      const dish = dishById.get(session.dish_id ?? '')
+      if (!dish) return null
+      return {
+        name: dish.name,
+        ingredients: dish.ingredients.map((i) => i.name),
+        imageUrl: dish.image_url,
+      }
+    }
+    const parts = [session.protein_id, session.carb_id, session.veg_id]
+      .map((id) => (id ? compById.get(id) : undefined))
+      .filter((c): c is Component => !!c)
+    if (parts.length === 0) return null
+    return {
+      name: parts.map((c) => c.name).join(' + '),
+      ingredients: parts.flatMap((c) => c.ingredients.map((i) => i.name)),
+      imageUrl: null,
+    }
   }
 
   const sortedDays = useMemo(
@@ -229,6 +257,20 @@ export function WeekScreen({
                   <div className="day__dow">{dayName(day.date)}</div>
                   <div className="day__num">{dayOfMonth(day.date)}</div>
                 </div>
+                {/* The picture sits between the date and the name, so the row
+                    reads day → what → details. Only days with something planned
+                    get one; an empty day keeps its dashed, deliberately bare look. */}
+                {(() => {
+                  const pic = pictureFor(session)
+                  return pic ? (
+                    <DishPicture
+                      className="day__shot"
+                      name={pic.name}
+                      ingredients={pic.ingredients}
+                      imageUrl={pic.imageUrl}
+                    />
+                  ) : null
+                })()}
                 <div className="day__body">
                   {day.role === 'cook' && (
                     <>

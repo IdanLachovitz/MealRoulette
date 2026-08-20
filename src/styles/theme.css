@@ -15,27 +15,29 @@
   --line: #e6deea;
   --txt: #2a2136;
   --mut: #6e6379;
-  --saf: #f5b841;
+  --saf: #9cf2ff;
   --saf-ink: #4a3305;
-  --beet: #c13e66;
-  --pist: #4f8f53;
-  --veg: #2f8c8c;
+  --beet: #9cf2ff;
+  --pist: #9cf2ff;
+  --veg: #496d73;
   --w1: #eae1ef;
   --w2: #dfd3e6;
   --beet-w: #f0cbd8;
   --pist-w: #cfe4cf;
-  --veg-w: #c4e2e2;
+  --veg-w: rgb(196, 226, 226);
   --danger: #c1443e;
+  /* The fork at the top of the wheel that marks the winning slice. */
+  --pointer: #d8342c;
 
   --saf-tonal: color-mix(in srgb, var(--saf) 18%, var(--surf));
   --beet-tonal: color-mix(in srgb, var(--beet) 13%, var(--surf));
   --pist-tonal: color-mix(in srgb, var(--pist) 13%, var(--surf));
   --veg-tonal: color-mix(in srgb, var(--veg) 14%, var(--surf));
 
-  --shadow: 0 1px 2px rgba(42, 33, 54, 0.05), 0 10px 28px rgba(42, 33, 54, 0.07);
+  --shadow: 0 1px 2px rgba(93, 179, 210, 0.466), 0 10px 28px rgba(93, 179, 210, 0.466);
   --shadow-lift: 0 4px 10px rgba(42, 33, 54, 0.08), 0 16px 36px rgba(42, 33, 54, 0.1);
-  --glow-saf: 0 6px 18px rgba(245, 184, 65, 0.4);
-  --grad-saf: linear-gradient(150deg, #f9d078, var(--saf) 55%, #ec9f2e);
+  --glow-saf: 0 6px 18px rgba(93, 179, 210, 0.466);
+  --grad-saf: linear-gradient(150deg, color-mix(in srgb, var(--saf) 30%, var(--surf)), color-mix(in srgb, #87cdff 60%, var(--surf)) 40% 60%, color-mix(in srgb, var(--saf) 30%, var(--surf)));
   --grad-hero: radial-gradient(120% 140% at 50% -10%, var(--w1) 0%, var(--bg) 70%);
 
   --radius-pill: 999px;
@@ -68,6 +70,8 @@
   --saf-tonal: #AA8F66;
   --pist: #c89c5a;
   --veg: #c89c5a;
+  /* Red would disappear against the dark wheel, so the fork goes white here. */
+  --pointer: #ffffff;
   --w1: #262626;
   --w2: #262626;
   --saf-tonal: color-mix(in srgb, var(--saf) 40%, var(--surf));
@@ -81,7 +85,7 @@
   --shadow: 0 1px 2px rgb(145, 145, 145), 0 10px 28px rgba(145, 145, 145, 0.32);
   --shadow-lift: 0 4px 10px rgba(108, 60, 19, 0.32), 0 18px 40px rgba(108, 60, 19, 0.32);
   --glow-saf: 0 6px 22px rgba(145, 145, 145, 0.32);
-  --grad-saf: linear-gradient(140deg, color-mix(in srgb, rgb(108, 60, 19) 70%, var(--surf)), color-mix(in srgb, var(--saf) 50%, var(--surf)) 40% 60%, color-mix(in srgb, rgb(108, 60, 19) 70%, var(--surf)));
+  --grad-saf: linear-gradient(150deg, color-mix(in srgb, rgb(108, 60, 19) 70%, var(--surf)), color-mix(in srgb, var(--saf) 50%, var(--surf)) 40% 60%, color-mix(in srgb, rgb(108, 60, 19) 70%, var(--surf)));
   --grad-hero: radial-gradient(120% 140% at 50% -10%, var(--w1) 0%, var(--bg) 70%);
 }
 
@@ -633,6 +637,25 @@ button {
   text-align: center;
 }
 
+/* The dish picture, between the date and the name. Small, but a real picture —
+   at 46px the plate and its colour still read at a glance while scrolling. */
+.day__shot {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  object-fit: cover;
+  display: block;
+  background: var(--w1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
+}
+
+/* A leftovers day is a re-run of a cook day, so its picture steps back a little
+   rather than competing with the day that does the cooking. */
+.day--leftovers .day__shot {
+  opacity: 0.72;
+}
+
 .day__dow {
   font-family: var(--font-label);
   font-size: 11px;
@@ -755,7 +778,11 @@ button {
 }
 
 .pointer {
-  fill: var(--saf);
+  fill: var(--pointer);
+  /* Lengths here are viewBox units (1 = 1/200 of the wheel), so this reads as a
+     hairline lift, not a drop shadow — it keeps the white fork legible where it
+     crosses a pale slice in dark mode. */
+  filter: drop-shadow(0 0.6px 0.9px rgba(0, 0, 0, 0.3));
 }
 
 .result {
@@ -822,6 +849,16 @@ button {
 .item--checked .item__box {
   background: var(--saf);
   border-color: var(--saf);
+}
+
+.item__icon {
+  flex: none;
+  width: 26px;
+  height: 26px;
+}
+
+.item--checked .item__icon {
+  opacity: 0.45;
 }
 
 .item__name {
@@ -897,6 +934,77 @@ button {
 }
 
 /* ---- Sheet (bottom modal) -------------------------------------------------- */
+
+/* ---- Result modal --------------------------------------------------------
+   A small centred window, unlike .sheet which fills the width from the bottom.
+   Used for the roulette result: one dish, one photo, three decisions. */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(20, 14, 28, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  animation: fade 0.16s ease;
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--surf);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-lift), 0 0 0 1px var(--line);
+  animation: pop 0.22s var(--ease-em);
+}
+
+.modal__close {
+  position: absolute;
+  top: 10px;
+  inset-inline-end: 10px;
+  z-index: 1;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.94);
+    opacity: 0;
+  }
+}
+
+/* The dish photo. Fixed aspect so the modal does not jump between a tall
+   portrait shot and a wide one. */
+.dish-shot {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  border-radius: var(--radius-sm);
+  background: var(--w1);
+}
+
+.dish-shot--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 46px;
+  background: var(--grad-hero);
+  border: 1px dashed var(--line);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop,
+  .modal {
+    animation: none;
+  }
+}
 
 .sheet-backdrop {
   position: fixed;

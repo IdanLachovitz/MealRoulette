@@ -3,9 +3,10 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { alive, save } from '../db/repo'
 import { useApp } from '../state'
-import { EmptyState, Notice, Sheet, Switch, TimeFilterChips } from '../components/ui'
+import { EmptyState, Modal, Notice, Sheet, Switch, TimeFilterChips } from '../components/ui'
 import { Icon } from '../components/Icon'
 import { Wheel, rotationFor } from '../components/Wheel'
+import { DishArt } from '../components/DishArt'
 import type { RingSpec } from '../components/Wheel'
 import {
   applyCooldown,
@@ -48,6 +49,8 @@ export function RouletteScreen({
   const [spinning, setSpinning] = useState(false)
   const [assigning, setAssigning] = useState(false)
   const [quickAdd, setQuickAdd] = useState(false)
+  /** The dish result window, opened when the full-meal wheel stops. */
+  const [showResult, setShowResult] = useState(false)
   const spinTimer = useRef<number | null>(null)
 
   const [dishSlot, setDishSlot] = useState<Slot>(emptySlot)
@@ -124,45 +127,61 @@ export function RouletteScreen({
     [],
   )
 
-  const finishSpin = useCallback(() => {
+  const finishSpin = useCallback((onStopped?: () => void) => {
     if (spinTimer.current) window.clearTimeout(spinTimer.current)
     spinTimer.current = window.setTimeout(() => {
       setSpinning(false)
       spinTimer.current = null
+      onStopped?.()
     }, SPIN_MS)
   }, [])
 
-  const spinDish = useCallback(() => {
-    if (spinning || dishPool.length < 2) return
-    const rng = makeRng(randomSeed())
-    const result = draw(dishPool, rng)
-    if (!result) return
-    const index = result.slices.findIndex((s) => s.id === result.winner.id)
-    setSpinning(true)
-    setDishSlot((prev) => ({
-      slices: result.slices,
-      winner: result.winner,
-      locked: false,
-      // Keep accumulating turns so the wheel always spins forward.
-      rotation:
-        Math.ceil(prev.rotation / 360) * 360 +
-        rotationFor(result.slices.length, index, 4) +
-        1440,
-    }))
-    finishSpin()
-  }, [spinning, dishPool, finishSpin])
+  /**
+   * `excludingId` drops an item for this spin only. FR-2.4 re-spins the instant
+   * a dish is excluded, and the Dexie query that would remove it has not
+   * necessarily re-rendered yet — without this the wheel can hand back the dish
+   * the user just rejected.
+   */
+  const spinDish = useCallback(
+    (excludingId?: string) => {
+      const pool = excludingId ? dishPool.filter((d) => d.id !== excludingId) : dishPool
+      if (spinning || pool.length < 2) return
+      const rng = makeRng(randomSeed())
+      const result = draw(pool, rng)
+      if (!result) return
+      const index = result.slices.findIndex((s) => s.id === result.winner.id)
+      setSpinning(true)
+      setDishSlot((prev) => ({
+        slices: result.slices,
+        winner: result.winner,
+        locked: false,
+        // Keep accumulating turns so the wheel always spins forward.
+        rotation:
+          Math.ceil(prev.rotation / 360) * 360 +
+          rotationFor(result.slices.length, index, 4) +
+          1440,
+      }))
+      // The result window opens itself once the wheel has actually stopped.
+      finishSpin(() => setShowResult(true))
+    },
+    [spinning, dishPool, finishSpin],
+  )
 
   const spinRings = useCallback(
-    (only?: ComponentType) => {
+    (only?: ComponentType, excludingId?: string) => {
       if (spinning) return
       const targets = (only ? [only] : activeRings).filter((t) => !rings[t].locked)
       if (targets.length === 0) return
-      if (targets.some((t) => pools[t].length === 0)) return
+      // Same freshness problem as spinDish — the excluded component has to go
+      // now, not whenever the Dexie query re-renders.
+      const poolFor = (t: ComponentType) =>
+        excludingId ? pools[t].filter((c) => c.id !== excludingId) : pools[t]
+      if (targets.some((t) => poolFor(t).length === 0)) return
 
       const rng = makeRng(randomSeed())
       const next = { ...rings }
       for (const type of targets) {
-        const result = draw(pools[type], rng)
+        const result = draw(poolFor(type), rng)
         if (!result) continue
         const index = result.slices.findIndex((s) => s.id === result.winner.id)
         const prev = rings[type]
@@ -198,8 +217,10 @@ export function RouletteScreen({
       label: 'בטלי',
       onAction: () => void save('dishes', { ...dish, is_excluded: false }),
     })
+    // Close the window while the wheel re-spins; it reopens on the new result.
+    setShowResult(false)
     setDishSlot(emptySlot())
-    window.setTimeout(() => spinDish(), 60)
+    spinDish(dish.id)
   }
 
   const excludeComponent = async (type: ComponentType) => {
@@ -213,7 +234,7 @@ export function RouletteScreen({
       onAction: () => void save('components', { ...comp, is_excluded: false }),
     })
     setRings((r) => ({ ...r, [type]: { ...r[type], winner: null } }))
-    window.setTimeout(() => spinRings(type), 60)
+    spinRings(type, comp.id)
   }
 
   const allLocked = activeRings.every((t) => rings[t].locked)
@@ -239,6 +260,12 @@ export function RouletteScreen({
       : null,
     locked: false,
   }
+
+  // The wheel only carries id/name/minutes; the result window needs the whole
+  // row for the photo.
+  const winnerDish = dishSlot.winner
+    ? ((dishes ?? []).find((d) => d.id === dishSlot.winner!.id) ?? null)
+    : null
 
   return (
     <div>
@@ -311,6 +338,23 @@ export function RouletteScreen({
         />
       )}
 
+      {/* FR-2.3 — the result window: the dish, its photo, and the decisions. */}
+      {showResult && mode === 'dish' && !spinning && winnerDish && (
+        <DishResultModal
+          dish={winnerDish}
+          onAssign={() => {
+            setShowResult(false)
+            setAssigning(true)
+          }}
+          onSpinAgain={() => {
+            setShowResult(false)
+            spinDish()
+          }}
+          onExclude={excludeCurrentDish}
+          onClose={() => setShowResult(false)}
+        />
+      )}
+
       {assigning && (
         <AssignSheet
           householdId={householdId}
@@ -338,6 +382,66 @@ export function RouletteScreen({
         </Sheet>
       )}
     </div>
+  )
+}
+
+/**
+ * The window that opens when the full-meal wheel stops: the photo, the name
+ * under it, and the three decisions from FR-2.3 — assign, spin again, exclude.
+ */
+function DishResultModal({
+  dish,
+  onAssign,
+  onSpinAgain,
+  onExclude,
+  onClose,
+}: {
+  dish: Dish
+  onAssign: () => void
+  onSpinAgain: () => void
+  onExclude: () => void
+  onClose: () => void
+}) {
+  // A URL that 404s should fall back to the placeholder, not a broken image.
+  const [broken, setBroken] = useState(false)
+  const hasPhoto = !!dish.image_url && !broken
+
+  return (
+    <Modal title={dish.name} onClose={onClose}>
+      {hasPhoto ? (
+        <img
+          className="dish-shot"
+          src={dish.image_url!}
+          alt={dish.name}
+          onError={() => setBroken(true)}
+        />
+      ) : (
+        <DishArt
+          className="dish-shot"
+          name={dish.name}
+          ingredients={dish.ingredients.map((i) => i.name)}
+        />
+      )}
+
+      <div style={{ textAlign: 'center', margin: '14px 0 4px' }}>
+        <div className="display" style={{ fontSize: 20 }}>
+          {dish.name}
+        </div>
+        <div className="label">{dish.prep_time_minutes} דק׳ הכנה</div>
+      </div>
+
+      <div className="stack" style={{ marginTop: 14 }}>
+        <button className="btn btn--primary btn--block" onClick={onAssign}>
+          שבץ ליום…
+        </button>
+        <button className="btn btn--ghost btn--block" onClick={onSpinAgain}>
+          עוד פעם
+        </button>
+        <button className="btn btn--danger btn--sm btn--block" onClick={onExclude}>
+          לא להציע לי את זה
+        </button>
+      </div>
+    </Modal>
   )
 }
 
@@ -429,10 +533,10 @@ function DishMode({
             disabled={!winner || spinning}
             onClick={onAssign}
           >
-            שבצי ליום…
+            שבץ ליום…
           </button>
           <button className="btn btn--ghost" style={{ flex: 1 }} disabled={spinning} onClick={onSpin}>
-            {winner ? 'עוד פעם' : 'Spin'}
+            {winner ? 'עוד פעם' : 'סובב'}
           </button>
         </div>
         {winner && !spinning && (

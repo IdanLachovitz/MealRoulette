@@ -4,6 +4,7 @@ import { db } from '../db/db'
 import { alive, newId, now, remove, save } from '../db/repo'
 import { useApp } from '../state'
 import { EmptyState, Field, Sheet } from '../components/ui'
+import { IngredientIcon } from '../components/IngredientIcon'
 import { currentWeekStart, ensureWeekPlan, regenerateShoppingList } from '../services/week'
 import { AISLES } from '../types'
 import type { Aisle, ShoppingItem, WeekPlan } from '../types'
@@ -125,6 +126,7 @@ export function ShoppingScreen({ householdId }: { householdId: string }) {
                   <span className="item__box" aria-hidden="true">
                     {item.is_checked ? '✓' : ''}
                   </span>
+                  <IngredientIcon className="item__icon" name={item.name} aisle={item.aisle} />
                   <span className="item__name">{item.name}</span>
                   {item.quantity_text && <span className="item__qty">{item.quantity_text}</span>}
                 </button>

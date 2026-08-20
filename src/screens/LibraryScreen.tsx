@@ -5,6 +5,7 @@ import { alive, remove, save } from '../db/repo'
 import { useApp } from '../state'
 import { EmptyState, Field, Notice, Sheet, Switch, TimeFilterChips } from '../components/ui'
 import { Icon } from '../components/Icon'
+import { DishArt } from '../components/DishArt'
 import { QuickAddDish } from './QuickAddDish'
 import { IngredientsEditor } from './IngredientsEditor'
 import { passesTimeFilter } from '../engine/planner'
@@ -270,6 +271,33 @@ function DishSheet({
           }
         />
       </Field>
+
+      {/* image_url existed in the data model but nothing ever wrote to it, so
+          the roulette's result window had no photo to show for any dish. */}
+      <Field
+        label="תמונה (אופציונלי)"
+        hint="קישור לתמונה מהאינטרנט. מוצגת בחלון התוצאה של הרולטה."
+      >
+        <input
+          className="field__input"
+          type="url"
+          dir="ltr"
+          placeholder="https://…"
+          value={draft.image_url ?? ''}
+          onChange={(e) => setDraft({ ...draft, image_url: e.target.value || null })}
+          onBlur={() => patch({ image_url: draft.image_url?.trim() || null })}
+        />
+      </Field>
+
+      {draft.image_url ? (
+        <img className="dish-shot" src={draft.image_url} alt="" style={{ marginBottom: 14 }} />
+      ) : (
+        <DishArt
+          className="dish-shot"
+          name={draft.name}
+          ingredients={draft.ingredients.map((i) => i.name)}
+        />
+      )}
 
       <IngredientsEditor
         ingredients={draft.ingredients}

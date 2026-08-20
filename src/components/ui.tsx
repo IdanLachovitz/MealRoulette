@@ -30,6 +30,63 @@ export function Switch({
   )
 }
 
+/**
+ * A small centred dialog, as opposed to Sheet's full-width bottom sheet. Used
+ * where the content is a single focused result rather than a form.
+ */
+export function Modal({
+  title,
+  onClose,
+  children,
+}: {
+  title: string
+  onClose: () => void
+  children: ReactNode
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    ref.current?.focus()
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = previous
+    }
+  }, [onClose])
+
+  return (
+    <div
+      className="modal-backdrop"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
+      <div
+        ref={ref}
+        className="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        tabIndex={-1}
+      >
+        <button
+          className="btn btn--ghost btn--icon btn--sm modal__close"
+          onClick={onClose}
+          aria-label="סגירה"
+        >
+          ✕
+        </button>
+        {children}
+      </div>
+    </div>
+  )
+}
+
 export function Sheet({
   title,
   onClose,

@@ -170,13 +170,16 @@ export function Wheel({
           }}
         />
 
-        {/* Pointer at the top — the winning slice comes to rest under it. */}
+        {/* Pointer at the top — the winning slice comes to rest under it.
+            Slimmer tines over a pill-shaped head, and a handle that tapers to a
+            point instead of ending in a blunt bar: at this size the taper is
+            what makes it read as "this slice" rather than a decoration. */}
         <g className="pointer" aria-hidden="true">
-          <rect x="93.2" y="3" width="2.4" height="9" rx="1.2" />
-          <rect x="98.8" y="3" width="2.4" height="9" rx="1.2" />
-          <rect x="104.4" y="3" width="2.4" height="9" rx="1.2" />
-          <rect x="92.8" y="11" width="14.4" height="5" rx="2" />
-          <rect x="98.2" y="16" width="3.6" height="11" rx="1.8" />
+          <rect x="95.35" y="4.2" width="1.6" height="7" rx="0.8" />
+          <rect x="99.2" y="3.8" width="1.6" height="7.4" rx="0.8" />
+          <rect x="103.05" y="4.2" width="1.6" height="7" rx="0.8" />
+          <rect x="95.35" y="9.2" width="9.3" height="4.8" rx="2.4" />
+          <path d="M98.85 13.2 L101.15 13.2 L100.8 19.4 Q100 22.6 99.2 19.4 Z" />
         </g>
       </svg>
     </div>
