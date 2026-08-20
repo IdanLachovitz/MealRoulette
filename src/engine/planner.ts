@@ -29,12 +29,14 @@ export interface PlannerInput {
   today: string
   seed: number
   /**
-   * Dishes from the plan this run is about to replace. CookHistory only
-   * grows when a session is actually marked cooked, so pressing "תכנני לי את
-   * השבוע" again to re-roll a plan nobody has cooked yet would otherwise
-   * leave the picker with no memory of what it just proposed — these are
-   * treated the same as this-week's picks (a hard exclusion, not just a
-   * cooldown) so an immediate re-roll never repeats itself.
+   * Every dish this week's wizard has ever proposed, across every re-roll —
+   * not just the plan this run is about to replace. CookHistory only grows
+   * when a session is actually marked cooked, so pressing "תכנני לי את
+   * השבוע" again and again to re-roll a plan nobody has cooked yet would
+   * otherwise have no memory of what it already showed beyond the single
+   * most recent generation, letting the third or fourth re-roll bring back a
+   * dish from the first or second. These are treated the same as this-week's
+   * picks (a hard exclusion, not just a cooldown) for exactly that reason.
    */
   previousSessionDishIds?: string[]
 }

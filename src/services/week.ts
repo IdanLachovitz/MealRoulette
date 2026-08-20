@@ -92,13 +92,16 @@ export async function runPlanningWizard(
   const history = alive(await db.cookHistory.where('household_id').equals(householdId).toArray())
 
   const locked = sessions.filter((s) => s.is_locked)
-  // Re-running the wizard replaces every unlocked session below — capture
-  // what they were before that happens, so a re-roll can't repeat a dish the
-  // *previous* generation just proposed (see PlannerInput.previousSessionDishIds).
-  const previousSessionDishIds = sessions
-    .filter((s) => !s.is_locked)
-    .map((s) => s.dish_id)
-    .filter((id): id is string => !!id)
+  // Re-running the wizard replaces every unlocked session below. remove() only
+  // soft-deletes (sets deleted_at), so every dish this week's wizard has *ever*
+  // proposed — not just the immediately-preceding generation — is still sitting
+  // in this table; querying it unfiltered by alive() is what lets a third or
+  // fourth re-roll in a row still avoid a dish shown two regenerates ago, not
+  // only the one from the very last run (see PlannerInput.previousSessionDishIds).
+  const everyProposedThisWeek = await db.cookSessions.where('week_plan_id').equals(plan.id).toArray()
+  const previousSessionDishIds = [
+    ...new Set(everyProposedThisWeek.map((s) => s.dish_id).filter((id): id is string => !!id)),
+  ]
   const input: PlannerInput = {
     dates: weekDates(plan.week_start_date),
     excludedDates: days.filter((d) => d.role === 'none').map((d) => d.date),
