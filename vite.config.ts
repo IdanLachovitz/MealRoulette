@@ -36,6 +36,14 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
         // Supabase responses are never precached — sync owns freshness, not the SW.
         navigateFallback: 'index.html',
+        // Without these two, a newly-installed worker sits in "waiting" and
+        // never takes over a tab that's already open — it only ever controls
+        // the *next* fresh navigation. skipWaiting activates it the moment it
+        // finishes installing; clientsClaim then hands it control of every
+        // open tab immediately, which is what actually fires the
+        // `controllerchange` main.tsx listens for to reload automatically.
+        skipWaiting: true,
+        clientsClaim: true,
       },
     }),
   ],
