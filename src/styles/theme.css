@@ -52,9 +52,9 @@
 :root[data-theme='dark'] {
   /* Neutral near-black, not a tinted-brown dark — the accent hues carry the
      brand's warmth, the page itself should just be black. */
-  --bg: #0b0b0b;
-  --surf: #1a1a1a;
-  --surf-2: #151515;
+  --bg: #171717;
+  --surf: #171717;
+  --surf-2: #171717;
   --line: #939393;
   --txt: #ffffff;
   --mut: #ffffff;
@@ -62,22 +62,26 @@
      have almost no contrast against an already-dark page, so --saf-ink flips
      back to a dark ink on top of it, matching the pattern the light palette
      used for its light amber. */
-  --saf: #3d1f04;
+  --saf: #3D1F04;
   --saf-ink: #ffffff;
-  --beet: #ff1100;
-  --saf-tonal: #55381e;
-  --pist: #0088ff;
-  --veg: #0088ff;
+  --beet: #D9CAB3;
+  --saf-tonal: #AA8F66;
+  --pist: #c89c5a;
+  --veg: #c89c5a;
   --w1: #262626;
-  --w2: #333333;
-  --beet-w: color-mix(in srgb, var(--beet) 32%, var(--surf));
-  --pist-w: color-mix(in srgb, var(--pist) 28%, var(--surf));
-  --veg-w: #206935;
+  --w2: #262626;
+  --saf-tonal: color-mix(in srgb, var(--saf) 40%, var(--surf));
+  --beet-tonal: color-mix(in srgb, var(--beet) 50%, var(--surf));
+  --pist-tonal: color-mix(in srgb, var(--pist) 30%, var(--surf));
+  --veg-tonal: color-mix(in srgb, var(--veg) 30%, var(--surf));
+  --beet-w: color-mix(in srgb, #ff0000 30%, var(--surf));
+  --pist-w: color-mix(in srgb, var(--pist) 30%, var(--surf));
+  --veg-w: color-mix(in srgb, #206935 60%, var(--surf));
   --danger: #fa0000;
   --shadow: 0 1px 2px rgb(145, 145, 145), 0 10px 28px rgba(145, 145, 145, 0.32);
   --shadow-lift: 0 4px 10px rgba(108, 60, 19, 0.32), 0 18px 40px rgba(108, 60, 19, 0.32);
   --glow-saf: 0 6px 22px rgba(145, 145, 145, 0.32);
-  --grad-saf: linear-gradient(140deg, rgb(108, 60, 19), var(--saf) 50%, #6c3c13);
+  --grad-saf: linear-gradient(140deg, color-mix(in srgb, rgb(108, 60, 19) 70%, var(--surf)), color-mix(in srgb, var(--saf) 50%, var(--surf)) 40% 60%, color-mix(in srgb, rgb(108, 60, 19) 70%, var(--surf)));
   --grad-hero: radial-gradient(120% 140% at 50% -10%, var(--w1) 0%, var(--bg) 70%);
 }
 

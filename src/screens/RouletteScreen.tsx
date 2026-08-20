@@ -356,7 +356,7 @@ function DishMode({
       <Wheel
         rings={[ring]}
         rotations={[rotation]}
-        hubLabel="סובבי"
+        hubLabel="Spin"
         onHubClick={onSpin}
         hubDisabled={false}
         spinning={spinning}
@@ -390,7 +390,7 @@ function DishMode({
             שבצי ליום…
           </button>
           <button className="btn btn--ghost" style={{ flex: 1 }} disabled={spinning} onClick={onSpin}>
-            {winner ? 'עוד פעם' : 'סובבי'}
+            {winner ? 'עוד פעם' : 'Spin'}
           </button>
         </div>
         {winner && !spinning && (
@@ -487,7 +487,7 @@ function ComboMode({
       <Wheel
         rings={rings}
         rotations={rotations}
-        hubLabel={allLocked ? 'נעול' : 'סובבי'}
+        hubLabel={allLocked ? 'נעול' : 'Spin'}
         onHubClick={onSpinAll}
         hubDisabled={allLocked}
         spinning={spinning}
@@ -503,14 +503,13 @@ function ComboMode({
               className="chip"
               aria-pressed={slots[type].locked}
               onClick={() => onToggleLock(type)}
-              style={{ color: slots[type].locked ? `var(--${dotVar(type)})` : undefined }}
             >
               <Icon name={slots[type].locked ? 'lock' : 'lockOpen'} size={13} /> {COMPONENT_LABEL[type]}
             </button>
             <button
               type="button"
               className="chip"
-              aria-label={`סובבי ${COMPONENT_LABEL[type]} בלבד`}
+              aria-label={`Spin ${COMPONENT_LABEL[type]} בלבד`}
               disabled={spinning || slots[type].locked}
               onClick={() => onSpinRing(type)}
             >
@@ -530,7 +529,7 @@ function ComboMode({
           </>
         ) : (
           <div className="muted" style={{ textAlign: 'center', paddingTop: 14 }}>
-            {spinning ? 'מסובבת…' : 'סובבי כדי להרכיב ארוחה'}
+            {spinning ? 'מסובב…' : 'סובב כדי להרכיב ארוחה'}
           </div>
         )}
       </div>
@@ -545,7 +544,7 @@ function ComboMode({
             disabled={!comboReady}
             onClick={onAssign}
           >
-            שבצי ליום…
+            שבץ ליום…
           </button>
           <button
             className="btn btn--ghost"
@@ -553,7 +552,7 @@ function ComboMode({
             disabled={spinning || allLocked}
             onClick={onSpinAll}
           >
-            סובבי הכל
+            סובב הכל
           </button>
         </div>
         {comboReady && (
@@ -573,8 +572,4 @@ function ComboMode({
       </div>
     </div>
   )
-}
-
-function dotVar(type: ComponentType): string {
-  return type === 'protein' ? 'beet' : type === 'carb' ? 'pist' : 'veg'
 }

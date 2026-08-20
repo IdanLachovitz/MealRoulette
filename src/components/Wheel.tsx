@@ -87,14 +87,13 @@ function Ring({
       {ring.slices.map((slice, i) => {
         const start = i * step
         const end = start + step
-        const isWinner = ring.winnerIndex === i
         const [lx, ly] = polar(geo.label, start + step / 2)
         return (
           <g key={slice.id}>
             <path
               d={segmentPath(start, end, geo.outer, geo.inner)}
-              fill={isWinner ? fills.strong : fills.soft}
-              opacity={isWinner ? 1 : i % 2 === 0 ? 0.95 : 0.72}
+              fill={fills.soft}
+              opacity={i % 2 === 0 ? 0.95 : 0.50}
               stroke="var(--surf)"
               strokeWidth="0.6"
             />
