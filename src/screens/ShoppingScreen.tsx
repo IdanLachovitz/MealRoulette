@@ -5,6 +5,7 @@ import { alive, newId, now, remove, save } from '../db/repo'
 import { useApp } from '../state'
 import { EmptyState, Field, Sheet } from '../components/ui'
 import { IngredientIcon } from '../components/IngredientIcon'
+import { guessAisle } from '../engine/ingredient-art'
 import { currentWeekStart, ensureWeekPlan, regenerateShoppingList } from '../services/week'
 import { AISLES } from '../types'
 import type { Aisle, ShoppingItem, WeekPlan } from '../types'
@@ -168,6 +169,13 @@ function ManualItemSheet({
   const [name, setName] = useState('')
   const [qty, setQty] = useState('')
   const [aisle, setAisle] = useState<Aisle>('אחר')
+  const [aisleTouched, setAisleTouched] = useState(false)
+
+  // Re-guess the shelf as the name changes, but only until the shopper picks
+  // one manually — after that their choice sticks even if they keep typing.
+  useEffect(() => {
+    if (!aisleTouched) setAisle(guessAisle(name))
+  }, [name, aisleTouched])
 
   const add = async () => {
     const trimmed = name.trim()
@@ -215,7 +223,10 @@ function ManualItemSheet({
         <select
           className="field__select"
           value={aisle}
-          onChange={(e) => setAisle(e.target.value as Aisle)}
+          onChange={(e) => {
+            setAisle(e.target.value as Aisle)
+            setAisleTouched(true)
+          }}
         >
           {AISLES.map((a) => (
             <option key={a} value={a}>
