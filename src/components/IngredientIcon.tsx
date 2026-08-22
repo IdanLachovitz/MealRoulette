@@ -1,4 +1,4 @@
-import { classifyIngredient, INGREDIENT_PALETTES } from '../engine/ingredient-art'
+import { classifyIngredient, INGREDIENT_PALETTES, pickIngredientEmoji } from '../engine/ingredient-art'
 import type { Aisle } from '../types'
 import type { IngredientArtKind, IngredientPalette } from '../engine/ingredient-art'
 import type { ReactNode } from 'react'
@@ -7,6 +7,10 @@ import type { ReactNode } from 'react'
  * A small pictogram for one shopping-list ingredient. Unlike DishArt (a full
  * plate scene for a finished dish), this is a single motif on a tinted
  * roundel, sized to sit inline in a list row.
+ *
+ * Where a real emoji reads as that specific ingredient (🧅 for onion, not a
+ * generic vegetable blob), it's drawn centred over the roundel; otherwise
+ * this falls back to the hand-drawn category motif so nothing regresses.
  */
 export function IngredientIcon({
   name,
@@ -19,6 +23,7 @@ export function IngredientIcon({
 }) {
   const kind = classifyIngredient(name, aisle)
   const pal = INGREDIENT_PALETTES[kind]
+  const emoji = pickIngredientEmoji(name, kind)
 
   return (
     <svg
@@ -29,7 +34,20 @@ export function IngredientIcon({
       focusable="false"
     >
       <circle cx="16" cy="16" r="16" fill={pal.bg} />
-      {MOTIFS[kind](pal)}
+      {emoji ? (
+        <text
+          x="16"
+          y="17"
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize="17"
+          fontFamily="'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', sans-serif"
+        >
+          {emoji}
+        </text>
+      ) : (
+        MOTIFS[kind](pal)
+      )}
     </svg>
   )
 }
