@@ -955,7 +955,7 @@ button {
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 12px 15px;
+  padding: 6px 15px;
   min-height: 50px;
   background: var(--surf);
   border: 1px solid var(--line);
@@ -995,8 +995,8 @@ button {
 
 .item__icon {
   flex: none;
-  width: 26px;
-  height: 26px;
+  width: 34px;
+  height: 34px;
 }
 
 .item--checked .item__icon {
