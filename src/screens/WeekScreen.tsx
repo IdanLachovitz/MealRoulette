@@ -648,7 +648,7 @@ function SessionSheet({
         <button
           className="btn btn--danger btn--block"
           onClick={() => {
-            void deleteSession(session)
+            void deleteSession(session, settings)
             toast('הבישול נמחק')
             onClose()
           }}

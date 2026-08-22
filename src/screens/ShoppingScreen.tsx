@@ -6,9 +6,23 @@ import { useApp } from '../state'
 import { EmptyState, Field, Sheet } from '../components/ui'
 import { IngredientIcon } from '../components/IngredientIcon'
 import { guessAisle } from '../engine/ingredient-art'
+import { formatQuantity } from '../engine/shopping'
 import { currentWeekStart, ensureWeekPlan, regenerateShoppingList } from '../services/week'
 import { AISLES } from '../types'
-import type { Aisle, ShoppingItem, WeekPlan } from '../types'
+import type { Aisle, ShoppingItem, Unit, WeekPlan } from '../types'
+
+/** Step size and starting amount for each unit — grams move in 50s, a
+ * kilo/cup in halves, everything else one at a time. */
+const UNIT_STEP: Record<Unit, number> = {
+  'גרם': 50,
+  'ק"ג': 0.5,
+  'מ"ל': 50,
+  'ליטר': 0.5,
+  "יח'": 1,
+  כוס: 0.5,
+  כף: 1,
+  כפית: 1,
+}
 
 export function ShoppingScreen({ householdId }: { householdId: string }) {
   const { settings, toast } = useApp()
@@ -167,7 +181,8 @@ function ManualItemSheet({
   onClose: () => void
 }) {
   const [name, setName] = useState('')
-  const [qty, setQty] = useState('')
+  const [qty, setQty] = useState(1)
+  const [unit, setUnit] = useState<Unit>("יח'")
   const [aisle, setAisle] = useState<Aisle>('אחר')
   const [aisleTouched, setAisleTouched] = useState(false)
 
@@ -176,6 +191,8 @@ function ManualItemSheet({
   useEffect(() => {
     if (!aisleTouched) setAisle(guessAisle(name))
   }, [name, aisleTouched])
+
+  const step = UNIT_STEP[unit]
 
   const add = async () => {
     const trimmed = name.trim()
@@ -188,7 +205,7 @@ function ManualItemSheet({
       deleted_at: null,
       week_plan_id: planId,
       name: trimmed,
-      quantity_text: qty.trim(),
+      quantity_text: formatQuantity(qty, unit),
       aisle,
       source: 'manual',
       is_checked: false,
@@ -211,13 +228,44 @@ function ManualItemSheet({
           placeholder="נייר סופג"
         />
       </Field>
-      <Field label="כמות (אופציונלי)">
-        <input
-          className="field__input"
-          value={qty}
-          onChange={(e) => setQty(e.target.value)}
-          placeholder="2 חבילות"
-        />
+      <Field label="כמות">
+        <div className="qty-stepper">
+          <button
+            type="button"
+            className="qty-stepper__btn qty-stepper__btn--plus"
+            aria-label="הוספת כמות"
+            onClick={() => setQty((q) => Math.round((q + step) * 100) / 100)}
+          >
+            +
+          </button>
+          <div className="qty-stepper__mid">
+            <div className="qty-stepper__num">{qty}</div>
+            <select
+              className="qty-stepper__unit"
+              value={unit}
+              onChange={(e) => {
+                const nextUnit = e.target.value as Unit
+                setUnit(nextUnit)
+                setQty(UNIT_STEP[nextUnit])
+              }}
+            >
+              {(Object.keys(UNIT_STEP) as Unit[]).map((u) => (
+                <option key={u} value={u}>
+                  {u}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="button"
+            className="qty-stepper__btn"
+            aria-label="הפחתת כמות"
+            disabled={qty <= step}
+            onClick={() => setQty((q) => Math.max(step, Math.round((q - step) * 100) / 100))}
+          >
+            −
+          </button>
+        </div>
       </Field>
       <Field label="מדף">
         <select

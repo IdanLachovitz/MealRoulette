@@ -170,6 +170,7 @@ export async function runPlanningWizard(
   })
   await saveMany('day_slots', updatedDays)
   await save('week_plans', { ...plan, planning_params: params })
+  await syncShoppingListAfterSessionChange(householdId, plan.id, settings.default_diners)
 
   return result
 }
@@ -218,6 +219,7 @@ export async function assignToDay(
   }
   await save('cook_sessions', session)
   await relayoutDays(plan.id, days, [...sessions.filter((s) => s.id !== clash?.id), session])
+  await syncShoppingListAfterSessionChange(householdId, plan.id, settings.default_diners)
   return session
 }
 
@@ -235,12 +237,22 @@ export async function setCoversDays(
   })
   const { sessions, days } = await loadWeek(session.week_plan_id)
   await relayoutDays(session.week_plan_id, days, sessions)
+  await syncShoppingListAfterSessionChange(
+    session.household_id,
+    session.week_plan_id,
+    settings.default_diners,
+  )
 }
 
-export async function deleteSession(session: CookSession): Promise<void> {
+export async function deleteSession(session: CookSession, settings: HouseholdSettings): Promise<void> {
   await remove('cook_sessions', session)
   const { sessions, days } = await loadWeek(session.week_plan_id)
   await relayoutDays(session.week_plan_id, days, sessions)
+  await syncShoppingListAfterSessionChange(
+    session.household_id,
+    session.week_plan_id,
+    settings.default_diners,
+  )
 }
 
 export async function setDayRole(day: DaySlot, role: DaySlot['role']): Promise<void> {
@@ -344,6 +356,22 @@ export async function markCooked(
     push('veg', session.veg_id)
   }
   if (entries.length) await saveMany('cook_history', entries)
+}
+
+/**
+ * Keep the shopping list in step with whatever just changed the week's
+ * dishes — a roulette assignment, a servings/coverage change, a deleted
+ * cook, a wizard re-roll. Only once the week is active: before that, the
+ * list is deliberately empty until "אישור" builds it the first time.
+ */
+async function syncShoppingListAfterSessionChange(
+  householdId: string,
+  weekPlanId: string,
+  diners: number,
+): Promise<void> {
+  const plan = await db.weekPlans.get(weekPlanId)
+  if (!plan || plan.status !== 'active') return
+  await regenerateShoppingList(householdId, plan, diners)
 }
 
 /**
