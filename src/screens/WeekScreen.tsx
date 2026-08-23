@@ -7,7 +7,7 @@ import { Notice, Sheet, Switch } from '../components/ui'
 import { Icon } from '../components/Icon'
 import { DishPicture } from '../components/DishArt'
 import { PickDishSheet } from './PickDishSheet'
-import { dayName, dayOfMonth, formatWeekRange, toISODate } from '../engine/dates'
+import { addDays, dayName, dayOfMonth, formatWeekRange, toISODate } from '../engine/dates'
 import type { Notice as PlanNotice } from '../engine/planner'
 import {
   currentWeekStart,
@@ -35,8 +35,16 @@ export function WeekScreen({
   const [view, setView] = useState<'days' | 'sessions'>('days')
   const [chooserDate, setChooserDate] = useState<string | null>(null)
   const [pickingDate, setPickingDate] = useState<string | null>(null)
+  /** 0 = the real current week, 1 = next week, -1 = last week, etc. */
+  const [weekOffset, setWeekOffset] = useState(0)
 
-  const weekStart = currentWeekStart(settings)
+  const realWeekStart = currentWeekStart(settings)
+  const weekStart = addDays(realWeekStart, weekOffset * 7)
+  /** A scrollable strip of nearby weeks to jump between — a bit of the past, mostly ahead. */
+  const weekOptions = useMemo(
+    () => Array.from({ length: 11 }, (_, i) => i - 2),
+    [],
+  )
 
   useEffect(() => {
     void ensureWeekPlan(householdId, weekStart, settings).then(setPlan)
@@ -139,6 +147,19 @@ export function WeekScreen({
 
   return (
     <div>
+      <div className="chips" style={{ marginBottom: 10 }}>
+        {weekOptions.map((offset) => (
+          <button
+            key={offset}
+            className="chip"
+            aria-pressed={offset === weekOffset}
+            onClick={() => setWeekOffset(offset)}
+          >
+            {offset === 0 ? 'השבוע' : formatWeekRange(addDays(realWeekStart, offset * 7))}
+          </button>
+        ))}
+      </div>
+
       <div className="row row--between" style={{ marginBottom: 10 }}>
         <span className="label">{formatWeekRange(plan.week_start_date)}</span>
         <div className="row" style={{ gap: 4 }}>
