@@ -40,9 +40,9 @@ export function WeekScreen({
 
   const realWeekStart = currentWeekStart(settings)
   const weekStart = addDays(realWeekStart, weekOffset * 7)
-  /** A scrollable strip of nearby weeks to jump between — a bit of the past, mostly ahead. */
+  /** A scrollable strip of nearby weeks to jump between — 2 back, 2 ahead. */
   const weekOptions = useMemo(
-    () => Array.from({ length: 11 }, (_, i) => i - 2),
+    () => Array.from({ length: 5 }, (_, i) => i - 2),
     [],
   )
 
