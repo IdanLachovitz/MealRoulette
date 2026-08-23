@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import type { ChangeEvent } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { alive, remove, save } from '../db/repo'
@@ -8,6 +9,7 @@ import { Icon } from '../components/Icon'
 import { DishArt } from '../components/DishArt'
 import { QuickAddDish } from './QuickAddDish'
 import { IngredientsEditor } from './IngredientsEditor'
+import { fileToCompressedDataUrl } from '../engine/image'
 import { passesTimeFilter } from '../engine/planner'
 import type { Component, ComponentType, Dish } from '../types'
 import { COMPONENT_LABEL } from '../types'
@@ -185,8 +187,11 @@ function DishSheet({
   onClose: () => void
   onDeleted: () => void
 }) {
+  const { toast } = useApp()
   const [draft, setDraft] = useState<Dish>(dish)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [photoBusy, setPhotoBusy] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // EC-3 — deleting a dish that is scheduled has to say what it will break.
   const affected = useLiveQuery(
@@ -202,6 +207,20 @@ function DishSheet({
     const next = { ...draft, ...p }
     setDraft(next)
     void save('dishes', next)
+  }
+
+  const onPickPhoto = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // lets the same file be re-picked later
+    if (!file) return
+    setPhotoBusy(true)
+    try {
+      patch({ image_url: await fileToCompressedDataUrl(file) })
+    } catch {
+      toast('לא הצלחתי לטעון את התמונה')
+    } finally {
+      setPhotoBusy(false)
+    }
   }
 
   return (
@@ -272,32 +291,61 @@ function DishSheet({
         />
       </Field>
 
+      <div style={{ marginBottom: 10 }}>
+        {draft.image_url ? (
+          <img className="dish-shot" src={draft.image_url} alt="" />
+        ) : (
+          <DishArt
+            className="dish-shot"
+            name={draft.name}
+            ingredients={draft.ingredients.map((i) => i.name)}
+          />
+        )}
+      </div>
+
       {/* image_url existed in the data model but nothing ever wrote to it, so
-          the roulette's result window had no photo to show for any dish. */}
-      <Field
-        label="תמונה (אופציונלי)"
-        hint="קישור לתמונה מהאינטרנט. מוצגת בחלון התוצאה של הרולטה."
-      >
+          the roulette's result window had no photo to show for any dish. A real
+          photo (camera or gallery) always beats the drawn placeholder above. */}
+      <Field label="תמונה (אופציונלי)" hint="תמונה אמיתית של המנה — מהמצלמה, מהגלריה, או קישור.">
+        <div className="row" style={{ gap: 8 }}>
+          <button
+            type="button"
+            className="btn btn--ghost"
+            style={{ flex: 1 }}
+            disabled={photoBusy}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {photoBusy ? 'טוענת…' : `📷 ${draft.image_url ? 'שינוי תמונה' : 'צילום / בחירה מהגלריה'}`}
+          </button>
+          {draft.image_url && (
+            <button
+              type="button"
+              className="btn btn--ghost btn--icon"
+              aria-label="הסרת תמונה"
+              onClick={() => patch({ image_url: null })}
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={(e) => void onPickPhoto(e)}
+        />
         <input
           className="field__input"
           type="url"
           dir="ltr"
-          placeholder="https://…"
-          value={draft.image_url ?? ''}
+          placeholder="או הדביקי קישור לתמונה — https://…"
+          style={{ marginTop: 8 }}
+          value={draft.image_url?.startsWith('data:') ? '' : (draft.image_url ?? '')}
           onChange={(e) => setDraft({ ...draft, image_url: e.target.value || null })}
           onBlur={() => patch({ image_url: draft.image_url?.trim() || null })}
         />
       </Field>
-
-      {draft.image_url ? (
-        <img className="dish-shot" src={draft.image_url} alt="" style={{ marginBottom: 14 }} />
-      ) : (
-        <DishArt
-          className="dish-shot"
-          name={draft.name}
-          ingredients={draft.ingredients.map((i) => i.name)}
-        />
-      )}
 
       <IngredientsEditor
         ingredients={draft.ingredients}
