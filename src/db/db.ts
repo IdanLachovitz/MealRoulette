@@ -6,6 +6,7 @@ import type {
   CookSession,
   DaySlot,
   Dish,
+  FridgeItem,
   Household,
   ShoppingItem,
   WeekPlan,
@@ -50,6 +51,7 @@ export class MealDb extends Dexie {
   daySlots!: EntityTable<DaySlot, 'id'>
   cookHistory!: EntityTable<CookHistory, 'id'>
   shoppingItems!: EntityTable<ShoppingItem, 'id'>
+  fridgeItems!: EntityTable<FridgeItem, 'id'>
   outbox!: EntityTable<OutboxRow, 'seq'>
   meta!: EntityTable<MetaRow, 'key'>
 
@@ -66,6 +68,11 @@ export class MealDb extends Dexie {
       shoppingItems: 'id, week_plan_id, aisle, updated_at',
       outbox: '++seq, table, row_id',
       meta: 'key',
+    })
+    // Local-only table (see FridgeItem) — not part of any sync table set, so
+    // it doesn't need a matching Postgres table or RLS policy to add.
+    this.version(2).stores({
+      fridgeItems: 'id, household_id, created_at',
     })
   }
 }

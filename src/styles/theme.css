@@ -512,6 +512,27 @@ button {
   display: none;
 }
 
+/* Unlike .chips (a single scrolling row of picker options), a tag list keeps
+   growing as items get added — it wraps instead of scrolling sideways. */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 16px;
+}
+
+.chip__remove {
+  display: inline-flex;
+  color: inherit;
+  opacity: 0.55;
+  font-size: 11px;
+  margin-inline-start: 1px;
+}
+
+.chip__remove:hover {
+  opacity: 1;
+}
+
 .segmented {
   display: flex;
   gap: 4px;

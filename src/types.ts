@@ -126,6 +126,20 @@ export interface ShoppingItem extends Synced {
   match_key: string
 }
 
+/**
+ * Something currently sitting in the fridge/pantry — a leftover, an open
+ * ingredient, anything on hand. Purely local: unlike everything else in this
+ * file it doesn't extend Synced or go through the outbox, because "what's in
+ * my fridge right now" is inherently per-location and doesn't need — or
+ * survive — merging across devices the way a shared shopping list does.
+ */
+export interface FridgeItem {
+  id: string
+  household_id: string
+  name: string
+  created_at: string
+}
+
 export interface HouseholdSettings {
   default_diners: number
   dish_cooldown_days: number

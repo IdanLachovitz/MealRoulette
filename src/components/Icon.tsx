@@ -25,6 +25,7 @@ export type IconName =
   | 'ban'
   | 'moon'
   | 'signal-off'
+  | 'fridge'
 
 const PATHS: Record<IconName, string> = {
   calendar:
@@ -55,6 +56,8 @@ const PATHS: Record<IconName, string> = {
   moon: 'M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11Z',
   'signal-off':
     'm3 3 18 18M8.5 8.5A5 5 0 0 0 7 12M12 7a5 5 0 0 1 5 5m-8.9-1.9A9 9 0 0 0 5 12m14-5a9 9 0 0 1 1.9 9.9M12 17h.01',
+  fridge:
+    'M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1ZM5 8h14M16 5v2M16 12v2',
 }
 
 export function Icon({

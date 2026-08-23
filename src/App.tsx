@@ -3,6 +3,7 @@ import { AppProvider, useApp, useSyncStatus } from './state'
 import { WeekScreen } from './screens/WeekScreen'
 import { RouletteScreen } from './screens/RouletteScreen'
 import { LibraryScreen } from './screens/LibraryScreen'
+import { FridgeScreen } from './screens/FridgeScreen'
 import { ShoppingScreen } from './screens/ShoppingScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
 import { Onboarding } from './screens/Onboarding'
@@ -11,12 +12,13 @@ import type { IconName } from './components/Icon'
 import { formatWeekRange } from './engine/dates'
 import { currentWeekStart } from './services/week'
 
-type Tab = 'week' | 'roulette' | 'library' | 'shopping' | 'settings'
+type Tab = 'week' | 'roulette' | 'library' | 'fridge' | 'shopping' | 'settings'
 
 const TABS: { id: Tab; label: string; icon: IconName }[] = [
   { id: 'week', label: 'השבוע', icon: 'calendar' },
   { id: 'roulette', label: 'רולטה', icon: 'wheel' },
   { id: 'library', label: 'מאגר', icon: 'list' },
+  { id: 'fridge', label: 'במקרר', icon: 'fridge' },
   { id: 'shopping', label: 'קניות', icon: 'cart' },
 ]
 
@@ -32,6 +34,7 @@ function Shell() {
     week: 'השבוע',
     roulette: 'רולטה',
     library: 'המאגר',
+    fridge: 'במקרר',
     shopping: 'רשימת קניות',
     settings: 'הגדרות',
   }
@@ -75,6 +78,7 @@ function Shell() {
           <RouletteScreen householdId={household.id} onGoToLibrary={() => setTab('library')} />
         )}
         {tab === 'library' && <LibraryScreen householdId={household.id} />}
+        {tab === 'fridge' && <FridgeScreen householdId={household.id} />}
         {tab === 'shopping' && <ShoppingScreen householdId={household.id} />}
         {tab === 'settings' && <SettingsScreen householdId={household.id} />}
       </main>
