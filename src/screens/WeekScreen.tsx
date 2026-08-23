@@ -10,7 +10,6 @@ import { PickDishSheet } from './PickDishSheet'
 import { dayName, dayOfMonth, formatWeekRange, toISODate } from '../engine/dates'
 import type { Notice as PlanNotice } from '../engine/planner'
 import {
-  activateWeek,
   currentWeekStart,
   deleteSession,
   ensureWeekPlan,
@@ -134,12 +133,6 @@ export function WeekScreen({
     toast(`נוצרו ${result.sessions.length} בישולים`)
   }
 
-  const confirmPlan = async () => {
-    if (!plan) return
-    await activateWeek(householdId, plan, settings.default_diners)
-    toast('השבוע אושר ורשימת הקניות מוכנה')
-  }
-
   if (!plan) return <div className="muted">טוען…</div>
 
   const libraryEmpty = (dishes ?? []).filter((d) => !d.deleted_at && d.is_active).length === 0
@@ -205,11 +198,6 @@ export function WeekScreen({
           >
             תכנני לי את השבוע
           </button>
-          {plan.status === 'draft' && sortedSessions.length > 0 && (
-            <button className="btn btn--ghost" onClick={() => void confirmPlan()}>
-              אישור
-            </button>
-          )}
         </div>
       )}
 

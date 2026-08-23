@@ -62,9 +62,10 @@ export async function ensureWeekPlan(
   }))
   await saveMany('day_slots', slots)
 
-  // EC-10 — moving into a new week archives the previous active one.
+  // EC-10 — moving into a new week archives every earlier one, confirmed or not
+  // (there's no separate confirm step any more — the shopping list builds itself).
   const stale = alive(await db.weekPlans.where('household_id').equals(householdId).toArray()).filter(
-    (w) => w.id !== plan.id && w.status === 'active' && w.week_start_date < weekStart,
+    (w) => w.id !== plan.id && w.week_start_date < weekStart,
   )
   for (const old of stale) await save('week_plans', { ...old, status: 'archived' })
 
@@ -361,8 +362,8 @@ export async function markCooked(
 /**
  * Keep the shopping list in step with whatever just changed the week's
  * dishes — a roulette assignment, a servings/coverage change, a deleted
- * cook, a wizard re-roll. Only once the week is active: before that, the
- * list is deliberately empty until "אישור" builds it the first time.
+ * cook, a wizard re-roll. There's no separate confirm step: the list just
+ * always reflects whatever is currently planned.
  */
 async function syncShoppingListAfterSessionChange(
   householdId: string,
@@ -370,7 +371,7 @@ async function syncShoppingListAfterSessionChange(
   diners: number,
 ): Promise<void> {
   const plan = await db.weekPlans.get(weekPlanId)
-  if (!plan || plan.status !== 'active') return
+  if (!plan) return
   await regenerateShoppingList(householdId, plan, diners)
 }
 
@@ -422,16 +423,6 @@ export async function regenerateShoppingList(
   }
 
   if (rows.length) await saveMany('shopping_items', rows)
-}
-
-/** FR-4.8 — confirming the plan activates the week and builds the list. */
-export async function activateWeek(
-  householdId: string,
-  plan: WeekPlan,
-  diners: number,
-): Promise<void> {
-  await save('week_plans', { ...plan, status: 'active' })
-  await regenerateShoppingList(householdId, plan, diners)
 }
 
 export type { Dish, Component }
