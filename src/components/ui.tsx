@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react'
-import type { ReactNode } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import { Icon } from './Icon'
 import type { TimeFilter } from '../types'
 
@@ -87,6 +87,9 @@ export function Modal({
   )
 }
 
+/** Drag the grip down past this and the sheet closes, same as tapping the ✕. */
+const SHEET_CLOSE_THRESHOLD = 90
+
 export function Sheet({
   title,
   onClose,
@@ -97,6 +100,9 @@ export function Sheet({
   children: ReactNode
 }) {
   const ref = useRef<HTMLDivElement>(null)
+  const dragStartY = useRef<number | null>(null)
+  const [dragY, setDragY] = useState(0)
+  const [dragging, setDragging] = useState(false)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -112,6 +118,28 @@ export function Sheet({
     }
   }, [onClose])
 
+  // Grabbing the grip and pulling down closes the sheet — the handle is the
+  // drag target (not the whole sheet) so it never fights with scrolling the
+  // content underneath it.
+  const onGripDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    dragStartY.current = e.clientY
+    setDragging(true)
+    e.currentTarget.setPointerCapture(e.pointerId)
+  }
+  const onGripMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (dragStartY.current == null) return
+    setDragY(Math.max(0, e.clientY - dragStartY.current))
+  }
+  const onGripUp = () => {
+    if (dragY > SHEET_CLOSE_THRESHOLD) {
+      onClose()
+      return
+    }
+    setDragY(0)
+    setDragging(false)
+    dragStartY.current = null
+  }
+
   return (
     <div
       className="sheet-backdrop"
@@ -126,8 +154,21 @@ export function Sheet({
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
+        style={{
+          transform: `translateY(${dragY}px)`,
+          transition: dragging ? 'none' : undefined,
+          opacity: dragY ? Math.max(0.5, 1 - dragY / 300) : undefined,
+        }}
       >
-        <div className="sheet__grip" />
+        <div
+          className="sheet__grip-area"
+          onPointerDown={onGripDown}
+          onPointerMove={onGripMove}
+          onPointerUp={onGripUp}
+          onPointerCancel={onGripUp}
+        >
+          <div className="sheet__grip" />
+        </div>
         <div className="row row--between" style={{ marginBottom: 12 }}>
           <h2 className="sheet__title">{title}</h2>
           <button className="btn btn--ghost btn--icon btn--sm" onClick={onClose} aria-label="סגירה">

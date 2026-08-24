@@ -7,6 +7,7 @@ import { EmptyState, Modal, Notice, Sheet, Switch, TimeFilterChips } from '../co
 import { Icon } from '../components/Icon'
 import { Wheel, rotationFor } from '../components/Wheel'
 import { DishPicture } from '../components/DishArt'
+import { generateDishImageWithAi } from '../sync/ai'
 import type { RingSpec } from '../components/Wheel'
 import {
   applyCooldown,
@@ -197,7 +198,13 @@ export function RouletteScreen({
       }
       setSpinning(true)
       setRings(next)
-      finishSpin()
+      // Same trick as the dish wheel: open the result window once the
+      // animation has actually finished, but only once every active ring
+      // (not just the one(s) just spun — a lock could mean the others
+      // already had winners) has landed on something.
+      finishSpin(() => {
+        if (activeRings.every((t) => next[t].winner)) setShowResult(true)
+      })
     },
     [spinning, activeRings, rings, pools, finishSpin],
   )
@@ -233,6 +240,7 @@ export function RouletteScreen({
       label: 'בטלי',
       onAction: () => void save('components', { ...comp, is_excluded: false }),
     })
+    setShowResult(false)
     setRings((r) => ({ ...r, [type]: { ...r[type], winner: null } }))
     spinRings(type, comp.id)
   }
@@ -240,6 +248,17 @@ export function RouletteScreen({
   const allLocked = activeRings.every((t) => rings[t].locked)
   const comboReady = activeRings.every((t) => rings[t].winner) && !spinning
   const comboParts = activeRings.map((t) => rings[t].winner)
+
+  // The picture prompt wants ingredients, not just the three names — same
+  // detail level a real dish gets. Only resolved when there's actually a
+  // combo to look up, since components can be a long list.
+  const comboIngredientNames = useMemo(() => {
+    if (!comboReady) return []
+    const ids = new Set(comboParts.filter((p): p is Drawable => !!p).map((p) => p.id))
+    return (components ?? [])
+      .filter((c) => ids.has(c.id))
+      .flatMap((c) => c.ingredients.map((i) => i.name))
+  }, [comboReady, comboParts, components])
 
   // Every eligible item gets a slice, before and after a spin — the wheel is
   // as big as the library, never a fixed number of wedges.
@@ -355,6 +374,26 @@ export function RouletteScreen({
         />
       )}
 
+      {/* Same window, but the "dish" is whatever the three rings landed on —
+          generated fresh each time, since a combo has no photo of its own. */}
+      {showResult && mode === 'combo' && !spinning && comboReady && (
+        <ComboResultModal
+          parts={comboParts}
+          ingredients={comboIngredientNames}
+          activeRings={activeRings}
+          onAssign={() => {
+            setShowResult(false)
+            setAssigning(true)
+          }}
+          onSpinAgain={() => {
+            setShowResult(false)
+            spinRings()
+          }}
+          onExcludeRing={excludeComponent}
+          onClose={() => setShowResult(false)}
+        />
+      )}
+
       {assigning && (
         <AssignSheet
           householdId={householdId}
@@ -423,6 +462,97 @@ function DishResultModal({
         <button className="btn btn--danger btn--sm btn--block" onClick={onExclude}>
           לא להציע לי את זה
         </button>
+      </div>
+    </Modal>
+  )
+}
+
+/**
+ * Combo mode's counterpart to DishResultModal — a combo has no photo of its
+ * own (only dishes carry image_url), so one is generated fresh for the
+ * specific protein+carb+veg this spin landed on, the moment the window
+ * opens. Regenerates whenever the combo itself changes (a new spin, or an
+ * exclude-and-respin on one ring), never reuses a stale photo from the
+ * previous result.
+ */
+function ComboResultModal({
+  parts,
+  ingredients,
+  activeRings,
+  onAssign,
+  onSpinAgain,
+  onExcludeRing,
+  onClose,
+}: {
+  parts: (Drawable | null)[]
+  ingredients: string[]
+  activeRings: ComponentType[]
+  onAssign: () => void
+  onSpinAgain: () => void
+  onExcludeRing: (type: ComponentType) => void
+  onClose: () => void
+}) {
+  const label = comboLabel(parts)
+  const minutes = comboMinutes(parts)
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setImageUrl(null)
+    void generateDishImageWithAi(label, ingredients).then((url) => {
+      if (!cancelled) {
+        setImageUrl(url)
+        setLoading(false)
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- ingredients is
+    // derived from `label`'s own components; re-running on label alone is enough.
+  }, [label])
+
+  return (
+    <Modal title={label} onClose={onClose}>
+      {loading ? (
+        <div className="dish-shot dish-shot--empty dish-shot--loading">🎨</div>
+      ) : (
+        <div className="dish-shot-wrap">
+          <DishPicture className="dish-shot" name={label} imageUrl={imageUrl} />
+          <div className="dish-shot__caption">{label}</div>
+        </div>
+      )}
+      {loading && (
+        <p className="label" style={{ textAlign: 'center', marginTop: 8 }}>
+          יוצרת תמונה…
+        </p>
+      )}
+
+      <div style={{ textAlign: 'center', margin: '10px 0 4px' }}>
+        <div className="label">{minutes} דק׳ הכנה</div>
+      </div>
+
+      <div className="stack" style={{ marginTop: 14 }}>
+        <button className="btn btn--primary btn--block" onClick={onAssign}>
+          שבץ ליום…
+        </button>
+        <button className="btn btn--ghost btn--block" onClick={onSpinAgain}>
+          עוד פעם
+        </button>
+        <div className="row">
+          {activeRings.map((type) => (
+            <button
+              key={type}
+              className="btn btn--danger btn--sm"
+              style={{ flex: 1 }}
+              onClick={() => onExcludeRing(type)}
+            >
+              לא להציע {COMPONENT_LABEL[type]}
+            </button>
+          ))}
+        </div>
       </div>
     </Modal>
   )

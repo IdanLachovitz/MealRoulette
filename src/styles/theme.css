@@ -1261,11 +1261,16 @@ button {
   max-width: 340px;
   max-height: 88vh;
   overflow-y: auto;
+  scrollbar-width: none;
   background: var(--surf);
   border-radius: var(--radius-lg);
   padding: 18px;
   box-shadow: var(--shadow-lift), 0 0 0 1px var(--line);
   animation: pop 0.22s var(--ease-em);
+}
+
+.modal::-webkit-scrollbar {
+  display: none;
 }
 
 .modal__close {
@@ -1324,7 +1329,23 @@ button {
   border: 1px dashed var(--line);
 }
 
+/* The combo result window generates its photo on the spot — this is what
+   shows while that's in flight, not a permanent "no photo" state. */
+.dish-shot--loading {
+  animation: dish-shot-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes dish-shot-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .dish-shot--loading {
+    animation: none;
+  }
+
   .modal-backdrop,
   .modal {
     animation: none;
@@ -1347,6 +1368,7 @@ button {
   max-width: 560px;
   max-height: 90vh;
   overflow-y: auto;
+  scrollbar-width: none;
   background: var(--bg);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   padding: 10px 18px calc(22px + env(safe-area-inset-bottom));
@@ -1354,12 +1376,30 @@ button {
   animation: rise 0.24s var(--ease-em);
 }
 
+.sheet::-webkit-scrollbar {
+  display: none;
+}
+
+/* The actual drag target is this whole strip, not just the 4px pill inside
+   it — a real thumb needs more than 4px of height to reliably grab. touch-
+   action: none stops the browser's own scroll/pull-to-refresh gesture from
+   competing with the drag on touch devices. */
+.sheet__grip-area {
+  padding: 6px 0 12px;
+  touch-action: none;
+  cursor: grab;
+}
+
+.sheet__grip-area:active {
+  cursor: grabbing;
+}
+
 .sheet__grip {
   width: 40px;
   height: 4px;
   border-radius: var(--radius-pill);
   background: var(--line);
-  margin: 6px auto 12px;
+  margin: 0 auto;
 }
 
 .sheet__title {
