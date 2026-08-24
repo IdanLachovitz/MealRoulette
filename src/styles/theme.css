@@ -1369,6 +1369,12 @@ button {
   max-height: 90vh;
   overflow-y: auto;
   scrollbar-width: none;
+  /* Touch scrolling is driven manually in JS instead (see the Sheet
+     component) — native touch panning has to be off, or the browser can
+     claim a downward drag for its own scrolling before the close-drag
+     logic gets a chance to run. Wheel and keyboard scrolling still work;
+     touch-action only affects touch/pen panning. */
+  touch-action: none;
   background: var(--bg);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   padding: 10px 18px calc(22px + env(safe-area-inset-bottom));

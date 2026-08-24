@@ -120,36 +120,52 @@ export function Sheet({
   }, [onClose])
 
   /**
-   * Pulling down anywhere in the sheet closes it — not just the grip. The
-   * catch is the sheet's own content scrolls, so a plain "any downward
-   * drag" would fight that: dragging down to close and dragging down to
-   * scroll up look identical at the start of the gesture. The resolution
-   * every native bottom sheet uses is the same one here — a downward drag
-   * only becomes a close-drag once the content is already scrolled to its
-   * top (nothing left to scroll), and only once it's moved past a small
-   * threshold so an ordinary tap on a button never gets mistaken for one.
+   * Pulling down anywhere in the sheet closes it — not just the grip, and
+   * without fighting the sheet's own scrolling. This can't be done by
+   * waiting to see the drag's direction and calling preventDefault() once
+   * a close-drag looks likely: on touch, by the time a few pixels of
+   * movement have gone by, the browser has usually already committed the
+   * gesture to native scrolling, and preventDefault() on a later event
+   * can't undo that (this is exactly why the previous version worked with
+   * a mouse — no competing native gesture — but not on a phone). .sheet
+   * has touch-action: none for that reason: touch scrolling is disabled
+   * there entirely, and both scrolling *and* the close-drag are driven
+   * from here instead, so there's nothing left for the browser to race us
+   * on. Wheel/keyboard scrolling are untouched — touch-action only governs
+   * touch/pen panning.
    */
   const onSheetDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     dragStartY.current = e.clientY
     startScrollTop.current = ref.current?.scrollTop ?? 0
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      // Capture is a nice-to-have (keeps tracking if the pointer strays
+      // outside the sheet) — its failure shouldn't sink the gesture.
+    }
   }
   const onSheetMove = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (dragStartY.current == null) return
+    if (dragStartY.current == null || !ref.current) return
     const delta = e.clientY - dragStartY.current
-    if (!dragging) {
-      if (delta < 6 || startScrollTop.current > 0) return
-      setDragging(true)
-      // Capture is a nice-to-have (keeps the drag tracking even if the
-      // pointer strays outside the sheet) — its failure should never take
-      // the rest of the gesture down with it.
-      try {
-        e.currentTarget.setPointerCapture(e.pointerId)
-      } catch {
-        // ignore
+    // Positive delta (finger/cursor moving down) shrinks scrollTop back
+    // toward 0; negative delta (moving up) grows it — the same
+    // relationship native touch scrolling has between finger and content.
+    const wantScrollTop = startScrollTop.current - delta
+    if (wantScrollTop > 0) {
+      ref.current.scrollTop = wantScrollTop
+      if (dragging) {
+        setDragging(false)
+        setDragY(0)
       }
+      return
     }
-    e.preventDefault()
-    setDragY(Math.max(0, delta))
+    // Nothing left to scroll — from here, further downward motion closes
+    // the sheet instead.
+    ref.current.scrollTop = 0
+    const overshoot = -wantScrollTop
+    if (!dragging && overshoot < 6) return
+    if (!dragging) setDragging(true)
+    setDragY(overshoot)
   }
   const onSheetUp = () => {
     if (dragging) {
