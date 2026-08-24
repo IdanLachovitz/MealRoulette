@@ -190,6 +190,25 @@ button {
   padding: 14px 16px calc(96px + env(safe-area-inset-bottom));
 }
 
+/* Switching tabs remounts the panel (see App.tsx) — this animation is what
+   makes that swap read as a soft cross-fade instead of an instant jump-cut. */
+.tab-panel {
+  animation: tab-panel-in 0.24s var(--ease-em);
+}
+
+@keyframes tab-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-panel {
+    animation: none;
+  }
+}
+
 .topbar {
   position: sticky;
   top: 0;
@@ -258,7 +277,31 @@ button {
   font-size: 10.5px;
   font-weight: 500;
   border-radius: var(--radius-pill);
-  transition: color 0.18s var(--ease-em);
+  transition: color 0.18s var(--ease-em), background-color 0.18s var(--ease-em),
+    transform 0.12s var(--ease-em);
+}
+
+/* Cursor rolling over an inactive tab, or a finger resting on it — a soft
+   tint under the icon/label so the bar feels responsive before it's tapped,
+   not just after. The active tab already has its own solid pill, so this
+   stays out of its way. */
+.nav__item:not([aria-current='page']):hover {
+  color: var(--txt);
+  background: color-mix(in srgb, var(--txt) 6%, transparent);
+}
+
+/* The actual press — finger down or mouse down — on any tab, active or not. */
+.nav__item:active {
+  transform: scale(0.92);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav__item {
+    transition: color 0.18s var(--ease-em);
+  }
+  .nav__item:active {
+    transform: none;
+  }
 }
 
 .nav__item[aria-current='page'] {

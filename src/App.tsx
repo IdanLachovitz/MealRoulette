@@ -71,16 +71,21 @@ function Shell() {
       </header>
 
       <main className="app__main">
-        {tab === 'week' && (
-          <WeekScreen householdId={household.id} onGoToRoulette={() => setTab('roulette')} />
-        )}
-        {tab === 'roulette' && (
-          <RouletteScreen householdId={household.id} onGoToLibrary={() => setTab('library')} />
-        )}
-        {tab === 'library' && <LibraryScreen householdId={household.id} />}
-        {tab === 'fridge' && <FridgeScreen householdId={household.id} />}
-        {tab === 'shopping' && <ShoppingScreen householdId={household.id} />}
-        {tab === 'settings' && <SettingsScreen householdId={household.id} />}
+        {/* Keyed by tab so React remounts (not patches) the panel on every
+            switch — that's what makes the fade/rise-in animation below
+            replay every time, instead of only on first load. */}
+        <div key={tab} className="tab-panel">
+          {tab === 'week' && (
+            <WeekScreen householdId={household.id} onGoToRoulette={() => setTab('roulette')} />
+          )}
+          {tab === 'roulette' && (
+            <RouletteScreen householdId={household.id} onGoToLibrary={() => setTab('library')} />
+          )}
+          {tab === 'library' && <LibraryScreen householdId={household.id} />}
+          {tab === 'fridge' && <FridgeScreen householdId={household.id} />}
+          {tab === 'shopping' && <ShoppingScreen householdId={household.id} />}
+          {tab === 'settings' && <SettingsScreen householdId={household.id} />}
+        </div>
       </main>
 
       <div className="nav-dock">
