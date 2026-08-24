@@ -4,6 +4,7 @@
  * hand (leftovers, open ingredients, whatever). Pure and local: no dish is
  * ever excluded for lacking a match, it's just ranked lower.
  */
+import { classifyIngredient } from './ingredient-art'
 import { normaliseName } from './shopping'
 import type { Dish } from '../types'
 
@@ -56,4 +57,52 @@ export function matchDishesToFridge(dishes: Dish[], fridgeItemNames: string[]): 
     if (Math.abs(fracDiff) > 1e-9) return fracDiff
     return b.covered - a.covered
   })
+}
+
+/** Only dishes with nothing missing — "you can cook this right now, as-is". */
+export function fullMatchesOnly(matches: FridgeMatch[]): FridgeMatch[] {
+  return matches.filter((m) => m.covered === m.total)
+}
+
+export interface GeneratedDish {
+  name: string
+  ingredients: string[]
+}
+
+const PROTEIN_KINDS = new Set(['poultry', 'fish', 'meat', 'egg'])
+const VEG_KINDS = new Set(['vegRound', 'vegLeaf'])
+const CARB_KINDS = new Set(['grain', 'pasta', 'bread', 'legume'])
+
+/** "X, Y ו-Z" — Hebrew's conjunction only goes on the last item. */
+function hebrewList(items: string[]): string {
+  if (items.length <= 1) return items[0] ?? ''
+  return `${items.slice(0, -1).join(', ')} ו${items[items.length - 1]}`
+}
+
+/**
+ * When nothing in the library is a full match, improvise something from
+ * exactly what's on hand — so by construction it has zero missing
+ * ingredients. This is a simple templated combination, not a real recipe:
+ * the UI must be clear it isn't a curated dish.
+ */
+export function generateDishFromFridge(fridgeItemNames: string[]): GeneratedDish | null {
+  const names = fridgeItemNames.map((n) => n.trim()).filter(Boolean)
+  if (names.length === 0) return null
+
+  const proteins = names.filter((n) => PROTEIN_KINDS.has(classifyIngredient(n)))
+  const vegs = names.filter((n) => VEG_KINDS.has(classifyIngredient(n)))
+  const carbs = names.filter((n) => CARB_KINDS.has(classifyIngredient(n)))
+
+  let name: string
+  if (proteins.length && vegs.length) {
+    name = `מוקפץ ${hebrewList(proteins)} עם ${hebrewList(vegs)}${carbs.length ? ' ו' + hebrewList(carbs) : ''}`
+  } else if (vegs.length && !proteins.length) {
+    name = `סלט ${hebrewList(vegs)}`
+  } else if (proteins.length && carbs.length) {
+    name = `${hebrewList(proteins)} עם ${hebrewList(carbs)}`
+  } else {
+    name = `אלתור מהמקרר: ${hebrewList(names)}`
+  }
+
+  return { name, ingredients: names }
 }
