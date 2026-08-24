@@ -404,12 +404,12 @@ function DishResultModal({
 }) {
   return (
     <Modal title={dish.name} onClose={onClose}>
-      <DishPicture className="dish-shot" name={dish.name} imageUrl={dish.image_url} />
+      <div className="dish-shot-wrap">
+        <DishPicture className="dish-shot" name={dish.name} imageUrl={dish.image_url} />
+        <div className="dish-shot__caption">{dish.name}</div>
+      </div>
 
-      <div style={{ textAlign: 'center', margin: '14px 0 4px' }}>
-        <div className="display" style={{ fontSize: 20 }}>
-          {dish.name}
-        </div>
+      <div style={{ textAlign: 'center', margin: '10px 0 4px' }}>
         <div className="label">{dish.prep_time_minutes} דק׳ הכנה</div>
       </div>
 

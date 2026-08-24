@@ -49,17 +49,42 @@
   --font-body: 'Rubik', 'Heebo', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: 'Suez One', 'Rubik', system-ui, serif;
   --font-label: 'Heebo', 'Rubik', system-ui, sans-serif;
+
+  /* The screen-title treatment (see .topbar__title) — kept independent of
+     --saf/--beet/--pist on purpose, since those are still mid-fix (see the
+     palette note above) and a heading shouldn't inherit that in the meantime. */
+  --heading-grad-a: #7a3b12;
+  --heading-grad-b: #b5763f;
+
+  /* .card's depth (see below): an inset highlight along the top edge plus a
+     soft ambient shadow, instead of a flat surface with a 1px outline —
+     what "claymorphism" in this file's own opening comment actually means. */
+  --shadow-clay: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 1px rgba(90, 58, 30, 0.06),
+    0 10px 22px -8px rgba(90, 58, 30, 0.28);
+
+  /* .nav (the bottom dock): a warm ambient shadow it casts on the content
+     below, plus a hairline top highlight — replaces the flat 1px ring so it
+     reads as a pane of glass floating over the screen, not a bordered bar
+     that happens to blur what's behind it. */
+  --shadow-nav: 0 14px 32px -14px rgba(90, 58, 30, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+
+  /* .summary__ring's fill color — independent of --saf/--pist for the same
+     reason as --heading-grad above. */
+  --ring-progress: #7a4a26;
 }
 
 :root[data-theme='dark'] {
-  /* Neutral near-black, not a tinted-brown dark — the accent hues carry the
-     brand's warmth, the page itself should just be black. */
-  --bg: #171717;
-  --surf: #171717;
-  --surf-2: #171717;
-  --line: #939393;
+  /* Warm, tonally-layered dark — not a flat near-black with one bright-white
+     line color doing all the separating. bg/surf/surf-2 now step up in
+     lightness (page → card → raised card), the way the light theme already
+     does with --surf vs --surf-2, and the border/line color is quiet enough
+     that surfaces read as layered by tone, not outlined. */
+  --bg: #15110d;
+  --surf: #201a15;
+  --surf-2: #2a221b;
+  --line: #3a2f26;
   --txt: #ffffff;
-  --mut: #ffffff;
+  --mut: #a89a8c;
   /* The primary flips to a lighter caramel here — a dark espresso button would
      have almost no contrast against an already-dark page, so --saf-ink flips
      back to a dark ink on top of it, matching the pattern the light palette
@@ -72,8 +97,8 @@
   --veg: #c89c5a;
   /* Red would disappear against the dark wheel, so the fork goes white here. */
   --pointer: #ffffff;
-  --w1: #262626;
-  --w2: #262626;
+  --w1: #2a221b;
+  --w2: #332a21;
   --saf-tonal: color-mix(in srgb, var(--saf) 40%, var(--surf));
   --beet-tonal: color-mix(in srgb, var(--beet) 50%, var(--surf));
   --pist-tonal: color-mix(in srgb, var(--pist) 30%, var(--surf));
@@ -87,6 +112,11 @@
   --glow-saf: 0 6px 22px rgba(145, 145, 145, 0.32);
   --grad-saf: linear-gradient(150deg, color-mix(in srgb, rgb(108, 60, 19) 70%, var(--surf)), color-mix(in srgb, var(--saf) 50%, var(--surf)) 40% 60%, color-mix(in srgb, rgb(108, 60, 19) 70%, var(--surf)));
   --grad-hero: radial-gradient(120% 140% at 50% -10%, var(--w1) 0%, var(--bg) 70%);
+  --heading-grad-a: #e8b06a;
+  --heading-grad-b: #c89c5a;
+  --shadow-clay: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 10px 24px -10px rgba(0, 0, 0, 0.6);
+  --shadow-nav: 0 14px 32px -14px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --ring-progress: #c89c5a;
 }
 
 /*
@@ -102,12 +132,12 @@
  */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #171717;
-    --surf: #171717;
-    --surf-2: #171717;
-    --line: #939393;
+    --bg: #15110d;
+    --surf: #201a15;
+    --surf-2: #2a221b;
+    --line: #3a2f26;
     --txt: #ffffff;
-    --mut: #ffffff;
+    --mut: #a89a8c;
     --saf: #3D1F04;
     --saf-ink: #ffffff;
     --beet: #D9CAB3;
@@ -115,8 +145,8 @@
     --pist: #c89c5a;
     --veg: #c89c5a;
     --pointer: #ffffff;
-    --w1: #262626;
-    --w2: #262626;
+    --w1: #2a221b;
+    --w2: #332a21;
     --saf-tonal: color-mix(in srgb, var(--saf) 40%, var(--surf));
     --beet-tonal: color-mix(in srgb, var(--beet) 50%, var(--surf));
     --pist-tonal: color-mix(in srgb, var(--pist) 30%, var(--surf));
@@ -130,6 +160,11 @@
     --glow-saf: 0 6px 22px rgba(145, 145, 145, 0.32);
     --grad-saf: linear-gradient(150deg, color-mix(in srgb, rgb(108, 60, 19) 70%, var(--surf)), color-mix(in srgb, var(--saf) 50%, var(--surf)) 40% 60%, color-mix(in srgb, rgb(108, 60, 19) 70%, var(--surf)));
     --grad-hero: radial-gradient(120% 140% at 50% -10%, var(--w1) 0%, var(--bg) 70%);
+    --heading-grad-a: #e8b06a;
+    --heading-grad-b: #c89c5a;
+    --shadow-clay: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 10px 24px -10px rgba(0, 0, 0, 0.6);
+    --shadow-nav: 0 14px 32px -14px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    --ring-progress: #c89c5a;
   }
 }
 
@@ -222,18 +257,32 @@ button {
   box-shadow: 0 1px 0 var(--line), 0 8px 20px -12px rgba(154, 102, 223, 0.18);
 }
 
+/* A warm gradient fill instead of flat ink — the one display-font moment
+   that appears on every screen gets to actually register as the app's
+   signature, not just a bigger font-size. The subtitle span keeps its own
+   solid --mut color (set below), so only the title text itself picks this
+   up. */
 .topbar__title {
   font-family: var(--font-display);
   font-size: 21px;
   margin: 0;
   flex: 1;
   line-height: 1.3;
+  background: linear-gradient(120deg, var(--heading-grad-a), var(--heading-grad-b));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--heading-grad-a);
 }
 
 .topbar__sub {
   font-family: var(--font-label);
   font-size: 12px;
   color: var(--mut);
+  /* -webkit-text-fill-color inherits independently of color — without this
+     reset, the subtitle would inherit the title's transparent fill and
+     vanish in WebKit. */
+  -webkit-text-fill-color: var(--mut);
   font-weight: 400;
 }
 
@@ -257,10 +306,11 @@ button {
   width: 100%;
   max-width: 480px;
   padding: 8px;
-  background: color-mix(in srgb, var(--surf) 94%, transparent);
-  backdrop-filter: blur(18px);
+  background: color-mix(in srgb, var(--surf) 78%, transparent);
+  backdrop-filter: blur(22px) saturate(1.4);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
   border-radius: var(--radius-pill);
-  box-shadow: var(--shadow-lift), 0 0 0 1px var(--line);
+  box-shadow: var(--shadow-nav);
 }
 
 .nav__item {
@@ -352,12 +402,12 @@ button {
 /* ---- Cards and primitives ------------------------------------------------- */
 
 .card {
-  background: var(--surf);
-  border: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--surf), var(--surf-2));
+  border: none;
   border-radius: var(--radius);
   padding: 14px 16px;
   margin-bottom: 10px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-clay);
 }
 
 .card--flat {
@@ -495,6 +545,17 @@ button {
 
   .btn--subtle:hover:not(:disabled) {
     background: var(--w2);
+  }
+
+  .btn--danger:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--danger) 10%, transparent);
+  }
+
+  /* Chips and list rows had a press state but nothing on the way there —
+     same tactile language as the buttons above and the nav bar. */
+  .chip:hover:not([aria-pressed='true']):not(.chip--on) {
+    background: var(--w1);
+    border-color: var(--mut);
   }
 }
 
@@ -920,14 +981,50 @@ button {
    distinct facts instead of three identical grey boxes. */
 .summary__cell:nth-child(1) {
   background: var(--saf-tonal);
+  --cell-bg: var(--saf-tonal);
 }
 
 .summary__cell:nth-child(2) {
   background: var(--pist-tonal);
+  --cell-bg: var(--pist-tonal);
 }
 
 .summary__cell:nth-child(3) {
   background: var(--beet-tonal);
+}
+
+/* The two stats with a natural "out of" (sessions vs. this week's cook-day
+   target, covered days vs. 7) show that fraction as a ring instead of
+   asking you to do the math from a bare number. Fixed ring color, not the
+   cell's own (still-cyan-pending-#1) tonal hue, so the arc stays legible
+   regardless of that. */
+.summary__ring {
+  --pct: 0%;
+  position: relative;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: conic-gradient(
+    var(--ring-progress) var(--pct),
+    color-mix(in srgb, var(--ring-progress) 20%, transparent) 0
+  );
+}
+
+.summary__ring::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--cell-bg, var(--surf));
+}
+
+.summary__ring .summary__num {
+  position: relative;
+  font-size: 15px;
 }
 
 .summary__num {
@@ -1194,6 +1291,28 @@ button {
   display: block;
   border-radius: var(--radius-sm);
   background: var(--w1);
+}
+
+/* The result modal's photo carries its own name now instead of repeating it
+   as plain text underneath — the scrim exists purely so white text stays
+   legible over whatever the photo looks like at the bottom edge. */
+.dish-shot-wrap {
+  position: relative;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.dish-shot__caption {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 36px 14px 12px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.68), transparent);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1.3;
+  text-align: center;
 }
 
 .dish-shot--empty {

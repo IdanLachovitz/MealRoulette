@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { alive, save } from '../db/repo'
@@ -19,6 +20,12 @@ import {
   setDayRole,
 } from '../services/week'
 import type { Component, CookSession, DaySlot, Dish, PlanningParams, WeekPlan } from '../types'
+
+/** Progress-ring fill for a "count out of target" stat — never over 100%. */
+function ringPct(value: number, target: number): number {
+  if (target <= 0) return 0
+  return Math.min(100, Math.round((value / target) * 100))
+}
 
 export function WeekScreen({
   householdId,
@@ -180,14 +187,24 @@ export function WeekScreen({
         </div>
       </div>
 
-      {/* FR-9.5 */}
+      {/* FR-9.5 — the first two stats have a natural "out of": sessions against
+          the week's own cook-day target, covered days against the 7 in a
+          week. Kitchen time doesn't (there's no target to be "out of"), so
+          it stays a plain number. */}
       <div className="summary">
         <div className="summary__cell">
-          <div className="summary__num">{sortedSessions.length}</div>
+          <div
+            className="summary__ring"
+            style={{ '--pct': `${ringPct(sortedSessions.length, plan.planning_params.cook_days_count)}%` } as CSSProperties}
+          >
+            <span className="summary__num">{sortedSessions.length}</span>
+          </div>
           <div className="summary__lbl">בישולים</div>
         </div>
         <div className="summary__cell">
-          <div className="summary__num">{covered}</div>
+          <div className="summary__ring" style={{ '--pct': `${ringPct(covered, 7)}%` } as CSSProperties}>
+            <span className="summary__num">{covered}</span>
+          </div>
           <div className="summary__lbl">ימים מכוסים</div>
         </div>
         <div className="summary__cell">
