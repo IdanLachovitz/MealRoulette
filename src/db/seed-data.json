@@ -68,7 +68,8 @@
           "aisle": "ירקות",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-01.jpg"
     },
     {
       "name": "פרגיות בתנור בסויה וסילאן עם בצל ובטטה",
@@ -119,7 +120,8 @@
           "aisle": "ירקות",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-02.jpg"
     },
     {
       "name": "עוף בטריאקי עם ברוקולי ואורז",
@@ -156,7 +158,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-03.jpg"
     },
     {
       "name": "עוף בתנור עם אורז וגזר",
@@ -186,7 +189,8 @@
           "aisle": "ירקות",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-04.jpg"
     },
     {
       "name": "עוף עם פטריות",
@@ -216,7 +220,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-05.jpg"
     },
     {
       "name": "עוף בקארי עם פטריות ואורז",
@@ -253,7 +258,8 @@
           "aisle": "תבלינים",
           "is_scalable": false
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-06.jpg"
     },
     {
       "name": "עוף בקוביות מתובל עם ברוקולי מוקפץ ואורז לבן",
@@ -304,7 +310,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-07.jpg"
     },
     {
       "name": "תבשיל עוף עם זיתים ואורז לבן",
@@ -334,7 +341,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-08.jpg"
     },
     {
       "name": "שוקיים עם אפונה ברוטב אדום ואורז עם אטריות",
@@ -378,7 +386,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-09.jpg"
     },
     {
       "name": "Marry me chicken",
@@ -415,7 +424,8 @@
           "aisle": "אחר",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-10.jpg"
     },
     {
       "name": "Chicken fajita bowl — עוף ואורז מתובלים עם סלט ואבוקדו",
@@ -459,7 +469,8 @@
           "aisle": "תבלינים",
           "is_scalable": false
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-11.jpg"
     },
     {
       "name": "Fajitas",
@@ -496,7 +507,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-12.jpg"
     },
     {
       "name": "מרק עוף",
@@ -540,7 +552,8 @@
           "aisle": "ירקות",
           "is_scalable": false
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-13.jpg"
     },
     {
       "name": "נגטס",
@@ -556,7 +569,8 @@
           "aisle": "קפואים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-14.jpg"
     },
     {
       "name": "בשר עם פטריות וערמונים",
@@ -586,7 +600,8 @@
           "aisle": "אחר",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-15.jpg"
     },
     {
       "name": "בשר עם תפו\"א ובטטה בתנור",
@@ -616,7 +631,8 @@
           "aisle": "ירקות",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-16.jpg"
     },
     {
       "name": "אסאדו רך",
@@ -646,7 +662,8 @@
           "aisle": "תבלינים",
           "is_scalable": false
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-17.jpg"
     },
     {
       "name": "קציצות בשר ברוטב אדום",
@@ -683,7 +700,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-18.jpg"
     },
     {
       "name": "קובה במיה",
@@ -713,7 +731,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-19.jpg"
     },
     {
       "name": "קובה סלק",
@@ -743,7 +762,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-20.jpg"
     },
     {
       "name": "קובה קישואים",
@@ -773,7 +793,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-21.jpg"
     },
     {
       "name": "ממולאים",
@@ -803,7 +824,8 @@
           "aisle": "בשר ודגים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-22.jpg"
     },
     {
       "name": "כרוב ממולא",
@@ -840,7 +862,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-23.jpg"
     },
     {
       "name": "קישוא ממולא",
@@ -877,7 +900,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-24.jpg"
     },
     {
       "name": "מוסקה — חציל ממולא בבשר",
@@ -907,7 +931,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-25.jpg"
     },
     {
       "name": "מפרום — תפוח אדמה ממולא בבשר",
@@ -937,7 +962,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-26.jpg"
     },
     {
       "name": "לזניה",
@@ -981,7 +1007,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-27.jpg"
     },
     {
       "name": "בורקס בשר עם צנוברים ורוטב פטריות",
@@ -1018,7 +1045,8 @@
           "aisle": "ירקות",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-28.jpg"
     },
     {
       "name": "לחמניות בשר",
@@ -1055,7 +1083,8 @@
           "aisle": "ירקות",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-29.jpg"
     },
     {
       "name": "קבבים",
@@ -1092,7 +1121,8 @@
           "aisle": "תבלינים",
           "is_scalable": false
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-30.jpg"
     },
     {
       "name": "המבורגרים",
@@ -1129,7 +1159,8 @@
           "aisle": "ירקות",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-31.jpg"
     },
     {
       "name": "Burger bowl",
@@ -1173,7 +1204,8 @@
           "aisle": "אחר",
           "is_scalable": false
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-32.jpg"
     },
     {
       "name": "סטרוגנוף",
@@ -1210,7 +1242,8 @@
           "aisle": "ירקות",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-33.jpg"
     },
     {
       "name": "קוביות בשר מקורמל",
@@ -1240,7 +1273,8 @@
           "aisle": "יבשים",
           "is_scalable": false
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-34.jpg"
     },
     {
       "name": "אורז לבן עם קוביות בשר ושעועית ברוטב אדום",
@@ -1277,7 +1311,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-35.jpg"
     },
     {
       "name": "אטריות מוקפצות עם פטריות, רצועות בשר וקשיו",
@@ -1314,7 +1349,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-36.jpg"
     },
     {
       "name": "טאקוס",
@@ -1358,7 +1394,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-37.jpg"
     },
     {
       "name": "עראיס בשר",
@@ -1395,7 +1432,8 @@
           "aisle": "ירקות",
           "is_scalable": false
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-38.jpg"
     },
     {
       "name": "טבחה שעועית",
@@ -1425,7 +1463,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-39.jpg"
     },
     {
       "name": "בטטה חצויה בתנור עם בשר טחון וסלט קוטג'",
@@ -1455,7 +1494,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-40.jpg"
     },
     {
       "name": "טורטיות עם מאסה, עגבנייה ואבוקדו",
@@ -1492,7 +1532,8 @@
           "aisle": "ירקות",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-41.jpg"
     },
     {
       "name": "שניצל",
@@ -1529,7 +1570,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-42.jpg"
     },
     {
       "name": "Milanesa napolitana",
@@ -1566,7 +1608,8 @@
           "aisle": "בשר ודגים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-43.jpg"
     },
     {
       "name": "פתיתים ברוטב אדום עם שניצלים",
@@ -1596,7 +1639,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-44.jpg"
     },
     {
       "name": "אורז צהוב עם שניצל ושעועית ברוטב אדום",
@@ -1633,7 +1677,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-45.jpg"
     },
     {
       "name": "סלמון בטריאקי עם אורז",
@@ -1663,7 +1708,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-46.jpg"
     },
     {
       "name": "קערת אורז, סלמון ואבוקדו",
@@ -1700,7 +1746,8 @@
           "aisle": "יבשים",
           "is_scalable": false
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-47.jpg"
     },
     {
       "name": "סלמון עם פטריות בשמנת",
@@ -1730,7 +1777,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-48.jpg"
     },
     {
       "name": "חריימה — דג מרוקאי",
@@ -1774,7 +1822,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-49.jpg"
     },
     {
       "name": "Sushi bake עם טונה וסלמון",
@@ -1818,7 +1867,8 @@
           "aisle": "אחר",
           "is_scalable": false
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-50.jpg"
     },
     {
       "name": "עראיס טונה",
@@ -1855,7 +1905,8 @@
           "aisle": "אחר",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-51.jpg"
     },
     {
       "name": "פסטה ברוטב פטריות",
@@ -1885,7 +1936,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-52.jpg"
     },
     {
       "name": "פסטה ברוטב ערמונים",
@@ -1915,7 +1967,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-53.jpg"
     },
     {
       "name": "פסטה רוזה עם עגבניות שרי",
@@ -1952,7 +2005,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-54.jpg"
     },
     {
       "name": "פסטה בשמנת ופסטו",
@@ -1982,7 +2036,8 @@
           "aisle": "אחר",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-55.jpg"
     },
     {
       "name": "פסטה בשמנת וסלמון",
@@ -2012,7 +2067,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-56.jpg"
     },
     {
       "name": "פסטה בולונז",
@@ -2056,7 +2112,8 @@
           "aisle": "ירקות",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-57.jpg"
     },
     {
       "name": "פסטה ברוטב אדום עם נקניקיות",
@@ -2086,7 +2143,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-58.jpg"
     },
     {
       "name": "מוקפץ עם ברוקולי, בוק צ'וי ואטריות אורז",
@@ -2123,7 +2181,8 @@
           "aisle": "יבשים",
           "is_scalable": false
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-59.jpg"
     },
     {
       "name": "פולנטה עם פטריות",
@@ -2153,7 +2212,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-60.jpg"
     },
     {
       "name": "פשטידת קישואים (Tarta de zucchini)",
@@ -2190,7 +2250,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-61.jpg"
     },
     {
       "name": "פשטידת בצל (Tarta de cebolla)",
@@ -2227,7 +2288,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-62.jpg"
     },
     {
       "name": "פשטידת עוף בגבינת שמנת עם סלט (Tarta de pollo)",
@@ -2264,7 +2326,8 @@
           "aisle": "ירקות",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-63.jpg"
     },
     {
       "name": "קציצות ירקות — ערוק",
@@ -2301,7 +2364,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-64.jpg"
     },
     {
       "name": "מרק עגבניות",
@@ -2338,7 +2402,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-65.jpg"
     },
     {
       "name": "מרק פטריות",
@@ -2375,7 +2440,8 @@
           "aisle": "יבשים",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-66.jpg"
     },
     {
       "name": "מרק בטטה",
@@ -2412,7 +2478,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-67.jpg"
     },
     {
       "name": "קוסקוס עם מרק ירקות",
@@ -2456,7 +2523,8 @@
           "aisle": "ירקות",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-68.jpg"
     },
     {
       "name": "קוסקוס ברוטב אדום",
@@ -2486,7 +2554,8 @@
           "aisle": "ירקות",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-69.jpg"
     },
     {
       "name": "ג'חנון",
@@ -2516,7 +2585,8 @@
           "aisle": "יבשים",
           "is_scalable": false
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-70.jpg"
     },
     {
       "name": "חמין",
@@ -2560,7 +2630,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-71.jpg"
     },
     {
       "name": "צ'יפס עם רוטב שמנת פטריות",
@@ -2590,7 +2661,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-72.jpg"
     },
     {
       "name": "צ'יפס עם צ'דר",
@@ -2613,7 +2685,8 @@
           "aisle": "מוצרי חלב",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-73.jpg"
     },
     {
       "name": "טוסט גבינת עזים, ריבת בצל ורוקט",
@@ -2650,7 +2723,8 @@
           "aisle": "ירקות",
           "is_scalable": true
         }
-      ]
+      ],
+      "image_url": "dish-photos/dish-74.jpg"
     }
   ],
   "components": [

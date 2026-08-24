@@ -363,6 +363,44 @@ describe('planWeek — determinism', () => {
   })
 })
 
+describe('planWeek — preferredDishIds (AI shortlist bias)', () => {
+  it('draws only from the shortlist when every entry is fresh', () => {
+    const preferredDishIds = ['מנה 1', 'מנה 2', 'מנה 3']
+    for (const seed of [1, 2, 3, 4, 5]) {
+      const result = planWeek(input({ seed, preferredDishIds }))
+      for (const s of result.sessions) {
+        expect(preferredDishIds).toContain(s.dish_id)
+      }
+    }
+  })
+
+  it('falls back to the full pool once the shortlist is exhausted, without dropping a day', () => {
+    // Only one preferred dish, but three sessions requested — the other two
+    // must still come from somewhere, exactly as if no shortlist existed.
+    const result = planWeek(input({ preferredDishIds: ['מנה 1'] }))
+    expect(result.sessions).toHaveLength(3)
+    expect(result.sessions.some((s) => s.dish_id === 'מנה 1')).toBe(true)
+  })
+
+  it('ignores shortlist entries that are not eligible (excluded/inactive), same as an empty list', () => {
+    const withGarbage = planWeek(input({ seed: 42, preferredDishIds: ['not-a-real-dish'] }))
+    const withNone = planWeek(input({ seed: 42 }))
+    expect(withGarbage.sessions).toEqual(withNone.sessions)
+  })
+
+  it('never overrides a locked session', () => {
+    const result = planWeek(
+      input({
+        preferredDishIds: ['מנה 1', 'מנה 2', 'מנה 3'],
+        lockedSessions: [{ cook_date: DATES[0], covers_days: 1, dish_id: 'מנה 9' }],
+      }),
+    )
+    const locked = result.sessions.find((s) => s.cook_date === DATES[0])
+    expect(locked?.dish_id).toBe('מנה 9')
+    expect(locked?.is_locked).toBe(true)
+  })
+})
+
 describe('spreadEvenly', () => {
   it('spaces cook days out instead of bunching them at the start', () => {
     const slots = ['a', 'b', 'c', 'd', 'e', 'f', 'g']

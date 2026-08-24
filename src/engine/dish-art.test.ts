@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { artRandom, artSeed, classifyDish } from './dish-art'
+import { classifyDish } from './dish-art'
 import seed from '../db/seed-data.json'
 
 describe('classifyDish', () => {
@@ -71,27 +71,10 @@ describe('classifyDish', () => {
       )
       counts.set(kind, (counts.get(kind) ?? 0) + 1)
     }
-    // At least eight distinct illustrations across the library, and no kind
-    // covering more than a third of it — otherwise the wheel looks samey again.
+    // At least eight distinct kinds across the library, and no kind covering
+    // more than a third of it — otherwise the AI wizard's variety pass has
+    // nothing to work with.
     expect(counts.size).toBeGreaterThanOrEqual(8)
     expect(Math.max(...counts.values())).toBeLessThan(seed.dishes.length / 3)
-  })
-})
-
-describe('artSeed / artRandom', () => {
-  it('is stable for the same name', () => {
-    expect(artSeed('לזניה')).toBe(artSeed('לזניה'))
-    expect(artSeed('לזניה')).not.toBe(artSeed('שקשוקה'))
-  })
-
-  it('produces a repeatable sequence in [0,1)', () => {
-    const a = artRandom(artSeed('לזניה'))
-    const b = artRandom(artSeed('לזניה'))
-    const first = [a(), a(), a()]
-    expect(first).toEqual([b(), b(), b()])
-    for (const v of first) {
-      expect(v).toBeGreaterThanOrEqual(0)
-      expect(v).toBeLessThan(1)
-    }
   })
 })

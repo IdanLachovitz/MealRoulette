@@ -39,6 +39,16 @@ export interface PlannerInput {
    * picks (a hard exclusion, not just a cooldown) for exactly that reason.
    */
   previousSessionDishIds?: string[]
+  /**
+   * A shortlist (typically from the AI-assisted wizard) to draw from first
+   * when a session's normal "fresh" pool has more than one option — pure
+   * preference, never a constraint. Every cooldown/cycle/repeat fallback
+   * below still runs exactly as it would with no preference at all the
+   * moment this list is empty, missing, or exhausted, so a bad or absent
+   * suggestion can never leave a day uncovered or break a rule the plain
+   * algorithm wouldn't already break on its own.
+   */
+  preferredDishIds?: string[]
 }
 
 export interface DraftSession {
@@ -186,6 +196,7 @@ export function planWeek(input: PlannerInput): PlanResult {
     ...lockedSessions.map((s) => s.dish_id).filter((id): id is string => !!id),
     ...(input.previousSessionDishIds ?? []),
   ])
+  const preferred = input.preferredDishIds?.length ? new Set(input.preferredDishIds) : null
 
   const pickOne = (): { dish: Dish; covers: number } | null => {
     let cover = targetCover
@@ -198,8 +209,12 @@ export function planWeek(input: PlannerInput): PlanResult {
           !isInCooldown(d, lastCooked, input.today, settings.dish_cooldown_days) &&
           !isRestingInCycle(d, pool0, lastCooked),
       )
-      if (fresh.length > 0) {
-        const dish = rng.pick(fresh)
+      // Draw from the AI's shortlist first when it overlaps the fresh pool —
+      // falls straight through to the same `fresh` set the moment it doesn't.
+      const freshPreferred = preferred ? fresh.filter((d) => preferred.has(d.id)) : []
+      const freshChoice = freshPreferred.length > 0 ? freshPreferred : fresh
+      if (freshChoice.length > 0) {
+        const dish = rng.pick(freshChoice)
         return { dish, covers: Math.min(cover, Math.max(1, dish.max_cover_days)) }
       }
 

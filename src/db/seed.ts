@@ -18,6 +18,7 @@ interface SeedDish {
   is_active: boolean
   fixed_servings: number | null
   ingredients: Ingredient[]
+  image_url?: string
 }
 
 interface SeedComponent {
@@ -94,15 +95,22 @@ export async function createHousehold(name = 'המטבח שלנו', diners = 2):
   return household
 }
 
+/** A seed dish's image_url is a path relative to the app root (e.g. "dish-photos/dish-01.jpg"). */
+function seedImageUrl(path: string | undefined): string | null {
+  return path ? import.meta.env.BASE_URL + path : null
+}
+
 /**
  * Import the bundled starter library into a household.
  *
  * Safe to run more than once: a seed item whose name isn't in the household
  * yet gets inserted. A seed item that's already there is normally left alone
- * (it may have been edited since) — the one exception is ingredients, which
- * get backfilled onto an already-imported item that still has none, so a
- * household that imported before ingredient data existed picks it up on the
- * next import without losing any other edits or duplicating anything.
+ * (it may have been edited since) — the exceptions are ingredients and the
+ * photo, which get backfilled onto an already-imported item that still has
+ * none, so a household that imported before that data existed picks it up
+ * on the next import without losing any other edits or duplicating anything.
+ * A dish with its own photo (AI-generated or manually uploaded) is never
+ * overwritten by the seed's bundled one.
  */
 export async function importSeedLibrary(householdId: string): Promise<{
   dishes: number
@@ -132,9 +140,13 @@ export async function importSeedLibrary(householdId: string): Promise<{
         fixed_servings: d.fixed_servings,
         is_active: d.is_active,
         ingredients: d.ingredients,
+        image_url: seedImageUrl(d.image_url),
       })
-    } else if (existing.ingredients.length === 0 && d.ingredients.length > 0) {
-      backfillDishes.push({ ...existing, ingredients: d.ingredients })
+    } else {
+      const patch: Partial<Dish> = {}
+      if (existing.ingredients.length === 0 && d.ingredients.length > 0) patch.ingredients = d.ingredients
+      if (!existing.image_url && d.image_url) patch.image_url = seedImageUrl(d.image_url)
+      if (Object.keys(patch).length > 0) backfillDishes.push({ ...existing, ...patch })
     }
   }
 

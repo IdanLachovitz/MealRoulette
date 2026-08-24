@@ -6,10 +6,11 @@ import { alive, remove, save } from '../db/repo'
 import { useApp } from '../state'
 import { EmptyState, Field, Notice, Sheet, Switch, TimeFilterChips } from '../components/ui'
 import { Icon } from '../components/Icon'
-import { DishArt } from '../components/DishArt'
+import { DishPicture } from '../components/DishArt'
 import { QuickAddDish } from './QuickAddDish'
 import { IngredientsEditor } from './IngredientsEditor'
 import { fileToCompressedDataUrl } from '../engine/image'
+import { generateDishImageWithAi } from '../sync/ai'
 import { passesTimeFilter } from '../engine/planner'
 import type { Component, ComponentType, Dish } from '../types'
 import { COMPONENT_LABEL } from '../types'
@@ -191,6 +192,7 @@ function DishSheet({
   const [draft, setDraft] = useState<Dish>(dish)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [photoBusy, setPhotoBusy] = useState(false)
+  const [aiPhotoBusy, setAiPhotoBusy] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // EC-3 — deleting a dish that is scheduled has to say what it will break.
@@ -220,6 +222,22 @@ function DishSheet({
       toast('לא הצלחתי לטעון את התמונה')
     } finally {
       setPhotoBusy(false)
+    }
+  }
+
+  /** "Didn't like it" / "not accurate" escape hatch — always overwrites
+   *  whatever photo is there now, AI-generated, seeded, or manually uploaded. */
+  const onRegeneratePhoto = async () => {
+    setAiPhotoBusy(true)
+    try {
+      const imageUrl = await generateDishImageWithAi(draft.name, draft.ingredients.map((i) => i.name))
+      if (imageUrl) {
+        patch({ image_url: imageUrl })
+      } else {
+        toast('לא הצלחתי ליצור תמונה. אפשר לנסות שוב.')
+      }
+    } finally {
+      setAiPhotoBusy(false)
     }
   }
 
@@ -292,27 +310,16 @@ function DishSheet({
       </Field>
 
       <div style={{ marginBottom: 10 }}>
-        {draft.image_url ? (
-          <img className="dish-shot" src={draft.image_url} alt="" />
-        ) : (
-          <DishArt
-            className="dish-shot"
-            name={draft.name}
-            ingredients={draft.ingredients.map((i) => i.name)}
-          />
-        )}
+        <DishPicture className="dish-shot" name={draft.name} imageUrl={draft.image_url} />
       </div>
 
-      {/* image_url existed in the data model but nothing ever wrote to it, so
-          the roulette's result window had no photo to show for any dish. A real
-          photo (camera or gallery) always beats the drawn placeholder above. */}
-      <Field label="תמונה (אופציונלי)" hint="תמונה אמיתית של המנה — מהמצלמה, מהגלריה, או קישור.">
+      <Field label="תמונה (אופציונלי)" hint="תמונה אמיתית של המנה — נוצרת אוטומטית ב-AI, או מהמצלמה/גלריה/קישור.">
         <div className="row" style={{ gap: 8 }}>
           <button
             type="button"
             className="btn btn--ghost"
             style={{ flex: 1 }}
-            disabled={photoBusy}
+            disabled={photoBusy || aiPhotoBusy}
             onClick={() => fileInputRef.current?.click()}
           >
             {photoBusy ? 'טוענת…' : `📷 ${draft.image_url ? 'שינוי תמונה' : 'צילום / בחירה מהגלריה'}`}
@@ -328,6 +335,15 @@ function DishSheet({
             </button>
           )}
         </div>
+        <button
+          type="button"
+          className="btn btn--ghost btn--block"
+          style={{ marginTop: 8 }}
+          disabled={photoBusy || aiPhotoBusy}
+          onClick={() => void onRegeneratePhoto()}
+        >
+          {aiPhotoBusy ? 'יוצרת תמונה…' : `🎨 ${draft.image_url ? 'יצירת תמונה מחדש (AI)' : 'יצירת תמונה (AI)'}`}
+        </button>
         <input
           ref={fileInputRef}
           type="file"

@@ -6,7 +6,7 @@ import { useApp } from '../state'
 import { EmptyState, Modal, Notice, Sheet, Switch, TimeFilterChips } from '../components/ui'
 import { Icon } from '../components/Icon'
 import { Wheel, rotationFor } from '../components/Wheel'
-import { DishArt } from '../components/DishArt'
+import { DishPicture } from '../components/DishArt'
 import type { RingSpec } from '../components/Wheel'
 import {
   applyCooldown,
@@ -402,26 +402,9 @@ function DishResultModal({
   onExclude: () => void
   onClose: () => void
 }) {
-  // A URL that 404s should fall back to the placeholder, not a broken image.
-  const [broken, setBroken] = useState(false)
-  const hasPhoto = !!dish.image_url && !broken
-
   return (
     <Modal title={dish.name} onClose={onClose}>
-      {hasPhoto ? (
-        <img
-          className="dish-shot"
-          src={dish.image_url!}
-          alt={dish.name}
-          onError={() => setBroken(true)}
-        />
-      ) : (
-        <DishArt
-          className="dish-shot"
-          name={dish.name}
-          ingredients={dish.ingredients.map((i) => i.name)}
-        />
-      )}
+      <DishPicture className="dish-shot" name={dish.name} imageUrl={dish.image_url} />
 
       <div style={{ textAlign: 'center', margin: '14px 0 4px' }}>
         <div className="display" style={{ fontSize: 20 }}>
@@ -519,7 +502,7 @@ function DishMode({
           </>
         ) : (
           <div className="muted" style={{ textAlign: 'center', paddingTop: 14 }}>
-            {spinning ? 'מסובבת…' : `${pool.length} מנות בגלגל`}
+            {spinning ? 'מסובב…' : `${pool.length} מנות בגלגל`}
           </div>
         )}
       </div>

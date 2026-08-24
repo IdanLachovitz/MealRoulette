@@ -5,10 +5,12 @@
 import { db } from '../db/db'
 import { alive, newId, now, remove, save, saveMany } from '../db/repo'
 import { addDays, startOfWeek, toISODate, weekDates } from '../engine/dates'
-import { planWeek } from '../engine/planner'
+import { diversifyByCategory } from '../engine/dish-art'
+import { eligibleDishes, planWeek } from '../engine/planner'
 import type { PlanResult, PlannerInput } from '../engine/planner'
 import { buildShoppingList } from '../engine/shopping'
 import { seedFrom } from '../engine/rng'
+import { pickWeekDishesWithAi } from '../sync/ai'
 import type {
   Component,
   CookHistory,
@@ -103,6 +105,39 @@ export async function runPlanningWizard(
   const previousSessionDishIds = [
     ...new Set(everyProposedThisWeek.map((s) => s.dish_id).filter((id): id is string => !!id)),
   ]
+
+  // Ask AI for a varied shortlist to bias the picks toward — best-effort only.
+  // planWeek's own cooldown/cycle/repeat logic still runs in full regardless
+  // of whether this succeeds, so a slow or failed call never blocks the wizard
+  // or risks leaving a day uncovered (see PlannerInput.preferredDishIds).
+  const alreadyUsed = new Set([
+    ...locked.map((s) => s.dish_id).filter((id): id is string => !!id),
+    ...previousSessionDishIds,
+  ])
+  const candidates = eligibleDishes(dishes, params.max_prep_time).filter((d) => !alreadyUsed.has(d.id))
+  const recentNames = history
+    .filter((h) => h.entity_type === 'dish')
+    .sort((a, b) => b.cooked_on.localeCompare(a.cooked_on))
+    .slice(0, 8)
+    .map((h) => dishes.find((d) => d.id === h.entity_id)?.name)
+    .filter((name): name is string => !!name)
+  const aiShortlist = await pickWeekDishesWithAi(
+    candidates.map((d) => ({ id: d.id, name: d.name, prep_time_minutes: d.prep_time_minutes })),
+    params.cook_days_count,
+    recentNames,
+  )
+  // The model's own "be varied" instruction isn't a guarantee — this is:
+  // never more than one dish per classifyDish category (soup, pasta, etc.)
+  // makes it into the actual shortlist, regardless of how the names read.
+  const preferredDishIds = aiShortlist
+    ? diversifyByCategory(
+        aiShortlist
+          .map((id) => dishes.find((d) => d.id === id))
+          .filter((d): d is Dish => !!d)
+          .map((d) => ({ ...d, ingredients: d.ingredients.map((i) => i.name) })),
+      ).map((d) => d.id)
+    : null
+
   const input: PlannerInput = {
     dates: weekDates(plan.week_start_date),
     excludedDates: days.filter((d) => d.role === 'none').map((d) => d.date),
@@ -118,6 +153,7 @@ export async function runPlanningWizard(
     today: plan.week_start_date,
     seed,
     previousSessionDishIds,
+    preferredDishIds: preferredDishIds ?? undefined,
   }
 
   const result = planWeek(input)

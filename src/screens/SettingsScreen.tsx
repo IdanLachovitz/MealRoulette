@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { alive, save } from '../db/repo'
@@ -8,6 +8,7 @@ import { EmptyState, Field, Notice, Switch } from '../components/ui'
 import { getSupabase, isSyncConfigured } from '../sync/supabase'
 import { runSync } from '../sync/sync'
 import { currentUserEmail, joinHousehold, registerHousehold, signOut } from '../sync/household'
+import { generateDishImageWithAi } from '../sync/ai'
 import { daysBetween, toISODate } from '../engine/dates'
 import type { Component, CookHistory, Dish, Household } from '../types'
 import { COMPONENT_LABEL } from '../types'
@@ -135,7 +136,121 @@ export function SettingsScreen({ householdId }: { householdId: string }) {
             </div>
           </div>
 
+          <DishImagesSection householdId={householdId} onToast={toast} />
+
           <BackupSection householdId={householdId} onToast={toast} />
+        </>
+      )}
+    </div>
+  )
+}
+
+/**
+ * One-time AI picture generation for every reservoir dish that doesn't have
+ * a photo yet — never touches a dish that already has one, whether from a
+ * previous run of this or a manually uploaded photo (FR: "one time only").
+ */
+function DishImagesSection({
+  householdId,
+  onToast,
+}: {
+  householdId: string
+  onToast: (msg: string) => void
+}) {
+  const dishes = useLiveQuery(
+    async () => alive(await db.dishes.where('household_id').equals(householdId).toArray()),
+    [householdId],
+    [] as Dish[],
+  )
+  const [running, setRunning] = useState(false)
+  const [progress, setProgress] = useState({ done: 0, total: 0 })
+  const [lastFailed, setLastFailed] = useState<string[]>([])
+  const cancelRef = useRef(false)
+
+  const missing = (dishes ?? []).filter((d) => d.is_active && !d.image_url)
+
+  const run = async () => {
+    if (!isSyncConfigured) {
+      onToast('הסנכרון כבוי, אז אין גישה ל-AI. הגדירי אותו קודם.')
+      return
+    }
+    const targets = missing
+    cancelRef.current = false
+    setRunning(true)
+    setProgress({ done: 0, total: targets.length })
+    setLastFailed([])
+
+    let made = 0
+    const failed: string[] = []
+    // One request at a time, no artificial pause between them — as soon as
+    // one dish's picture is done (success or failure), the next one starts
+    // immediately. No concurrency, so this still doesn't hammer Pollinations
+    // with parallel requests; it just doesn't add extra waiting on top of
+    // whatever each request itself already takes.
+    for (const dish of targets) {
+      if (cancelRef.current) break
+      const imageUrl = await generateDishImageWithAi(dish.name, dish.ingredients.map((ing) => ing.name))
+      if (imageUrl) {
+        await save('dishes', { ...dish, image_url: imageUrl })
+        made++
+      } else {
+        failed.push(dish.name)
+      }
+      setProgress((p) => ({ ...p, done: p.done + 1 }))
+    }
+
+    setRunning(false)
+    setLastFailed(failed)
+    if (cancelRef.current) {
+      onToast(`נעצר — נוצרו ${made} תמונות.`)
+    } else if (failed.length === 0) {
+      onToast(`הושלם — נוצרו ${made} תמונות מתוך ${targets.length}.`)
+    } else {
+      onToast(`נוצרו ${made} מתוך ${targets.length}. ${failed.length} נכשלו — אפשר ללחוץ שוב כדי לנסות רק אותן.`)
+    }
+  }
+
+  return (
+    <div className="card">
+      <span className="label">תמונות למנות (AI, חד פעמי)</span>
+      <p className="field__hint" style={{ marginTop: 6, lineHeight: 1.6 }}>
+        מייצרת תמונה אמיתית לכל מנה שאין לה עדיין תמונה — לא נוגעת במנה שכבר יש לה אחת,
+        גם אם הועלתה ידנית. פועל רק כשהסנכרון דלוק.
+      </p>
+
+      {running ? (
+        <>
+          <p className="field__hint" style={{ marginTop: 10 }}>
+            מייצרת תמונה… {progress.done}/{progress.total}
+          </p>
+          <button
+            className="btn btn--danger btn--block"
+            style={{ marginTop: 8 }}
+            onClick={() => {
+              cancelRef.current = true
+            }}
+          >
+            עצירה
+          </button>
+        </>
+      ) : (
+        <>
+          <button
+            className="btn btn--ghost btn--block"
+            style={{ marginTop: 10 }}
+            disabled={missing.length === 0}
+            onClick={() => void run()}
+          >
+            {missing.length === 0
+              ? 'לכל המנות כבר יש תמונה'
+              : `🎨 יצירת תמונות ל־${missing.length} מנות`}
+          </button>
+          {lastFailed.length > 0 && (
+            <p className="field__hint" style={{ marginTop: 8 }}>
+              נכשלו בריצה האחרונה: {lastFailed.join(', ')}. שירות התמונות החינמי לפעמים נחסם
+              זמנית בעומס — אפשר לנסות שוב בעוד כמה דקות.
+            </p>
+          )}
         </>
       )}
     </div>

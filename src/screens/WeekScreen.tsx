@@ -217,7 +217,7 @@ export function WeekScreen({
             style={{ flex: 1 }}
             onClick={() => setWizardOpen(true)}
           >
-            תכנני לי את השבוע
+            תכנן לי את השבוע
           </button>
         </div>
       )}
@@ -313,7 +313,7 @@ export function WeekScreen({
                       </div>
                     </>
                   )}
-                  {day.role === 'empty' && <div className="day__title">אין תוכנית — הקישי לשיבוץ</div>}
+                  {day.role === 'empty' && <div className="day__title">אין תוכנית — הקש לשיבוץ</div>}
                 </div>
                 {session?.is_locked && (
                   <span className="day__badge">
@@ -330,7 +330,7 @@ export function WeekScreen({
           })}
 
           <p className="field__hint" style={{ marginTop: 10 }}>
-            הקשה על יום מכוסה פותחת את הבישול. כדי לסמן יום כ"לא מבשלים", פתחי אותו ובחרי באפשרות.
+            הקשה על יום מכוסה פותחת את הבישול. כדי לסמן יום כ"לא מבשלים", פתח אותו ובחר באפשרות.
           </p>
         </div>
       ) : (
@@ -356,6 +356,7 @@ export function WeekScreen({
         <SessionSheet
           session={editing}
           title={describe(editing)}
+          picture={pictureFor(editing)}
           day={sortedDays.find((d) => d.date === editing.cook_date)}
           maxCoverDays={
             editing.dish_id ? (dishById.get(editing.dish_id)?.max_cover_days ?? 4) : 4
@@ -382,7 +383,7 @@ export function WeekScreen({
               }}
             >
               <Icon name="wheel" size={16} />
-              סובבי רולטה
+              סובב רולטה
             </button>
             <button
               className="btn btn--ghost btn--block"
@@ -392,7 +393,7 @@ export function WeekScreen({
               }}
             >
               <Icon name="list" size={16} />
-              בחרי מנה מהמאגר
+              בחר מנה מהמאגר
             </button>
           </div>
         </Sheet>
@@ -501,7 +502,7 @@ function PlanningWizard({
   const options = [2, 3, 4, 5].filter((n) => n <= Math.max(2, maxCookDays))
 
   return (
-    <Sheet title="תכנני לי את השבוע" onClose={onClose}>
+    <Sheet title="תכנן לי את השבוע" onClose={onClose}>
       <div className="field">
         <span className="label">כמה פעמים לבשל השבוע?</span>
         <div className="chips">
@@ -560,7 +561,7 @@ function PlanningWizard({
           }).finally(() => setBusy(false))
         }}
       >
-        {busy ? 'מתכננת…' : 'תכנני'}
+        {busy ? 'מתכנן…' : 'תכנן'}
       </button>
     </Sheet>
   )
@@ -569,6 +570,7 @@ function PlanningWizard({
 function SessionSheet({
   session,
   title,
+  picture,
   day,
   maxCoverDays,
   onClose,
@@ -577,6 +579,7 @@ function SessionSheet({
 }: {
   session: CookSession
   title: string
+  picture: { name: string; ingredients: string[]; imageUrl: string | null } | null
   day: DaySlot | undefined
   maxCoverDays: number
   onClose: () => void
@@ -588,6 +591,19 @@ function SessionSheet({
 
   return (
     <Sheet title={title || 'בישול'} onClose={onClose}>
+      {/* The picture is the first thing shown — same treatment as the dish's
+          own screen in the library, just here too instead of a name-only sheet. */}
+      {picture && (
+        <div style={{ marginBottom: 12 }}>
+          <DishPicture
+            className="dish-shot"
+            name={picture.name}
+            ingredients={picture.ingredients}
+            imageUrl={picture.imageUrl}
+          />
+        </div>
+      )}
+
       <div className="field">
         <span className="label">כמה ימים זה מכסה?</span>
         <div className="chips">

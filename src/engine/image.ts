@@ -6,7 +6,7 @@
  * JSON.
  */
 export async function fileToCompressedDataUrl(
-  file: File,
+  file: Blob,
   maxDim = 900,
   quality = 0.82,
 ): Promise<string> {
