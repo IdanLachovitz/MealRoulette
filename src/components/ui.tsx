@@ -101,6 +101,7 @@ export function Sheet({
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const dragStartY = useRef<number | null>(null)
+  const startScrollTop = useRef(0)
   const [dragY, setDragY] = useState(0)
   const [dragging, setDragging] = useState(false)
 
@@ -118,25 +119,47 @@ export function Sheet({
     }
   }, [onClose])
 
-  // Grabbing the grip and pulling down closes the sheet — the handle is the
-  // drag target (not the whole sheet) so it never fights with scrolling the
-  // content underneath it.
-  const onGripDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+  /**
+   * Pulling down anywhere in the sheet closes it — not just the grip. The
+   * catch is the sheet's own content scrolls, so a plain "any downward
+   * drag" would fight that: dragging down to close and dragging down to
+   * scroll up look identical at the start of the gesture. The resolution
+   * every native bottom sheet uses is the same one here — a downward drag
+   * only becomes a close-drag once the content is already scrolled to its
+   * top (nothing left to scroll), and only once it's moved past a small
+   * threshold so an ordinary tap on a button never gets mistaken for one.
+   */
+  const onSheetDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     dragStartY.current = e.clientY
-    setDragging(true)
-    e.currentTarget.setPointerCapture(e.pointerId)
+    startScrollTop.current = ref.current?.scrollTop ?? 0
   }
-  const onGripMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+  const onSheetMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (dragStartY.current == null) return
-    setDragY(Math.max(0, e.clientY - dragStartY.current))
-  }
-  const onGripUp = () => {
-    if (dragY > SHEET_CLOSE_THRESHOLD) {
-      onClose()
-      return
+    const delta = e.clientY - dragStartY.current
+    if (!dragging) {
+      if (delta < 6 || startScrollTop.current > 0) return
+      setDragging(true)
+      // Capture is a nice-to-have (keeps the drag tracking even if the
+      // pointer strays outside the sheet) — its failure should never take
+      // the rest of the gesture down with it.
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId)
+      } catch {
+        // ignore
+      }
     }
-    setDragY(0)
-    setDragging(false)
+    e.preventDefault()
+    setDragY(Math.max(0, delta))
+  }
+  const onSheetUp = () => {
+    if (dragging) {
+      if (dragY > SHEET_CLOSE_THRESHOLD) {
+        onClose()
+        return
+      }
+      setDragY(0)
+      setDragging(false)
+    }
     dragStartY.current = null
   }
 
@@ -154,19 +177,17 @@ export function Sheet({
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
+        onPointerDown={onSheetDown}
+        onPointerMove={onSheetMove}
+        onPointerUp={onSheetUp}
+        onPointerCancel={onSheetUp}
         style={{
           transform: `translateY(${dragY}px)`,
           transition: dragging ? 'none' : undefined,
           opacity: dragY ? Math.max(0.5, 1 - dragY / 300) : undefined,
         }}
       >
-        <div
-          className="sheet__grip-area"
-          onPointerDown={onGripDown}
-          onPointerMove={onGripMove}
-          onPointerUp={onGripUp}
-          onPointerCancel={onGripUp}
-        >
+        <div className="sheet__grip-area">
           <div className="sheet__grip" />
         </div>
         <div className="row row--between" style={{ marginBottom: 12 }}>
