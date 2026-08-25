@@ -96,6 +96,15 @@ export interface CookSession extends Synced {
   is_locked: boolean
   is_cooked: boolean
   note: string | null
+  /**
+   * Normally null — leftover placement is derived purely from cook_date +
+   * covers_days (relayoutDays in services/week.ts). Set only when a single
+   * leftover day has been dragged on its own (see engine/weekSwap.ts) to an
+   * arbitrary date, which a pure covers_days count can't express: the
+   * session's full leftover-date list (cook_date excluded), sorted. When
+   * set, relayoutDays uses these exact dates instead of deriving them.
+   */
+  covered_dates: string[] | null
 }
 
 export type DayRole = 'cook' | 'leftovers' | 'none' | 'empty'

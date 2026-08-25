@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import type { CSSProperties } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { alive, save } from '../db/repo'
@@ -10,6 +10,8 @@ import { DishPicture } from '../components/DishArt'
 import { PickDishSheet } from './PickDishSheet'
 import { addDays, dayName, dayOfMonth, formatWeekRange, toISODate } from '../engine/dates'
 import type { Notice as PlanNotice } from '../engine/planner'
+import { buildWeekUnits, planLeftoverSwap, planWeekSwap } from '../engine/weekSwap'
+import type { WeekUnit } from '../engine/weekSwap'
 import {
   currentWeekStart,
   deleteSession,
@@ -18,8 +20,35 @@ import {
   runPlanningWizard,
   setCoversDays,
   setDayRole,
+  swapLeftoverDay,
+  swapWeekBlock,
 } from '../services/week'
 import type { Component, CookSession, DaySlot, Dish, PlanningParams, WeekPlan } from '../types'
+
+/** How long the settle/snap-back transition on a drag takes. */
+const DRAG_SETTLE_MS = 200
+
+interface DragInfo {
+  fromDate: string
+  /** True when a lone leftover day (not its cook day) was grabbed. */
+  isLeftoverOnly: boolean
+  /** Every date visually lifted together — just [fromDate] for a lone leftover. */
+  blockDates: string[]
+  pointerId: number
+  startY: number
+  /** window.scrollY when the drag began — the transform has to compensate
+   *  for any page scroll since then (see applyDragVisual), not just the
+   *  pointer's own movement, or auto-scroll makes the card drift away from
+   *  the finger the instant the page starts moving underneath it. */
+  startScrollY: number
+}
+
+interface DragVisual {
+  blockDates: string[]
+  offsetY: number
+  targetDates: string[]
+  phase: 'active' | 'settle' | 'snap'
+}
 
 /** Progress-ring fill for a "count out of target" stat — never over 100%. */
 function ringPct(value: number, target: number): number {
@@ -140,6 +169,159 @@ export function WeekScreen({
   const totalMinutes = sortedSessions.reduce((sum, s) => sum + s.estimated_minutes, 0)
   const today = toISODate(new Date())
 
+  // ---- Drag-and-drop reordering (engine/weekSwap.ts has the actual logic) ----
+  const weekUnits: WeekUnit[] = useMemo(
+    () => buildWeekUnits(sortedDays, sortedSessions.map((s) => ({ id: s.id, is_locked: s.is_locked }))),
+    [sortedDays, sortedSessions],
+  )
+  const cardRefs = useRef(new Map<string, HTMLButtonElement>())
+  const dragInfo = useRef<DragInfo | null>(null)
+  const [dragVisual, setDragVisual] = useState<DragVisual | null>(null)
+  /** Last known pointer Y, kept live so the auto-scroll loop can recompute
+   *  the drag visuals every frame even between actual pointermove events —
+   *  the page scrolling under a finger that isn't moving is exactly the
+   *  case where no new pointermove fires on its own. */
+  const lastClientY = useRef(0)
+  const autoScrollRaf = useRef<number | null>(null)
+
+  /**
+   * Which card is under the pointer right now. `exclude` must be the
+   * dragged block's own dates — those cards are visually translated toward
+   * the pointer while dragging, so without excluding them they can end up
+   * geometrically overlapping (and matching ahead of) whatever real,
+   * unmoving card is actually underneath.
+   */
+  const hoveredDateAt = (clientY: number, exclude: readonly string[]): string | null => {
+    for (const [date, el] of cardRefs.current) {
+      if (exclude.includes(date)) continue
+      const r = el.getBoundingClientRect()
+      if (clientY >= r.top && clientY <= r.bottom) return date
+    }
+    return null
+  }
+
+  /** Null target = invalid drop (matches planWeekSwap/planLeftoverSwap's own null-for-invalid). */
+  const targetDatesFor = (info: DragInfo, hovered: string | null): string[] | null => {
+    if (!hovered || hovered === info.fromDate || info.blockDates.includes(hovered)) return null
+    if (info.isLeftoverOnly) {
+      return planLeftoverSwap(sortedDays, info.fromDate, hovered) ? [hovered] : null
+    }
+    const moves = planWeekSwap(weekUnits, info.fromDate, hovered)
+    if (!moves) return null
+    const unit = weekUnits.find((u) => (u.kind === 'session' ? u.dates.includes(hovered) : u.date === hovered))
+    return unit ? (unit.kind === 'session' ? unit.dates : [unit.date]) : [hovered]
+  }
+
+  /** Shared by onGripMove and the auto-scroll loop — both need to re-derive
+   *  the same visuals (offset, hovered target) from "wherever the pointer
+   *  and the page scroll currently are". */
+  const applyDragVisual = (info: DragInfo, clientY: number) => {
+    // The card's transform has to compensate for page scroll too, not just
+    // pointer movement, or it visually drifts away from the pointer the
+    // instant auto-scroll starts moving the page underneath it.
+    const offsetY = clientY - info.startY + (window.scrollY - info.startScrollY)
+    const hovered = hoveredDateAt(clientY, info.blockDates)
+    const targetDates = targetDatesFor(info, hovered) ?? []
+    setDragVisual({ blockDates: info.blockDates, offsetY, targetDates, phase: 'active' })
+  }
+
+  const AUTO_SCROLL_ZONE = 70
+  const AUTO_SCROLL_MAX_SPEED = 16
+
+  const stopAutoScroll = () => {
+    if (autoScrollRaf.current != null) {
+      cancelAnimationFrame(autoScrollRaf.current)
+      autoScrollRaf.current = null
+    }
+  }
+
+  useEffect(() => stopAutoScroll, [])
+
+  /** Runs every frame while the pointer sits in the top/bottom edge zone,
+   *  so holding a dragged card near the edge keeps scrolling even though
+   *  the finger itself isn't moving. */
+  const autoScrollTick = () => {
+    const info = dragInfo.current
+    if (!info) {
+      autoScrollRaf.current = null
+      return
+    }
+    const y = lastClientY.current
+    const vh = window.innerHeight
+    let speed = 0
+    if (y < AUTO_SCROLL_ZONE) {
+      speed = -AUTO_SCROLL_MAX_SPEED * (1 - y / AUTO_SCROLL_ZONE)
+    } else if (y > vh - AUTO_SCROLL_ZONE) {
+      speed = AUTO_SCROLL_MAX_SPEED * (1 - (vh - y) / AUTO_SCROLL_ZONE)
+    }
+    if (speed !== 0) {
+      window.scrollBy(0, speed)
+      applyDragVisual(info, y)
+    }
+    autoScrollRaf.current = requestAnimationFrame(autoScrollTick)
+  }
+
+  const onGripDown = (e: ReactPointerEvent<HTMLSpanElement>, day: DaySlot) => {
+    e.stopPropagation()
+    const isLeftoverOnly = day.role === 'leftovers'
+    const blockDates = isLeftoverOnly
+      ? [day.date]
+      : sortedDays.filter((d) => d.cook_session_id === day.cook_session_id).map((d) => d.date)
+    dragInfo.current = {
+      fromDate: day.date,
+      isLeftoverOnly,
+      blockDates,
+      pointerId: e.pointerId,
+      startY: e.clientY,
+      startScrollY: window.scrollY,
+    }
+    lastClientY.current = e.clientY
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      // Capture is a nice-to-have; its failure shouldn't sink the drag.
+    }
+    setDragVisual({ blockDates, offsetY: 0, targetDates: [], phase: 'active' })
+    autoScrollRaf.current = requestAnimationFrame(autoScrollTick)
+  }
+
+  const onGripMove = (e: ReactPointerEvent<HTMLSpanElement>) => {
+    const info = dragInfo.current
+    if (!info) return
+    e.preventDefault()
+    lastClientY.current = e.clientY
+    applyDragVisual(info, e.clientY)
+  }
+
+  const onGripUp = (e: ReactPointerEvent<HTMLSpanElement>) => {
+    const info = dragInfo.current
+    dragInfo.current = null
+    stopAutoScroll()
+    if (!info || !plan) {
+      setDragVisual(null)
+      return
+    }
+    const hovered = hoveredDateAt(e.clientY, info.blockDates)
+    const targetDates = targetDatesFor(info, hovered)
+
+    if (!targetDates || !hovered) {
+      // Invalid or outside the list — spring back to the original spot, no data change.
+      setDragVisual((v) => (v ? { ...v, offsetY: 0, targetDates: [], phase: 'snap' } : null))
+      window.setTimeout(() => setDragVisual(null), DRAG_SETTLE_MS)
+      return
+    }
+
+    const planId = plan.id
+    const { fromDate, isLeftoverOnly } = info
+    setDragVisual({ blockDates: info.blockDates, offsetY: 0, targetDates: [], phase: 'settle' })
+    window.setTimeout(() => {
+      void (isLeftoverOnly
+        ? swapLeftoverDay(planId, fromDate, hovered)
+        : swapWeekBlock(planId, fromDate, hovered)
+      ).then(() => setDragVisual(null))
+    }, DRAG_SETTLE_MS)
+  }
+
   const runWizard = async (params: PlanningParams) => {
     if (!plan) return
     const result = await runPlanningWizard(householdId, plan, params, settings)
@@ -250,6 +432,10 @@ export function WeekScreen({
               return (
                 <button
                   key={day.id}
+                  ref={(el) => {
+                    if (el) cardRefs.current.set(day.date, el)
+                    else cardRefs.current.delete(day.date)
+                  }}
                   className="day day--none"
                   onClick={() => void setDayRole(day, 'empty')}
                 >
@@ -270,10 +456,31 @@ export function WeekScreen({
             if (day.role === 'leftovers') classes.push('day--leftovers')
             if (day.role === 'empty') classes.push('day--empty')
 
+            // A locked session never accepts (or offers) a drag — dropping
+            // on it is always rejected anyway, so there's no point showing
+            // a handle that would only ever spring back.
+            const canDrag = (day.role === 'cook' || day.role === 'leftovers') && !session?.is_locked
+            const isDragMember = dragVisual?.blockDates.includes(day.date) ?? false
+            const isDropTarget = dragVisual?.targetDates.includes(day.date) ?? false
+            if (isDropTarget) classes.push('day--drop-target')
+            if (isDragMember) classes.push(`day--drag-${dragVisual!.phase}`)
+            const dragStyle: CSSProperties | undefined = isDragMember
+              ? {
+                  transform: `translateY(${dragVisual!.offsetY}px)`,
+                  transition:
+                    dragVisual!.phase === 'active' ? 'none' : `transform ${DRAG_SETTLE_MS}ms var(--ease-em)`,
+                }
+              : undefined
+
             return (
               <button
                 key={day.id}
+                ref={(el) => {
+                  if (el) cardRefs.current.set(day.date, el)
+                  else cardRefs.current.delete(day.date)
+                }}
                 className={classes.join(' ')}
+                style={dragStyle}
                 onClick={() => {
                   if (session) setEditing(session)
                   else setChooserDate(day.date)
@@ -340,6 +547,26 @@ export function WeekScreen({
                 {session?.is_cooked && (
                   <span className="day__badge" style={{ color: 'var(--pist)' }}>
                     <Icon name="check" size={16} strokeWidth={2.4} />
+                  </span>
+                )}
+                {/* The handle, not the whole card, owns the drag gesture — the
+                    card itself stays a normal tap target, and the page around
+                    it keeps scrolling normally on touch instead of fighting a
+                    gesture that covers the entire row. */}
+                {canDrag && (
+                  <span
+                    className="day__grip"
+                    role="button"
+                    aria-label={
+                      day.role === 'leftovers' ? 'גרירת יום השאריות הזה בלבד' : 'גרירת הבישול ליום אחר'
+                    }
+                    onPointerDown={(e) => onGripDown(e, day)}
+                    onPointerMove={onGripMove}
+                    onPointerUp={onGripUp}
+                    onPointerCancel={onGripUp}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Icon name="grip" size={16} />
                   </span>
                 )}
               </button>

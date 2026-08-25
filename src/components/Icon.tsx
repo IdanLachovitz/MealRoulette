@@ -26,6 +26,7 @@ export type IconName =
   | 'moon'
   | 'signal-off'
   | 'fridge'
+  | 'grip'
 
 const PATHS: Record<IconName, string> = {
   calendar:
@@ -58,6 +59,10 @@ const PATHS: Record<IconName, string> = {
     'm3 3 18 18M8.5 8.5A5 5 0 0 0 7 12M12 7a5 5 0 0 1 5 5m-8.9-1.9A9 9 0 0 0 5 12m14-5a9 9 0 0 1 1.9 9.9M12 17h.01',
   fridge:
     'M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1ZM5 8h14M16 5v2M16 12v2',
+  // Six dots, two columns — the standard drag-handle glyph, same
+  // small-circle technique as the sliders icon's knobs.
+  grip:
+    'M7.7,6A1.3,1.3 0 1,0 10.3,6A1.3,1.3 0 1,0 7.7,6 M13.7,6A1.3,1.3 0 1,0 16.3,6A1.3,1.3 0 1,0 13.7,6 M7.7,12A1.3,1.3 0 1,0 10.3,12A1.3,1.3 0 1,0 7.7,12 M13.7,12A1.3,1.3 0 1,0 16.3,12A1.3,1.3 0 1,0 13.7,12 M7.7,18A1.3,1.3 0 1,0 10.3,18A1.3,1.3 0 1,0 7.7,18 M13.7,18A1.3,1.3 0 1,0 16.3,18A1.3,1.3 0 1,0 13.7,18',
 }
 
 export function Icon({

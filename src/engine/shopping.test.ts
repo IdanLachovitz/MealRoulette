@@ -47,6 +47,7 @@ function session(overrides: Partial<CookSession> = {}): CookSession {
     is_locked: false,
     is_cooked: false,
     note: null,
+    covered_dates: null,
     ...overrides,
   }
 }

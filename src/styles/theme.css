@@ -962,6 +962,62 @@ button {
   color: var(--mut);
 }
 
+/* ---- Drag-and-drop reordering ("ימים" view) --------------------------------
+   Only a small handle is draggable, not the whole card: the card itself
+   stays a normal tap target and, just as importantly, the page around it
+   keeps scrolling normally on touch — a draggable element needs
+   touch-action: none to work reliably on touch at all (see the Sheet's own
+   drag-to-close for why), and applying that to an entire day card would
+   mean a thumb can no longer scroll the week by touching a meal row. */
+.day__grip {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-inline-start: -6px;
+  border-radius: 50%;
+  color: var(--mut);
+  touch-action: none;
+  cursor: grab;
+}
+
+.day__grip:active {
+  cursor: grabbing;
+  color: var(--txt);
+}
+
+/* The whole block — a session's cook day plus every linked leftover day, or
+   just the one leftover day being dragged alone — lifts together so it
+   visibly reads as one group in motion, not several cards moving in sync
+   by coincidence. */
+.day--drag-active,
+.day--drag-settle,
+.day--drag-snap {
+  position: relative;
+  z-index: 5;
+  box-shadow: var(--shadow-lift);
+}
+
+.day--drag-active {
+  opacity: 0.92;
+}
+
+/* Wherever the dragged block is currently over a valid drop — a solid
+   accent ring, not just a colour shift, so it still reads for someone who
+   can't distinguish the tonal role colours. */
+.day--drop-target {
+  box-shadow: 0 0 0 2px var(--saf), var(--shadow-lift);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .day--drag-settle,
+  .day--drag-snap {
+    transition: none !important;
+  }
+}
+
 .summary {
   display: flex;
   gap: 9px;

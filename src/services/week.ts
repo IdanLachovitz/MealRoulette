@@ -4,12 +4,13 @@
  */
 import { db } from '../db/db'
 import { alive, newId, now, remove, save, saveMany } from '../db/repo'
-import { addDays, startOfWeek, toISODate, weekDates } from '../engine/dates'
+import { addDays, daysBetween, startOfWeek, toISODate, weekDates } from '../engine/dates'
 import { diversifyByCategory } from '../engine/dish-art'
 import { eligibleDishes, planWeek } from '../engine/planner'
 import type { PlanResult, PlannerInput } from '../engine/planner'
 import { buildShoppingList } from '../engine/shopping'
 import { seedFrom } from '../engine/rng'
+import { buildWeekUnits, planLeftoverSwap, planWeekSwap } from '../engine/weekSwap'
 import { pickWeekDishesWithAi } from '../sync/ai'
 import type {
   Component,
@@ -188,6 +189,7 @@ export async function runPlanningWizard(
       is_locked: false,
       is_cooked: false,
       note: null,
+      covered_dates: null,
     }
     created.push(row)
     indexToId.set(index, row.id)
@@ -253,6 +255,7 @@ export async function assignToDay(
     is_locked: false,
     is_cooked: false,
     note: null,
+    covered_dates: null,
   }
   await save('cook_sessions', session)
   await relayoutDays(plan.id, days, [...sessions.filter((s) => s.id !== clash?.id), session])
@@ -303,10 +306,75 @@ export async function setDayRole(day: DaySlot, role: DaySlot['role']): Promise<v
 }
 
 /**
- * Recompute which day belongs to which session. Days the user marked "not cooking"
- * are preserved; everything else is derived from the sessions.
+ * Drag-and-drop reordering in the day list (engine/weekSwap.ts has the
+ * actual logic). A "block" is a whole session — its cook day and every day
+ * currently linked to it as leftovers, moving together — or a single plain
+ * day. Dates only ever change here; dish/component ids, servings, and the
+ * shopping list (which doesn't key off dates) are untouched. Returns false
+ * for an invalid drop (dropped on itself, on/across a locked session, or
+ * on/across a "לא מבשלים" day) so the caller can snap the UI back without
+ * having written anything.
  */
-async function relayoutDays(
+export async function swapWeekBlock(planId: string, fromDate: string, toDate: string): Promise<boolean> {
+  const { sessions, days } = await loadWeek(planId)
+  const live = sessions.filter((s) => !s.deleted_at)
+  const units = buildWeekUnits(days, live.map((s) => ({ id: s.id, is_locked: s.is_locked })))
+  const moves = planWeekSwap(units, fromDate, toDate)
+  if (!moves) return false
+
+  const updated = moves
+    .map((m) => ({ session: live.find((s) => s.id === m.sessionId), newCookDate: m.newCookDate }))
+    .filter((x): x is { session: CookSession; newCookDate: string } => !!x.session)
+    .map(({ session, newCookDate }) => {
+      // A session dragged as a whole block carries its covered_dates along
+      // with it, unchanged relative to its own cook day — otherwise a
+      // session whose leftover placement was custom-arranged (see
+      // swapLeftoverDay below) would leave that leftover exactly where it
+      // was, now completely disconnected from the session's new date. That
+      // was a real bug: "Sunday cooks chicken, Monday still shows leftovers
+      // from [whatever used to be here]" — the block moved, its custom
+      // leftover day didn't.
+      const shift = daysBetween(session.cook_date, newCookDate)
+      const covered_dates = session.covered_dates ? session.covered_dates.map((d) => addDays(d, shift)) : null
+      return { ...session, cook_date: newCookDate, covered_dates }
+    })
+  if (updated.length) await saveMany('cook_sessions', updated)
+
+  const sessionsAfter = sessions.map((s) => updated.find((u) => u.id === s.id) ?? s)
+  await relayoutDays(planId, days, sessionsAfter)
+  return true
+}
+
+/**
+ * The narrower case: dragging one leftover day on its own, not its cook
+ * day — moves just that day (see engine/weekSwap.ts's planLeftoverSwap for
+ * the exact valid-target rules). This is the one placement a plain
+ * covers_days count can't express, hence covered_dates.
+ */
+export async function swapLeftoverDay(planId: string, fromDate: string, toDate: string): Promise<boolean> {
+  const { sessions, days } = await loadWeek(planId)
+  const moves = planLeftoverSwap(days, fromDate, toDate)
+  if (!moves) return false
+
+  const updated = moves
+    .map((m) => ({ session: sessions.find((s) => s.id === m.sessionId), coveredDates: m.coveredDates }))
+    .filter((x): x is { session: CookSession; coveredDates: string[] } => !!x.session)
+    .map(({ session, coveredDates }) => ({ ...session, covered_dates: coveredDates }))
+  if (updated.length) await saveMany('cook_sessions', updated)
+
+  const sessionsAfter = sessions.map((s) => updated.find((u) => u.id === s.id) ?? s)
+  await relayoutDays(planId, days, sessionsAfter)
+  return true
+}
+
+/**
+ * Recompute which day belongs to which session. Days the user marked "not cooking"
+ * are preserved; everything else is derived from the sessions — normally from
+ * cook_date + covers_days, or from covered_dates directly for a session whose
+ * leftover placement was custom-arranged (see engine/weekSwap.ts's isolated
+ * single-leftover-day drag, the one case a plain day count can't express).
+ */
+export async function relayoutDays(
   planId: string,
   days: DaySlot[],
   sessions: CookSession[],
@@ -325,6 +393,16 @@ async function relayoutDays(
     if (!cookDay) continue
     cookDay.role = 'cook'
     cookDay.cook_session_id = session.id
+
+    if (session.covered_dates) {
+      for (const date of session.covered_dates) {
+        const day = byDate.get(date)
+        if (!day || day.role === 'none' || cookDates.has(date)) continue
+        day.role = 'leftovers'
+        day.cook_session_id = session.id
+      }
+      continue
+    }
 
     let placed = 1
     let cursor = session.cook_date

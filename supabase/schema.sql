@@ -111,9 +111,18 @@ create table if not exists public.cook_sessions (
   is_locked         boolean not null default false,
   is_cooked         boolean not null default false,
   note              text,
+  -- Normally null — leftover placement derives from cook_date + covers_days.
+  -- Set only when a single leftover day was dragged on its own (day-list
+  -- drag-and-drop, engine/weekSwap.ts) to a date a plain day count can't
+  -- express: the session's full leftover-date list, cook_date excluded.
+  covered_dates     jsonb,
   updated_at        timestamptz not null default now(),
   deleted_at        timestamptz
 );
+
+-- create table if not exists only helps on a brand-new database — an
+-- already-deployed cook_sessions table needs the new column added directly.
+alter table public.cook_sessions add column if not exists covered_dates jsonb;
 
 create table if not exists public.day_slots (
   id              uuid primary key,
