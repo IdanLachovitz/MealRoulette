@@ -137,12 +137,6 @@ export function Sheet({
   const onSheetDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     dragStartY.current = e.clientY
     startScrollTop.current = ref.current?.scrollTop ?? 0
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId)
-    } catch {
-      // Capture is a nice-to-have (keeps tracking if the pointer strays
-      // outside the sheet) — its failure shouldn't sink the gesture.
-    }
   }
   const onSheetMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (dragStartY.current == null || !ref.current) return
@@ -164,7 +158,23 @@ export function Sheet({
     ref.current.scrollTop = 0
     const overshoot = -wantScrollTop
     if (!dragging && overshoot < 6) return
-    if (!dragging) setDragging(true)
+    if (!dragging) {
+      setDragging(true)
+      // Captured lazily, only once a real drag is confirmed — not on every
+      // pointerdown. Capturing eagerly on down (the previous approach) meant
+      // ANY press inside the sheet, including on a plain <button>, grabbed
+      // the pointer immediately; with a mouse (unlike touch) that retargets
+      // the resulting pointerup/click to this div instead of the button, so
+      // every button inside every sheet silently stopped responding to
+      // mouse clicks. Deferring capture to here means a plain tap/click
+      // never captures anything and reaches the button normally.
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId)
+      } catch {
+        // Capture is a nice-to-have (keeps tracking if the pointer strays
+        // outside the sheet) — its failure shouldn't sink the gesture.
+      }
+    }
     setDragY(overshoot)
   }
   const onSheetUp = () => {
