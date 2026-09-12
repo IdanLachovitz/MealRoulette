@@ -962,7 +962,32 @@ button {
   color: var(--mut);
 }
 
-/* ---- Drag-and-drop reordering ("ימים" view) --------------------------------
+/* The cooked check is tappable right from the day row — no need to open the
+   sheet just to mark something done. Unchecked state is a quiet outline
+   circle so it doesn't compete with the lock badge next to it; checked
+   fills solid so "done" reads at a glance while scanning the week. */
+.day__badge--check {
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  color: transparent;
+  cursor: pointer;
+}
+
+.day__badge--check[aria-pressed='true'] {
+  background: var(--pist);
+  border-color: var(--pist);
+  color: var(--surf);
+}
+
+.day__badge--check:active {
+  transform: scale(0.92);
+}
+
+/* ---- Drag-and-drop reordering --------------------------------------------
    Only a small handle is draggable, not the whole card: the card itself
    stays a normal tap target and, just as importantly, the page around it
    keeps scrolling normally on touch — a draggable element needs

@@ -67,8 +67,12 @@ export function WeekScreen({
   const [plan, setPlan] = useState<WeekPlan | null>(null)
   const [wizardOpen, setWizardOpen] = useState(false)
   const [notices, setNotices] = useState<PlanNotice[]>([])
-  const [editing, setEditing] = useState<CookSession | null>(null)
-  const [view, setView] = useState<'days' | 'sessions'>('days')
+  // Stores only the id, not a snapshot of the session — CookSession objects
+  // change (is_cooked, is_locked, note…) while the sheet is open, and a
+  // captured copy would keep showing stale state until the sheet is closed
+  // and reopened. Deriving the live row from sessionById on every render
+  // keeps the open sheet in sync with whatever the day list just did.
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [statsOpen, setStatsOpen] = useState(false)
   const [chooserDate, setChooserDate] = useState<string | null>(null)
   const [pickingDate, setPickingDate] = useState<string | null>(null)
@@ -115,6 +119,7 @@ export function WeekScreen({
     () => new Map((sessions ?? []).map((s) => [s.id, s])),
     [sessions],
   )
+  const editing = editingId ? (sessionById.get(editingId) ?? null) : null
 
   const describe = (session: CookSession | undefined): string => {
     if (!session) return ''
@@ -334,40 +339,28 @@ export function WeekScreen({
 
   return (
     <div>
-      {/* The week picker and the days/sessions toggle both govern "what am I
-          looking at" — one row, not two, and the date range rides along as a
-          quiet caption instead of its own full row. */}
-      <div className="row row--between" style={{ marginBottom: 4, flexWrap: 'wrap', gap: 8 }}>
-        <div className="chips" style={{ marginBottom: 0 }}>
-          {weekOptions.map((offset) => (
-            <button
-              key={offset}
-              className="chip"
-              aria-pressed={offset === weekOffset}
-              onClick={() => setWeekOffset(offset)}
-            >
-              {offset === 0 ? 'השבוע' : offset < 0 ? 'שבוע שעבר' : 'שבוע הבא'}
-            </button>
-          ))}
-        </div>
-        <div className="row" style={{ gap: 4 }}>
+      {/* Centered, not pinned to a side — with just three short options this
+          reads as one balanced control regardless of how wide the screen is,
+          instead of looking stranded against one edge. flex-wrap is a safety
+          net for the narrowest phones, not the expected case. */}
+      <div
+        className="chips"
+        style={{ marginBottom: 4, justifyContent: 'center', flexWrap: 'wrap', overflow: 'visible' }}
+      >
+        {weekOptions.map((offset) => (
           <button
+            key={offset}
             className="chip"
-            aria-pressed={view === 'days'}
-            onClick={() => setView('days')}
+            aria-pressed={offset === weekOffset}
+            onClick={() => setWeekOffset(offset)}
           >
-            ימים
+            {offset === 0 ? 'השבוע' : offset < 0 ? 'שבוע שעבר' : 'שבוע הבא'}
           </button>
-          <button
-            className="chip"
-            aria-pressed={view === 'sessions'}
-            onClick={() => setView('sessions')}
-          >
-            בישולים
-          </button>
-        </div>
+        ))}
       </div>
-      <div className="label" style={{ marginBottom: 10 }}>{formatWeekRange(plan.week_start_date)}</div>
+      <div className="label" style={{ marginBottom: 10, textAlign: 'center' }}>
+        {formatWeekRange(plan.week_start_date)}
+      </div>
 
       {/* FR-9.5 — the first two stats have a natural "out of": sessions against
           the week's own cook-day target, covered days against the 7 in a
@@ -451,8 +444,7 @@ export function WeekScreen({
         </div>
       )}
 
-      {view === 'days' ? (
-        <div>
+      <div>
           {sortedDays.map((day) => {
             const session = day.cook_session_id ? sessionById.get(day.cook_session_id) : undefined
 
@@ -512,7 +504,7 @@ export function WeekScreen({
                 className={classes.join(' ')}
                 style={dragStyle}
                 onClick={() => {
-                  if (session) setEditing(session)
+                  if (session) setEditingId(session.id)
                   else setChooserDate(day.date)
                 }}
               >
@@ -574,9 +566,20 @@ export function WeekScreen({
                     <Icon name="lock" size={15} />
                   </span>
                 )}
-                {session?.is_cooked && (
-                  <span className="day__badge" style={{ color: 'var(--pist)' }}>
-                    <Icon name="check" size={16} strokeWidth={2.4} />
+                {/* Tappable right from the day row, cook or leftover — no
+                    need to open the sheet just to mark the meal done. */}
+                {session && (day.role === 'cook' || day.role === 'leftovers') && (
+                  <span
+                    className="day__badge day__badge--check"
+                    role="button"
+                    aria-pressed={session.is_cooked}
+                    aria-label={session.is_cooked ? 'ביטול סימון בושל' : 'סימון כבושל'}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      void markCooked(householdId, session, !session.is_cooked)
+                    }}
+                  >
+                    <Icon name="check" size={15} strokeWidth={2.6} />
                   </span>
                 )}
                 {/* The handle, not the whole card, owns the drag gesture — the
@@ -604,18 +607,10 @@ export function WeekScreen({
           })}
 
           <p className="field__hint" style={{ marginTop: 10 }}>
-            הקשה על יום מכוסה פותחת את הבישול. כדי לסמן יום כ"לא מבשלים", פתח אותו ובחר באפשרות.
+            הקשה על יום מכוסה פותחת את הבישול. כדי לסמן יום כ"לא מבשלים", פתח אותו ובחר באפשרות. הקשה
+            על סימון ה-✓ מסמנת שבושל בלי לפתוח את הבישול.
           </p>
-        </div>
-      ) : (
-        <SessionsView
-          sessions={sortedSessions}
-          describe={describe}
-          dishById={dishById}
-          onEdit={setEditing}
-          onToggleCooked={(s) => void markCooked(householdId, s, !s.is_cooked)}
-        />
-      )}
+      </div>
 
       {wizardOpen && (
         <PlanningWizard
@@ -635,10 +630,10 @@ export function WeekScreen({
           maxCoverDays={
             editing.dish_id ? (dishById.get(editing.dish_id)?.max_cover_days ?? 4) : 4
           }
-          onClose={() => setEditing(null)}
+          onClose={() => setEditingId(null)}
           householdId={householdId}
           onPickDifferent={(date) => {
-            setEditing(null)
+            setEditingId(null)
             setPickingDate(date)
           }}
         />
@@ -683,74 +678,6 @@ export function WeekScreen({
           onAssigned={(name) => toast(`${name} שובץ ל${dayName(pickingDate)}`)}
         />
       )}
-    </div>
-  )
-}
-
-/** FR-9 — the "when am I standing in the kitchen" view. */
-function SessionsView({
-  sessions,
-  describe,
-  dishById,
-  onEdit,
-  onToggleCooked,
-}: {
-  sessions: CookSession[]
-  describe: (s: CookSession | undefined) => string
-  dishById: Map<string, Dish>
-  onEdit: (s: CookSession) => void
-  onToggleCooked: (s: CookSession) => void
-}) {
-  if (sessions.length === 0) {
-    return <p className="muted">אין עדיין בישולים השבוע.</p>
-  }
-
-  return (
-    <div>
-      {sessions.map((s) => {
-        const dish = s.dish_id ? dishById.get(s.dish_id) : undefined
-        // FR-9.3 — a dish that can stretch further than it was scheduled for.
-        const canExtend = dish && dish.max_cover_days > s.covers_days
-        return (
-          <div key={s.id} className="card">
-            <div className="row row--between">
-              <div style={{ flex: 1 }}>
-                <div className="label">
-                  {dayName(s.cook_date)} · {dayOfMonth(s.cook_date)}
-                </div>
-                <div style={{ fontSize: 15, marginTop: 2 }}>{describe(s)}</div>
-                <div className="day__meta">
-                  <span>{s.estimated_minutes} דק׳</span>
-                  <span>·</span>
-                  <span>{s.servings} מנות</span>
-                  <span>·</span>
-                  <span>מכסה {s.covers_days === 1 ? 'יום אחד' : `${s.covers_days} ימים`}</span>
-                </div>
-              </div>
-              <button
-                className="btn btn--sm btn--subtle"
-                aria-pressed={s.is_cooked}
-                onClick={() => onToggleCooked(s)}
-              >
-                {s.is_cooked && <Icon name="check" size={14} strokeWidth={2.4} />}
-                {s.is_cooked ? 'בושל' : 'סמני בושל'}
-              </button>
-            </div>
-
-            {canExtend && (
-              <p className="field__hint" style={{ marginTop: 8 }}>
-                אפשר להכפיל — המנה הזו מספיקה לעד {dish!.max_cover_days} ימים.
-              </p>
-            )}
-
-            <div className="row" style={{ marginTop: 8 }}>
-              <button className="btn btn--sm btn--ghost" onClick={() => onEdit(s)}>
-                עריכה
-              </button>
-            </div>
-          </div>
-        )
-      })}
     </div>
   )
 }

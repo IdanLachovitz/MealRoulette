@@ -12,7 +12,13 @@
     <meta name="theme-color" content="#ffffff" />
     <meta name="description" content="תכנון בישולים שבועי עם רולטת בחירה" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <!-- "default" paints a fixed white status bar no matter the in-app theme
+         — a white strip across the notification icons when the app itself is
+         dark. "black-translucent" makes iOS draw the status bar transparent
+         over the page instead, so it just shows whatever's already there —
+         the app's own themed background, dark or light, no separate colour
+         to keep in sync. -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="מה מבשלים" />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
