@@ -25,6 +25,32 @@ interface RequestBody {
 interface GroqDishResponse {
   name: string
   instructions: string
+  extra_ingredients?: string[]
+}
+
+/**
+ * Without a nudge, the model defaults to the same "sauté everything
+ * together" shape every time, regardless of temperature — so a chicken +
+ * pepper + onion fridge always comes back as a stir-fry. Picking a random,
+ * named dish format per request (and telling the model to build a real
+ * version of *that*) is what actually produces the variety users expect
+ * from "give me a new idea" — fried chicken one time, schnitzel or pasta
+ * with chicken the next — while the entered ingredients stay the star.
+ */
+const DISH_STYLES = [
+  'מטוגן במחבת',
+  'אפוי בתנור',
+  'מצופה ומטוגן בסגנון שניצל',
+  'פסטה',
+  'אורז או פילאף',
+  'תבשיל בסיר אחד ברוטב',
+  'מרק',
+  'סלט חם',
+  'כריך או פיתה',
+]
+
+function pickDishStyle(): string {
+  return DISH_STYLES[Math.floor(Math.random() * DISH_STYLES.length)]
 }
 
 Deno.serve(async (req: Request) => {
@@ -50,12 +76,22 @@ Deno.serve(async (req: Request) => {
       })
     }
 
+    const style = pickDishStyle()
     const prompt =
-      `אלה המצרכים היחידים שיש לי: ${clean.join(', ')}.\n` +
-      'תני לי רעיון למנה פשוטה שמשתמשת רק במצרכים האלה (בלי להוסיף אף מצרך שלא ברשימה, ' +
-      'חוץ ממים, מלח, פלפל ושמן שאפשר להניח שתמיד יש). ' +
+      `אלה המצרכים העיקריים שיש לי: ${clean.join(', ')}.\n` +
+      `תכיני לי מנה אמיתית ומוכרת בסגנון "${style}" שבה המצרכים האלה הם הכוכבים הראשיים — ` +
+      'הם חייבים להישאר בולטים במנה, לא להיעלם ולא להתחלף. ' +
+      'זו לא בקשה לערבב רק את מה שכתוב — זו דרישה מפורשת: ' +
+      'את *חייבת* להוסיף בפועל לפחות 2-3 מצרכים נוספים שלא ברשימה המקורית, ' +
+      'כאלה שהופכים את זה למנה שלמה ואמיתית ולא סתם את המצרכים המקוריים ביחד. ' +
+      'לדוגמה: פחמימה (פסטה, אורז, לחם, בצק), ציפוי (קמח, ביצה, פירורי לחם), רטבים, תבלינים, שמן, ' +
+      'גבינה, ירקות נוספים, עשבי תיבול, אגוזים וכדומה — תבחרי מה שמתאים לסגנון ולמנה. ' +
+      'תשובה עם extra_ingredients ריק תתקבל רק אם ממש אין שום דרך הגיונית להוסיף כלום, וזה כמעט אף פעם לא המצב. ' +
+      'המגבלה היחידה: אל תוסיפי חלבון מרכזי נוסף (כמו עוד סוג בשר או דג) שלא ברשימה — ' +
+      'החלבון שכבר יש ברשימה (אם יש) צריך להישאר החלבון היחיד במנה. ' +
       'ענה אך ורק ב-JSON תקין בפורמט הזה, בלי טקסט נוסף: ' +
-      '{"name": "שם קצר למנה", "instructions": "2-4 משפטים על איך מכינים, בעברית"}'
+      '{"name": "שם קצר למנה", "instructions": "2-4 משפטים על איך מכינים, בעברית, שמזכירים במפורש את המצרכים שהוספת", ' +
+      '"extra_ingredients": ["כל מצרך שהוספת מעבר לרשימה המקורית — חייב להכיל לפחות 2 פריטים במרבית המקרים"]}'
 
     const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -66,11 +102,13 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify({
         model: 'openai/gpt-oss-20b',
         messages: [{ role: 'user', content: prompt }],
-        // gpt-oss is a reasoning model — low effort keeps it from spending the
-        // whole token budget "thinking" before it ever writes the JSON reply.
-        reasoning_effort: 'low',
+        // gpt-oss is a reasoning model — 'low' was making it skip straight to
+        // echoing the input ingredients back instead of actually reasoning
+        // about what a complete dish needs. 'medium' + a bigger token budget
+        // gives it room to think before writing the JSON reply.
+        reasoning_effort: 'medium',
         temperature: 0.7,
-        max_tokens: 600,
+        max_tokens: 900,
       }),
     })
 
@@ -102,8 +140,13 @@ Deno.serve(async (req: Request) => {
       })
     }
     const parsed = JSON.parse(jsonMatch[0]) as GroqDishResponse
+    const extras = (parsed.extra_ingredients ?? []).map((i) => i.trim()).filter(Boolean)
     return new Response(
-      JSON.stringify({ name: parsed.name, instructions: parsed.instructions, ingredients: clean }),
+      JSON.stringify({
+        name: parsed.name,
+        instructions: parsed.instructions,
+        ingredients: [...clean, ...extras],
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (err) {

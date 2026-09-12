@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fullMatchesOnly, generateDishFromFridge, matchDishesToFridge } from './fridge'
+import { fullMatchesOnly, matchDishesToFridge } from './fridge'
 import type { Dish, Ingredient } from '../types'
 
 function ing(name: string, overrides: Partial<Ingredient> = {}): Ingredient {
@@ -75,34 +75,5 @@ describe('fullMatchesOnly', () => {
     const partial = dish({ id: 'partial', ingredients: [ing('בצל'), ing('עוף')] })
     const kept = fullMatchesOnly(matchDishesToFridge([full, partial], ['בצל', 'שום']))
     expect(kept.map((m) => m.dish.id)).toEqual(['full'])
-  })
-})
-
-describe('generateDishFromFridge', () => {
-  it('returns null for an empty fridge', () => {
-    expect(generateDishFromFridge([])).toBeNull()
-  })
-
-  it('never omits an entered ingredient — the whole point is zero missing', () => {
-    const names = ['עוף', 'ברוקולי', 'אורז', 'לימון']
-    const result = generateDishFromFridge(names)
-    expect(result?.ingredients).toEqual(names)
-  })
-
-  it('names a protein + veg combo as a stir-fry', () => {
-    const result = generateDishFromFridge(['עוף', 'ברוקולי'])
-    expect(result?.name).toContain('מוקפץ')
-    expect(result?.name).toContain('עוף')
-    expect(result?.name).toContain('ברוקולי')
-  })
-
-  it('names a veg-only fridge as a salad', () => {
-    const result = generateDishFromFridge(['חסה', 'עגבניה'])
-    expect(result?.name).toContain('סלט')
-  })
-
-  it('falls back to a plain listing when nothing recognisable is present', () => {
-    const result = generateDishFromFridge(['משהו מוזר'])
-    expect(result?.name).toContain('משהו מוזר')
   })
 })

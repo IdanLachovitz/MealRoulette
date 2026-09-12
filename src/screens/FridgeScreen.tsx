@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { newId, now } from '../db/repo'
 import { EmptyState, Field } from '../components/ui'
-import { fullMatchesOnly, generateDishFromFridge, matchDishesToFridge } from '../engine/fridge'
+import { fullMatchesOnly, matchDishesToFridge } from '../engine/fridge'
 import { generateDishWithAi } from '../sync/ai'
 import type { AiDish } from '../sync/ai'
 import type { Dish, FridgeItem } from '../types'
@@ -36,14 +36,6 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
   const fullMatches = useMemo(
     () => fullMatchesOnly(matchDishesToFridge(dishes ?? [], items.map((i) => i.name))),
     [dishes, items],
-  )
-  // Nothing in the library covers everything on hand — improvise something
-  // from exactly what's there instead, so it never comes up short either.
-  // (The AI button below stays available regardless of fullMatches — a
-  // reservoir match doesn't mean you don't also want a fresh idea.)
-  const generated = useMemo(
-    () => (fullMatches.length === 0 ? generateDishFromFridge(items.map((i) => i.name)) : null),
-    [fullMatches, items],
   )
 
   // A real recipe from Groq, opt-in (costs a network round-trip) and only
@@ -134,18 +126,10 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
                 </div>
               </div>
             ))
-          ) : generated ? (
-            <div className="card" style={{ marginBottom: 8 }}>
-              <div className="row row--between">
-                <span style={{ fontWeight: 500 }}>{generated.name}</span>
-                <span className="label">לא מהמאגר</span>
-              </div>
-              <p className="field__hint" style={{ marginTop: 4 }}>
-                אין עדיין מנה מהמאגר שמכוסה לגמרי — זה רעיון פשוט מהמצרכים שהזנת, לא מתכון קבוע.
-              </p>
-            </div>
           ) : (
-            <p className="muted">אין עדיין מנה שמתאימה למה שיש לך — נסי להוסיף עוד פריט.</p>
+            <p className="muted">
+              אין עדיין מנה מהמאגר שמכוסה לגמרי — אפשר לבקש רעיון מה-AI למטה.
+            </p>
           )}
 
           {/* Always available, even with a reservoir match — a good real
@@ -157,16 +141,40 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
                 <span className="label">AI · לא מהמאגר</span>
               </div>
               <p className="field__hint" style={{ marginTop: 4 }}>{aiDish.instructions}</p>
+              {(() => {
+                const fridgeNames = new Set(items.map((i) => i.name))
+                const extras = aiDish.ingredients.filter((n) => !fridgeNames.has(n))
+                return extras.length > 0 ? (
+                  <div className="tag-list" style={{ marginTop: 8 }}>
+                    {extras.map((n) => (
+                      <span key={n} className="chip" style={{ opacity: 0.8 }}>
+                        + {n}
+                      </span>
+                    ))}
+                  </div>
+                ) : null
+              })()}
+              <button
+                type="button"
+                className="btn btn--ghost"
+                style={{ marginTop: 8 }}
+                disabled={aiLoading}
+                onClick={() => void askAi()}
+              >
+                {aiLoading ? 'חושבת…' : '🔄 מנה אחרת'}
+              </button>
             </div>
           )}
-          <button
-            type="button"
-            className="btn btn--ghost btn--block"
-            disabled={aiLoading}
-            onClick={() => void askAi()}
-          >
-            {aiLoading ? 'חושבת…' : '✨ בקשי רעיון עם מתכון אמיתי מ-AI'}
-          </button>
+          {!aiDish && (
+            <button
+              type="button"
+              className="btn btn--ghost btn--block"
+              disabled={aiLoading}
+              onClick={() => void askAi()}
+            >
+              {aiLoading ? 'חושב' : '💡 רעיון מה-AI'}
+            </button>
+          )}
           {aiError && (
             <p className="field__hint" style={{ marginTop: 4 }}>
               לא הצלחתי להתחבר ל-AI כרגע — אולי אין רשת, או שהתכונה עוד לא מוגדרת.
