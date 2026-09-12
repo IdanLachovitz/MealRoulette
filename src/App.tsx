@@ -61,12 +61,12 @@ function Shell() {
         {sync.state === 'syncing' && <span className="label">מסנכרן…</span>}
 
         <button
-          className="btn btn--ghost btn--icon"
+          className="btn btn--ghost btn--icon btn--sm"
           aria-label="הגדרות"
           aria-pressed={tab === 'settings'}
           onClick={() => setTab(tab === 'settings' ? 'week' : 'settings')}
         >
-          <Icon name="sliders" size={19} />
+          <Icon name="gear" size={17} />
         </button>
       </header>
 

@@ -530,31 +530,31 @@ export function WeekScreen({
                   {day.role === 'cook' && (
                     <>
                       <div className="day__title">{describe(session)}</div>
+                      {/* Trimmed to the essentials — the tonal card colour and the
+                          "cook" vs "leftovers" position already say what kind of
+                          day this is, so the meta line doesn't need to repeat it
+                          in words too. */}
                       <div className="day__meta">
-                        <span className="row" style={{ gap: 3 }}>
-                          <Icon name="flame" size={13} />
-                          מבשלים
-                        </span>
-                        <span>·</span>
                         <span>{session?.estimated_minutes} דק׳</span>
                         {session && session.covers_days > 1 && (
                           <>
                             <span>·</span>
-                            <span>מספיק ל־{session.covers_days} ימים</span>
+                            <span>ל־{session.covers_days} ימים</span>
                           </>
                         )}
                       </div>
                     </>
                   )}
-                  {/* Leftovers always name their source, which is the other half of
-                      the distinction from a "not cooking" day. */}
+                  {/* Leftovers keep just the dish name as the title (no "שאריות
+                      מ" prefix eating into the width) — the "שאריות" tag below
+                      it carries that distinction instead. */}
                   {day.role === 'leftovers' && (
                     <>
-                      <div className="day__title">שאריות מ{describe(session)}</div>
+                      <div className="day__title">{describe(session)}</div>
                       <div className="day__meta">
                         <span className="row" style={{ gap: 3 }}>
                           <Icon name="refresh" size={13} />
-                          בלי לבשל
+                          שאריות
                         </span>
                       </div>
                     </>
