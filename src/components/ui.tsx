@@ -105,9 +105,22 @@ export function Sheet({
   const [dragY, setDragY] = useState(0)
   const [dragging, setDragging] = useState(false)
 
+  // Callers almost always pass an inline `onClose` (e.g. `() =>
+  // setEditing(null)`), so its identity changes on every render of the
+  // caller — including ones triggered by a keystroke inside this sheet
+  // writing to the db and re-running a live query up the tree. Keeping
+  // `onClose` out of the deps (via a ref) means the mount/unmount effect
+  // below — which steals focus onto the sheet — only runs once, instead of
+  // on every such render and yanking focus out of whatever input the user
+  // is actively typing into.
+  const onCloseRef = useRef(onClose)
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') onCloseRef.current()
     }
     document.addEventListener('keydown', onKey)
     const previous = document.body.style.overflow
@@ -117,7 +130,7 @@ export function Sheet({
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = previous
     }
-  }, [onClose])
+  }, [])
 
   /**
    * Pulling down anywhere in the sheet closes it — not just the grip, and

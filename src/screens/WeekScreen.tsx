@@ -76,11 +76,8 @@ export function WeekScreen({
 
   const realWeekStart = currentWeekStart(settings)
   const weekStart = addDays(realWeekStart, weekOffset * 7)
-  /** A scrollable strip of nearby weeks to jump between — 2 back, 2 ahead. */
-  const weekOptions = useMemo(
-    () => Array.from({ length: 5 }, (_, i) => i - 2),
-    [],
-  )
+  /** Last week, this week, next week — named, not dated. */
+  const weekOptions = useMemo(() => [-1, 0, 1], [])
 
   useEffect(() => {
     void ensureWeekPlan(householdId, weekStart, settings).then(setPlan)
@@ -344,7 +341,7 @@ export function WeekScreen({
             aria-pressed={offset === weekOffset}
             onClick={() => setWeekOffset(offset)}
           >
-            {offset === 0 ? 'השבוע' : formatWeekRange(addDays(realWeekStart, offset * 7))}
+            {offset === 0 ? 'השבוע' : offset < 0 ? 'שבוע שעבר' : 'שבוע הבא'}
           </button>
         ))}
       </div>
