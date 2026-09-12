@@ -69,6 +69,7 @@ export function WeekScreen({
   const [notices, setNotices] = useState<PlanNotice[]>([])
   const [editing, setEditing] = useState<CookSession | null>(null)
   const [view, setView] = useState<'days' | 'sessions'>('days')
+  const [statsOpen, setStatsOpen] = useState(false)
   const [chooserDate, setChooserDate] = useState<string | null>(null)
   const [pickingDate, setPickingDate] = useState<string | null>(null)
   /** 0 = the real current week, 1 = next week, -1 = last week, etc. */
@@ -333,21 +334,22 @@ export function WeekScreen({
 
   return (
     <div>
-      <div className="chips" style={{ marginBottom: 10 }}>
-        {weekOptions.map((offset) => (
-          <button
-            key={offset}
-            className="chip"
-            aria-pressed={offset === weekOffset}
-            onClick={() => setWeekOffset(offset)}
-          >
-            {offset === 0 ? 'השבוע' : offset < 0 ? 'שבוע שעבר' : 'שבוע הבא'}
-          </button>
-        ))}
-      </div>
-
-      <div className="row row--between" style={{ marginBottom: 10 }}>
-        <span className="label">{formatWeekRange(plan.week_start_date)}</span>
+      {/* The week picker and the days/sessions toggle both govern "what am I
+          looking at" — one row, not two, and the date range rides along as a
+          quiet caption instead of its own full row. */}
+      <div className="row row--between" style={{ marginBottom: 4, flexWrap: 'wrap', gap: 8 }}>
+        <div className="chips" style={{ marginBottom: 0 }}>
+          {weekOptions.map((offset) => (
+            <button
+              key={offset}
+              className="chip"
+              aria-pressed={offset === weekOffset}
+              onClick={() => setWeekOffset(offset)}
+            >
+              {offset === 0 ? 'השבוע' : offset < 0 ? 'שבוע שעבר' : 'שבוע הבא'}
+            </button>
+          ))}
+        </div>
         <div className="row" style={{ gap: 4 }}>
           <button
             className="chip"
@@ -365,12 +367,22 @@ export function WeekScreen({
           </button>
         </div>
       </div>
+      <div className="label" style={{ marginBottom: 10 }}>{formatWeekRange(plan.week_start_date)}</div>
 
       {/* FR-9.5 — the first two stats have a natural "out of": sessions against
           the week's own cook-day target, covered days against the 7 in a
           week. Kitchen time doesn't (there's no target to be "out of"), so
-          it stays a plain number. */}
-      <div className="summary">
+          it stays a plain number. Collapsed by default behind a compact
+          one-line summary — the ring cards are a lot of colour and shadow to
+          put above the actual plan every single time. */}
+      {statsOpen ? (
+      <button
+        type="button"
+        className="summary"
+        style={{ width: '100%', textAlign: 'inherit' }}
+        aria-label="הסתרת פרטי השבוע"
+        onClick={() => setStatsOpen(false)}
+      >
         <div className="summary__cell">
           <div
             className="summary__ring"
@@ -394,7 +406,28 @@ export function WeekScreen({
           </div>
           <div className="summary__lbl">מטבח השבוע</div>
         </div>
-      </div>
+      </button>
+      ) : (
+        <button
+          type="button"
+          className="row row--between"
+          style={{
+            marginBottom: 14,
+            width: '100%',
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
+          }}
+          onClick={() => setStatsOpen(true)}
+        >
+          <span className="label">
+            {sortedSessions.length} בישולים · {covered} ימים מכוסים ·{' '}
+            {totalMinutes >= 60 ? `${Math.round((totalMinutes / 60) * 10) / 10} ש׳` : `${totalMinutes} דק׳`} מטבח
+          </span>
+          <span className="label">פרטים ⌄</span>
+        </button>
+      )}
 
       {notices.map((n) => (
         <Notice key={n.code} warn={n.code !== 'cooldown_relaxed' && n.code !== 'cycle_restarted'}>
