@@ -76,26 +76,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
     else root.setAttribute('data-theme', theme)
     localStorage.setItem('theme', theme)
 
-    // The status/address bar colour on Android — a live <meta name="theme-color">
-    // update, separate from the page's own colours (which theme.css's
-    // prefers-color-scheme block already keeps in sync on its own). Resolves
-    // to the app's actual white/near-black backgrounds, matching whichever
-    // theme is really in effect, "system" included.
-    const meta = document.querySelector('meta[name="theme-color"]')
-    const media = window.matchMedia('(prefers-color-scheme: dark)')
-    const paintStatusBar = () => {
-      const dark = theme === 'dark' || (theme === 'system' && media.matches)
-      meta?.setAttribute('content', dark ? '#171717' : '#ffffff')
-    }
-    paintStatusBar()
-
-    // Only matters in "system" mode: the OS can flip its own light/dark
-    // setting while this tab stays open, and the meta tag doesn't repaint
-    // itself the way the CSS media query does — this is the one piece that
-    // still needs a listener.
+    // The status bar / toolbar colour (Android address bar, iOS Safari's
+    // strip that extends up under the notch): index.html has two
+    // <meta name="theme-color" media="..."> tags that already handle
+    // "system" correctly on their own, via native OS-level media matching —
+    // no JS, no flash of the wrong colour, and it's the reliable path since
+    // iOS Safari doesn't dependably repaint a single tag whose content
+    // attribute changes at runtime. This effect only has to do anything when
+    // the in-app choice overrides the OS setting: force both tags to that
+    // same colour so whichever one Safari is honouring still shows it, then
+    // hand back their own distinct colours when the choice is "system" again
+    // so native matching takes back over.
+    const light = document.getElementById('theme-color-light')
+    const dark = document.getElementById('theme-color-dark')
+    // Exact --bg values from theme.css (light/dark), not approximations —
+    // this is the status bar blending into the page, so an off-shade here
+    // would just trade a white seam for a subtler mismatched one.
     if (theme === 'system') {
-      media.addEventListener('change', paintStatusBar)
-      return () => media.removeEventListener('change', paintStatusBar)
+      light?.setAttribute('content', '#f7f3f8')
+      dark?.setAttribute('content', '#15110d')
+    } else {
+      const color = theme === 'dark' ? '#15110d' : '#f7f3f8'
+      light?.setAttribute('content', color)
+      dark?.setAttribute('content', color)
     }
   }, [theme])
 

@@ -6,10 +6,16 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5"
     />
-    <!-- Repainted to white/black by state.tsx the moment the app knows the
-         resolved theme — see the comment there. This value only matters for
-         the instant before that runs. -->
-    <meta name="theme-color" content="#ffffff" />
+    <!-- Two tags, not one: Safari colours the status-bar/toolbar strip from
+         whichever matches the OS's own light/dark setting, natively and
+         instantly — no flash of white, no dependency on JS running first or
+         on a later content-attribute mutation actually repainting (iOS
+         Safari doesn't reliably repaint from a single dynamically-updated
+         tag). state.tsx only touches these when the in-app theme choice
+         overrides the OS setting (see the comment there) — the "system"
+         case needs no JS at all. -->
+    <meta name="theme-color" content="#f7f3f8" media="(prefers-color-scheme: light)" id="theme-color-light" />
+    <meta name="theme-color" content="#15110d" media="(prefers-color-scheme: dark)" id="theme-color-dark" />
     <meta name="description" content="תכנון בישולים שבועי עם רולטת בחירה" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <!-- "default" paints a fixed white status bar no matter the in-app theme
