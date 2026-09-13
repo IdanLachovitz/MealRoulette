@@ -16,7 +16,10 @@
   --txt: #2a2136;
   --mut: #6e6379;
   --saf: #9cf2ff;
-  --saf-ink: #4a3305;
+  /* Dark ink on the light-blue fill, not the old palette's brown — see the
+     top-of-file palette note; light mode is the one being moved off brown
+     onto the light blue already used for --saf/--grad-saf everywhere else. */
+  --saf-ink: var(--txt);
   --beet: #9cf2ff;
   --pist: #9cf2ff;
   --veg: #496d73;
@@ -54,27 +57,37 @@
   --font-display: 'Suez One', 'Rubik', system-ui, serif;
   --font-label: 'Heebo', 'Rubik', system-ui, sans-serif;
 
-  /* The screen-title treatment (see .topbar__title) — kept independent of
-     --saf/--beet/--pist on purpose, since those are still mid-fix (see the
-     palette note above) and a heading shouldn't inherit that in the meantime. */
-  --heading-grad-a: #7a3b12;
-  --heading-grad-b: #b5763f;
+  /* The screen-title treatment (see .topbar__title) — a deeper, more
+     saturated pair of blues than --saf itself: --saf (#9cf2ff) is far too
+     pale to read as text against --bg, so the title needs its own darker
+     stops from the same light-blue family instead of reusing --saf raw. */
+  --heading-grad-a: #0f7a94;
+  --heading-grad-b: #3fb8d9;
 
   /* .card's depth (see below): an inset highlight along the top edge plus a
      soft ambient shadow, instead of a flat surface with a 1px outline —
-     what "claymorphism" in this file's own opening comment actually means. */
-  --shadow-clay: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 1px rgba(90, 58, 30, 0.06),
-    0 10px 22px -8px rgba(90, 58, 30, 0.28);
+     what "claymorphism" in this file's own opening comment actually means.
+     Tinted with the same blue as --heading-grad-a, not the old palette's
+     brown. */
+  --shadow-clay: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 1px rgba(15, 122, 148, 0.06),
+    0 10px 22px -8px rgba(15, 122, 148, 0.28);
 
-  /* .nav (the bottom dock): a warm ambient shadow it casts on the content
-     below, plus a hairline top highlight — replaces the flat 1px ring so it
-     reads as a pane of glass floating over the screen, not a bordered bar
-     that happens to blur what's behind it. */
-  --shadow-nav: 0 14px 32px -14px rgba(90, 58, 30, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  /* .nav (the bottom dock): an ambient shadow it casts on the content below,
+     plus a hairline top highlight — replaces the flat 1px ring so it reads
+     as a pane of glass floating over the screen, not a bordered bar that
+     happens to blur what's behind it. */
+  --shadow-nav: 0 14px 32px -14px rgba(15, 122, 148, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 
-  /* .summary__ring's fill color — independent of --saf/--pist for the same
-     reason as --heading-grad above. */
-  --ring-progress: #7a4a26;
+  /* .nav__pill-fill's own ambient lift — kept as a variable (rather than a
+     hardcoded rgba on the rule itself) because dark mode's espresso pill
+     genuinely wants a warm brown glow here while light mode's blue pill
+     wants a blue one; each theme block below sets its own. */
+  --pill-glow: rgba(15, 122, 148, 0.35);
+
+  /* .summary__ring's fill color — same blue as --heading-grad-a, for the
+     same reason: --saf itself is too pale to read against the ring's own
+     tonal background. */
+  --ring-progress: #0f7a94;
 }
 
 :root[data-theme='dark'] {
@@ -121,6 +134,7 @@
   --shadow-clay: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 10px 24px -10px rgba(0, 0, 0, 0.6);
   --shadow-nav: 0 14px 32px -14px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --ring-progress: #c89c5a;
+  --pill-glow: rgba(122, 59, 18, 0.4);
 }
 
 /*
@@ -169,6 +183,7 @@
     --shadow-clay: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 10px 24px -10px rgba(0, 0, 0, 0.6);
     --shadow-nav: 0 14px 32px -14px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     --ring-progress: #c89c5a;
+    --pill-glow: rgba(122, 59, 18, 0.4);
   }
 }
 
@@ -363,10 +378,11 @@ button {
   background: var(--grad-saf);
   border-radius: inherit;
   /* Glass, not flat colour — a bright inner edge along the top like light
-     catching a curved surface, a soft dark edge underneath for depth, and a
-     warm ambient lift off the bar itself. */
+     catching a curved surface, a soft dark edge underneath for depth, and an
+     ambient lift off the bar itself (--pill-glow — blue in light mode,
+     brown in dark, matching each theme's own pill colour). */
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), inset 0 -2px 3px rgba(0, 0, 0, 0.1),
-    0 3px 10px -2px rgba(122, 59, 18, 0.4);
+    0 3px 10px -2px var(--pill-glow);
 }
 
 /* The stretch-then-recover on release — reads as an elastic glob that was
@@ -644,28 +660,19 @@ button {
   transform: scale(0.95);
 }
 
+/* --saf/--saf-ink already resolve to the right colour per theme (light
+   blue-on-dark-ink in light mode, espresso-on-white in dark) — this used to
+   be hardcoded to --txt/--bg here with a separate dark-mode override
+   swapping in --saf, which meant light mode's "selected" chips (the week
+   picker, time filters, library tabs — any active chip) rendered as flat
+   near-black instead of the accent colour the rest of the app uses. One
+   rule, theme-aware by construction, covers both. */
 .chip[aria-pressed='true'],
 .chip--on {
-  background: var(--txt);
-  color: var(--bg);
-  border-color: var(--txt);
-  box-shadow: 0 2px 8px rgba(42, 33, 54, 0.16);
-}
-
-:root[data-theme='dark'] .chip[aria-pressed='true'],
-:root[data-theme='dark'] .chip--on {
   background: var(--saf);
   color: var(--saf-ink);
   border-color: var(--saf);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .chip[aria-pressed='true'],
-  :root:not([data-theme='light']) .chip--on {
-    background: var(--saf);
-    color: var(--saf-ink);
-    border-color: var(--saf);
-  }
+  box-shadow: 0 2px 8px rgba(42, 33, 54, 0.16);
 }
 
 .chips {
@@ -674,6 +681,27 @@ button {
   overflow-x: auto;
   padding-bottom: 4px;
   scrollbar-width: none;
+}
+
+/* A small fixed set of options that must always read as one row, on any
+   screen — unlike plain .chips (built for long, genuinely-scrollable
+   lists), these never wrap and never scroll. Each chip takes an equal
+   share of the row instead of sizing to its own text, so the row's total
+   width is always exactly the container's — wrapping becomes impossible by
+   construction, not just unlikely. Padding shrinks and text clips with an
+   ellipsis only as a last resort on the narrowest phones. */
+.chips--fit {
+  flex-wrap: nowrap;
+  overflow: visible;
+}
+
+.chips--fit .chip {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-inline: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  justify-content: center;
 }
 
 .chips::-webkit-scrollbar {

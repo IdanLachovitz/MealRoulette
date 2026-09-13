@@ -57,14 +57,10 @@ export function LibraryScreen({ householdId }: { householdId: string }) {
 
   return (
     <div>
-      {/* Just four fixed tabs — centered and wrapping instead of the default
-          scrolling `.chips` row, so it always fits the screen instead of the
-          last tab running past the edge on a narrow phone. */}
-      <div
-        className="chips"
-        style={{ marginBottom: 10, justifyContent: 'center', flexWrap: 'wrap', overflow: 'visible' }}
-        role="tablist"
-      >
+      {/* Just four fixed tabs that must always read as one row — see
+          .chips--fit — rather than the default scrolling `.chips`, which
+          let the last tab run past the edge on a narrow phone. */}
+      <div className="chips chips--fit" style={{ marginBottom: 10 }} role="tablist">
         {(['dish', 'protein', 'carb', 'veg'] as Tab[]).map((t) => (
           <button
             key={t}
