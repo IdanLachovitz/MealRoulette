@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { newId, now } from '../db/repo'
 import { EmptyState, Field } from '../components/ui'
-import { fullMatchesOnly, matchDishesToFridge } from '../engine/fridge'
+import { closeMatches, fullMatchesOnly, matchDishesToFridge } from '../engine/fridge'
 import { generateDishWithAi } from '../sync/ai'
 import type { AiDish } from '../sync/ai'
 import type { Dish, FridgeItem } from '../types'
@@ -33,10 +33,14 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
     [fridgeItems],
   )
 
-  const fullMatches = useMemo(
-    () => fullMatchesOnly(matchDishesToFridge(dishes ?? [], items.map((i) => i.name))),
+  const matches = useMemo(
+    () => matchDishesToFridge(dishes ?? [], items.map((i) => i.name)),
     [dishes, items],
   )
+  const fullMatches = useMemo(() => fullMatchesOnly(matches), [matches])
+  // Dishes you're most of the way to — missing just a few things, listed so
+  // you know exactly what to grab instead of only ever seeing "no match".
+  const partialMatches = useMemo(() => closeMatches(matches), [matches])
 
   // A real recipe from Groq, opt-in (costs a network round-trip) and only
   // offered once the instant local guess above is the best we've got.
@@ -128,8 +132,38 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
             ))
           ) : (
             <p className="muted">
-              אין עדיין מנה מהמאגר שמכוסה לגמרי — אפשר לבקש רעיון מה-AI למטה.
+              {partialMatches.length > 0
+                ? 'אין עדיין מנה מהמאגר שמכוסה לגמרי — אבל יש כאלה שקרובות, למטה.'
+                : 'אין עדיין מנה מהמאגר שמכוסה לגמרי — אפשר לבקש רעיון מה-AI למטה.'}
             </p>
+          )}
+
+          {/* Not a full match, but not far off either — exactly what's
+              missing, so it's a shopping list, not just a "no" */}
+          {partialMatches.length > 0 && (
+            <>
+              <div className="label" style={{ marginBottom: 8, marginTop: 14 }}>
+                קרוב — חסר רק קצת
+              </div>
+              {partialMatches.map(({ dish, missing, covered, total }) => (
+                <div key={dish.id} className="card" style={{ marginBottom: 8 }}>
+                  <div className="row row--between">
+                    <span style={{ fontWeight: 500 }}>{dish.name}</span>
+                    <span className="label">
+                      {covered}/{total} מרכיבים
+                    </span>
+                  </div>
+                  <p className="field__hint" style={{ marginTop: 4 }}>חסר:</p>
+                  <div className="tag-list" style={{ marginTop: 4 }}>
+                    {missing.map((m) => (
+                      <span key={m} className="chip" style={{ opacity: 0.8 }}>
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </>
           )}
 
           {/* Always available, even with a reservoir match — a good real

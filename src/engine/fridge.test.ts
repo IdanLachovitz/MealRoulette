@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fullMatchesOnly, matchDishesToFridge } from './fridge'
+import { closeMatches, fullMatchesOnly, matchDishesToFridge } from './fridge'
 import type { Dish, Ingredient } from '../types'
 
 function ing(name: string, overrides: Partial<Ingredient> = {}): Ingredient {
@@ -75,5 +75,27 @@ describe('fullMatchesOnly', () => {
     const partial = dish({ id: 'partial', ingredients: [ing('בצל'), ing('עוף')] })
     const kept = fullMatchesOnly(matchDishesToFridge([full, partial], ['בצל', 'שום']))
     expect(kept.map((m) => m.dish.id)).toEqual(['full'])
+  })
+})
+
+describe('closeMatches', () => {
+  it('drops full matches and dishes missing too much', () => {
+    const full = dish({ id: 'full', ingredients: [ing('בצל')] })
+    const close = dish({ id: 'close', ingredients: [ing('בצל'), ing('שום'), ing('עוף')] })
+    const far = dish({
+      id: 'far',
+      ingredients: [ing('בצל'), ing('תפוח'), ing('ביצה'), ing('גזר'), ing('דלעת')],
+    })
+    const kept = closeMatches(matchDishesToFridge([full, close, far], ['בצל']))
+    expect(kept.map((m) => m.dish.id)).toEqual(['close'])
+    expect(kept[0]?.missing).toEqual(['שום', 'עוף'])
+  })
+
+  it('caps the result so a well-stocked fridge does not flood the list', () => {
+    const dishes = Array.from({ length: 10 }, (_, i) =>
+      dish({ id: `d${i}`, ingredients: [ing('בצל'), ing(`x${i}`)] }),
+    )
+    const kept = closeMatches(matchDishesToFridge(dishes, ['בצל']), 3, 4)
+    expect(kept).toHaveLength(4)
   })
 })

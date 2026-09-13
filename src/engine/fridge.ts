@@ -62,3 +62,18 @@ export function matchDishesToFridge(dishes: Dish[], fridgeItemNames: string[]): 
 export function fullMatchesOnly(matches: FridgeMatch[]): FridgeMatch[] {
   return matches.filter((m) => m.covered === m.total)
 }
+
+/**
+ * "You're most of the way there" — dishes missing only a handful of
+ * ingredients, not most of them. `matches` is already sorted by coverage
+ * fraction (see matchDishesToFridge), so the result stays closest-first;
+ * capped so a well-stocked fridge doesn't turn this into a second, noisier
+ * copy of the whole library.
+ */
+export function closeMatches(
+  matches: FridgeMatch[],
+  maxMissing = 3,
+  limit = 6,
+): FridgeMatch[] {
+  return matches.filter((m) => m.covered < m.total && m.missing.length <= maxMissing).slice(0, limit)
+}
