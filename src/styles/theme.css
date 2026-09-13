@@ -301,6 +301,7 @@ button {
 }
 
 .nav {
+  position: relative;
   display: flex;
   justify-content: space-around;
   width: 100%;
@@ -311,6 +312,47 @@ button {
   -webkit-backdrop-filter: blur(22px) saturate(1.4);
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-nav);
+  /* The whole bar owns the drag gesture (see App.tsx) — a finger sliding
+     across it moves the pill and switches tabs live, so the browser's own
+     touch scrolling/zooming must not compete for those pointermoves. */
+  touch-action: none;
+}
+
+/* One pill, not one per tab — it slides to wherever the active tab is
+   instead of popping in fresh each time, which is what actually sells "a
+   finger dragged this here" rather than "a tab got clicked". Position and
+   width come from App.tsx measuring the real button rects, so it lines up
+   exactly regardless of label length or viewport width. */
+.nav__pill {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  background: var(--grad-saf);
+  border-radius: var(--radius-pill);
+  pointer-events: none;
+  transition: left 0.32s var(--ease-em), width 0.32s var(--ease-em);
+}
+
+/* The little squash-and-recover on release — "picked", not just "moved
+   here" — separate from the left/width transition above so both can run
+   at once without fighting over the same property. */
+.nav__pill--settle {
+  animation: nav-pill-settle 0.32s var(--ease-em);
+}
+
+@keyframes nav-pill-settle {
+  35% {
+    transform: scaleX(0.88);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav__pill {
+    transition: none;
+  }
+  .nav__pill--settle {
+    animation: none;
+  }
 }
 
 .nav__item {
@@ -354,21 +396,10 @@ button {
   }
 }
 
+/* The colour still lives here — the shared .nav__pill (see above) is what
+   now draws the shape behind it. */
 .nav__item[aria-current='page'] {
   color: var(--saf-ink);
-}
-
-/* A solid tonal pill grows in behind the active tab instead of only
-   recolouring the icon — the current-tab state reads as one deliberate shape,
-   not a colour change alone (also satisfies "don't rely on colour only"). */
-.nav__item[aria-current='page']::before {
-  content: '';
-  position: absolute;
-  inset: 2px 4px;
-  background: var(--grad-saf);
-  border-radius: var(--radius-pill);
-  z-index: -1;
-  animation: nav-pill-in 0.22s var(--ease-em);
 }
 
 :root[data-theme='dark'] .nav__item[aria-current='page'] {
@@ -378,19 +409,6 @@ button {
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .nav__item[aria-current='page'] {
     color: var(--saf-ink);
-  }
-}
-
-@keyframes nav-pill-in {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .nav__item[aria-current='page']::before {
-    animation: none;
   }
 }
 
