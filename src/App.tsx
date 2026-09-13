@@ -38,6 +38,17 @@ function Shell() {
   const [pillRect, setPillRect] = useState<{ left: number; width: number } | null>(null)
   const [pillSettling, setPillSettling] = useState(false)
   const dragPointerId = useRef<number | null>(null)
+  // Which tab a finger is currently over mid-drag — separate from `tab`
+  // itself so the pill (and the icon colour) can chase the finger live
+  // while the actual screen underneath only switches once the finger lifts
+  // and that choice is committed. Null whenever there's no drag in progress.
+  // Mirrored into a ref alongside the state: a fast drag can fire
+  // pointerdown/move/up before React re-renders between them, and reading
+  // `dragTab` state from the pointerup closure in that case would still see
+  // its value from *before* the drag started — the ref is always current.
+  const [dragTab, setDragTab] = useState<Tab | null>(null)
+  const dragTabRef = useRef<Tab | null>(null)
+  const displayTab = dragTab ?? tab
 
   const updatePill = useCallback((activeTab: Tab) => {
     const navEl = navRef.current
@@ -55,14 +66,14 @@ function Shell() {
   // pill visibly jump into place on first load instead of just appearing
   // where it belongs.
   useLayoutEffect(() => {
-    updatePill(tab)
-  }, [tab, updatePill])
+    updatePill(displayTab)
+  }, [displayTab, updatePill])
 
   useEffect(() => {
-    const onResize = () => updatePill(tab)
+    const onResize = () => updatePill(displayTab)
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
-  }, [tab, updatePill])
+  }, [displayTab, updatePill])
 
   /** Which tab, if any, sits under this point right now. */
   const tabAt = (clientX: number, clientY: number): Tab | null => {
@@ -75,11 +86,11 @@ function Shell() {
 
   // The drag lives on the bar itself, not on each button — that's what lets
   // a finger land on one tab and slide across the others with the pill
-  // chasing it the whole way, switching tab (and its content underneath)
-  // live as each one passes under the finger, the same gesture an iOS
-  // segmented control uses. Lifting the finger is what "picks" the tab
-  // it's currently over, marked with a little settle-bounce on the pill —
-  // dragging never has to end back where it started.
+  // chasing it the whole way, the same gesture an iOS segmented control
+  // uses. Only dragTab moves during the drag itself; the screen underneath
+  // stays put until the finger actually lifts, which is what "picks" the
+  // tab it's over at that moment — committed to `tab` with a little
+  // settle-bounce on the pill, never mid-drag.
   const onNavPointerDown = (e: ReactPointerEvent<HTMLElement>) => {
     dragPointerId.current = e.pointerId
     setPillSettling(false)
@@ -89,18 +100,23 @@ function Shell() {
       // Capture is a nice-to-have; its failure shouldn't sink the gesture.
     }
     const hit = tabAt(e.clientX, e.clientY)
-    if (hit) setTab(hit)
+    dragTabRef.current = hit
+    setDragTab(hit)
   }
 
   const onNavPointerMove = (e: ReactPointerEvent<HTMLElement>) => {
     if (dragPointerId.current !== e.pointerId) return
     const hit = tabAt(e.clientX, e.clientY)
-    if (hit) setTab(hit)
+    dragTabRef.current = hit
+    setDragTab(hit)
   }
 
   const onNavPointerUp = (e: ReactPointerEvent<HTMLElement>) => {
     if (dragPointerId.current !== e.pointerId) return
     dragPointerId.current = null
+    if (dragTabRef.current) setTab(dragTabRef.current)
+    dragTabRef.current = null
+    setDragTab(null)
     setPillSettling(true)
   }
 
@@ -190,11 +206,11 @@ function Shell() {
                 else itemRefs.current.delete(t.id)
               }}
               className="nav__item"
-              aria-current={tab === t.id ? 'page' : undefined}
+              aria-current={displayTab === t.id ? 'page' : undefined}
               onClick={() => setTab(t.id)}
             >
               <span className="nav__icon">
-                <Icon name={t.icon} size={21} strokeWidth={tab === t.id ? 2.2 : 1.7} />
+                <Icon name={t.icon} size={21} strokeWidth={displayTab === t.id ? 2.2 : 1.7} />
               </span>
               {t.label}
             </button>
