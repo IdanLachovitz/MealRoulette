@@ -65,9 +65,18 @@ function Shell() {
   // useLayoutEffect, not useEffect — measuring after paint would let the
   // pill visibly jump into place on first load instead of just appearing
   // where it belongs.
+  //
+  // `household` is in the deps for a reason that isn't obvious from this
+  // effect alone: on a cold load, Shell renders once (maybe several times)
+  // before `ready`/`household` resolve, and during that stretch it returns
+  // early below with no <nav> in the tree at all — so this effect's first
+  // run finds no DOM to measure and leaves pillRect null. Once the real
+  // nav mounts, `displayTab` hasn't changed (still the initial 'week'), so
+  // without `household` here the effect would never fire again and the
+  // pill would just never appear until the next tab switch.
   useLayoutEffect(() => {
     updatePill(displayTab)
-  }, [displayTab, updatePill])
+  }, [displayTab, updatePill, household])
 
   useEffect(() => {
     const onResize = () => updatePill(displayTab)
