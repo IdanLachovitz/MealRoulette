@@ -57,7 +57,14 @@ export function LibraryScreen({ householdId }: { householdId: string }) {
 
   return (
     <div>
-      <div className="chips" style={{ marginBottom: 10 }} role="tablist">
+      {/* Just four fixed tabs — centered and wrapping instead of the default
+          scrolling `.chips` row, so it always fits the screen instead of the
+          last tab running past the edge on a narrow phone. */}
+      <div
+        className="chips"
+        style={{ marginBottom: 10, justifyContent: 'center', flexWrap: 'wrap', overflow: 'visible' }}
+        role="tablist"
+      >
         {(['dish', 'protein', 'carb', 'veg'] as Tab[]).map((t) => (
           <button
             key={t}

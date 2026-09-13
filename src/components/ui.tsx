@@ -315,7 +315,15 @@ export function TimeFilterChips({
   onChange: (v: TimeFilter) => void
 }) {
   return (
-    <div className="chips" role="group" aria-label="סינון לפי זמן הכנה">
+    // A fixed set of four short options — centered and wrapping instead of
+    // the default scrolling `.chips` row, so it always fits the screen
+    // instead of the last chip running past the edge on a narrow phone.
+    <div
+      className="chips"
+      style={{ justifyContent: 'center', flexWrap: 'wrap', overflow: 'visible' }}
+      role="group"
+      aria-label="סינון לפי זמן הכנה"
+    >
       {TIME_FILTERS.map((f) => (
         <button
           key={f.label}
