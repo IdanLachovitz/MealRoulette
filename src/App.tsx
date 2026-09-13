@@ -35,7 +35,17 @@ function Shell() {
   // correct even if that ever changes).
   const navRef = useRef<HTMLElement>(null)
   const itemRefs = useRef(new Map<Tab, HTMLButtonElement>())
-  const [pillRect, setPillRect] = useState<{ left: number; width: number } | null>(null)
+  // `offset` drives a CSS transform (translateX), not `left` — left/width
+  // are layout properties, so animating them forces a layout recalculation
+  // on every frame. That's cheap enough on a desktop browser to look fine,
+  // but it's exactly the kind of per-frame layout thrash that shows up as
+  // real stutter on a phone, especially on one big jump (a tap straight
+  // across the bar) rather than the many tiny steps a slow drag produces.
+  // transform is compositor-only — same smoothness regardless of distance
+  // or device. Width itself never actually changes between tabs (they're
+  // equal-width flex items), only on a resize, so it doesn't need to be
+  // part of the animated path at all.
+  const [pillRect, setPillRect] = useState<{ offset: number; width: number } | null>(null)
   const [pillSettling, setPillSettling] = useState(false)
   const dragPointerId = useRef<number | null>(null)
   // Which tab a finger is currently over mid-drag — separate from `tab`
@@ -59,7 +69,7 @@ function Shell() {
     }
     const navBox = navEl.getBoundingClientRect()
     const itemBox = itemEl.getBoundingClientRect()
-    setPillRect({ left: itemBox.left - navBox.left, width: itemBox.width })
+    setPillRect({ offset: itemBox.left - navBox.left, width: itemBox.width })
   }, [])
 
   // useLayoutEffect, not useEffect — measuring after paint would let the
@@ -202,10 +212,19 @@ function Shell() {
         >
           {pillRect && (
             <div
-              className={`nav__pill${pillSettling ? ' nav__pill--settle' : ''}`}
-              style={{ left: pillRect.left, width: pillRect.width }}
-              onAnimationEnd={() => setPillSettling(false)}
-            />
+              className="nav__pill"
+              style={{ width: pillRect.width, transform: `translateX(${pillRect.offset}px)` }}
+            >
+              {/* Position (outer, transform) and the settle squash (inner)
+                  animate separately on purpose — both are transforms, and
+                  one element can't run two independent transform animations
+                  (an inline translateX plus a keyframe's scaleX) at once
+                  without one silently overwriting the other. */}
+              <div
+                className={`nav__pill-fill${pillSettling ? ' nav__pill-fill--settle' : ''}`}
+                onAnimationEnd={() => setPillSettling(false)}
+              />
+            </div>
           )}
           {TABS.map((t) => (
             <button

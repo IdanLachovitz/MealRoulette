@@ -231,16 +231,22 @@ button {
 
 /* Switching tabs remounts the panel (see App.tsx) — this animation is what
    makes that swap read as the content condensing into focus through glass
-   rather than an instant jump-cut, echoing the nav pill's own material. */
+   rather than an instant jump-cut, echoing the nav pill's own material.
+   will-change hints the browser to promote this to its own composited
+   layer up front, instead of doing that promotion late (right as the
+   animation starts) — the difference between a clean first frame and a
+   visible hitch on it, which shows up far more on a phone's GPU than a
+   desktop's. */
 .tab-panel {
   animation: tab-panel-in 0.32s var(--ease-liquid);
+  will-change: transform, opacity, filter;
 }
 
 @keyframes tab-panel-in {
   from {
     opacity: 0;
     transform: translateY(10px) scale(0.98);
-    filter: blur(3px);
+    filter: blur(2px);
   }
 }
 
@@ -326,29 +332,48 @@ button {
 
 /* One pill, not one per tab — it slides to wherever the active tab is
    instead of popping in fresh each time, which is what actually sells "a
-   finger dragged this here" rather than "a tab got clicked". Position and
-   width come from App.tsx measuring the real button rects, so it lines up
-   exactly regardless of label length or viewport width. */
+   finger dragged this here" rather than "a tab got clicked". Position comes
+   from App.tsx measuring the real button rects, applied as a translateX
+   (not `left`) so the slide is a compositor-only transform — animating
+   `left` forces a layout recalculation on every frame, which a phone feels
+   as stutter far more than a desktop does, especially on one big jump
+   (a tap straight across the bar) rather than a drag's many tiny steps.
+   Width is still set directly (it never actually changes between tabs —
+   they're equal-width flex items, only a resize touches it) but isn't part
+   of the animated path either way. */
 .nav__pill {
   position: absolute;
   top: 2px;
   bottom: 2px;
-  background: var(--grad-saf);
+  left: 0;
   border-radius: var(--radius-pill);
   pointer-events: none;
+  transition: transform 0.38s var(--ease-liquid);
+  will-change: transform;
+}
+
+/* The actual fill is a separate inner element so its own settle-bounce
+   animation (a transform) can run independently of the outer element's
+   translateX — one element can't animate two unrelated transforms (an
+   inline translateX plus a keyframe's scaleX) at the same time without one
+   silently overwriting the other. */
+.nav__pill-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--grad-saf);
+  border-radius: inherit;
   /* Glass, not flat colour — a bright inner edge along the top like light
      catching a curved surface, a soft dark edge underneath for depth, and a
      warm ambient lift off the bar itself. */
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), inset 0 -2px 3px rgba(0, 0, 0, 0.1),
     0 3px 10px -2px rgba(122, 59, 18, 0.4);
-  transition: left 0.38s var(--ease-liquid), width 0.38s var(--ease-liquid);
 }
 
 /* The stretch-then-recover on release — reads as an elastic glob that was
    being held and got let go, not a shape that just stopped. Starting the
    keyframe already stretched (rather than animating a plain scale(1) pill)
    is what sells "was liquid a moment ago". */
-.nav__pill--settle {
+.nav__pill-fill--settle {
   animation: nav-pill-settle 0.42s var(--ease-liquid);
 }
 
@@ -365,7 +390,7 @@ button {
   .nav__pill {
     transition: none;
   }
-  .nav__pill--settle {
+  .nav__pill-fill--settle {
     animation: none;
   }
 }
