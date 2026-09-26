@@ -6,7 +6,7 @@
  * three add paths (library +, roulette shortcut, bulk paste) keep it growing.
  */
 import seedData from './seed-data.json'
-import { db } from './db'
+import { db, getMeta, setMeta } from './db'
 import { newId, now, save, saveMany, setCurrentHouseholdId } from './repo'
 import { DEFAULT_SETTINGS } from '../types'
 import type { Component, ComponentType, Dish, Household, Ingredient } from '../types'
@@ -101,6 +101,59 @@ function seedImageUrl(path: string | undefined): string | null {
 }
 
 /**
+ * Bump whenever the main-ingredient marks in seed-data.json are revised, so
+ * households that already imported the library pick up the new picks once.
+ */
+const SEED_MAINS_VERSION = 2
+
+/**
+ * Set an already-imported dish's main-ingredient marks to exactly the seed's,
+ * matching ingredients by name so any other edits to the list survive.
+ * Returns null when nothing would change, or when none of the seed's mains are
+ * in the list anymore (the dish was reworked — leave its marks to the user).
+ */
+function markMains(existing: Ingredient[], seed: Ingredient[]): Ingredient[] | null {
+  const mainNames = new Set(seed.filter((ing) => ing.is_main).map((ing) => ing.name.trim()))
+  if (!existing.some((ing) => mainNames.has(ing.name.trim()))) return null
+  let changed = false
+  const next = existing.map(({ is_main, ...ing }) => {
+    const main = mainNames.has(ing.name.trim())
+    if (main !== !!is_main) changed = true
+    return main ? { ...ing, is_main: true } : ing
+  })
+  return changed ? next : null
+}
+
+/**
+ * Apply the seed's main-ingredient marks to this household's library dishes,
+ * once per SEED_MAINS_VERSION. Runs on startup and after an import. Because it
+ * only runs when the version is bumped, marks the user changes by hand stay
+ * put until the next revision of the seed's picks.
+ */
+export async function applySeedMains(householdId: string): Promise<number> {
+  const metaKey = `seed_mains_version:${householdId}`
+  if ((await getMeta<number>(metaKey, 0)) >= SEED_MAINS_VERSION) return 0
+
+  const seedByName = new Map(
+    (seedData as { dishes: SeedDish[] }).dishes.map((d) => [d.name.trim(), d]),
+  )
+  const dishes = (await db.dishes.where('household_id').equals(householdId).toArray()).filter(
+    (d) => !d.deleted_at,
+  )
+  let updated = 0
+  for (const dish of dishes) {
+    const seed = seedByName.get(dish.name.trim())
+    const withMains = seed && markMains(dish.ingredients, seed.ingredients)
+    if (withMains) {
+      await save('dishes', { ...dish, ingredients: withMains })
+      updated++
+    }
+  }
+  await setMeta(metaKey, SEED_MAINS_VERSION)
+  return updated
+}
+
+/**
  * Import the bundled starter library into a household.
  *
  * Safe to run more than once: a seed item whose name isn't in the household
@@ -109,6 +162,7 @@ function seedImageUrl(path: string | undefined): string | null {
  * photo, which get backfilled onto an already-imported item that still has
  * none, so a household that imported before that data existed picks it up
  * on the next import without losing any other edits or duplicating anything.
+ * Main-ingredient marks are handled separately, by applySeedMains.
  * A dish with its own photo (AI-generated or manually uploaded) is never
  * overwritten by the seed's bundled one.
  */
@@ -170,11 +224,12 @@ export async function importSeedLibrary(householdId: string): Promise<{
   if (newComponents.length) await saveMany('components', newComponents)
   for (const d of backfillDishes) await save('dishes', d)
   for (const c of backfillComponents) await save('components', c)
+  const remarked = await applySeedMains(householdId)
 
   return {
     dishes: newDishes.length,
     components: newComponents.length,
-    backfilled: backfillDishes.length + backfillComponents.length,
+    backfilled: backfillDishes.length + backfillComponents.length + remarked,
   }
 }
 

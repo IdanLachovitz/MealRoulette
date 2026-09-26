@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from './db/db'
 import { currentHouseholdId, save } from './db/repo'
+import { applySeedMains } from './db/seed'
 import { DEFAULT_SETTINGS } from './types'
 import type { Household, HouseholdSettings } from './types'
 import { getSyncState, startSync, subscribeSync } from './sync/sync'
@@ -85,6 +86,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!householdId) return
+    void applySeedMains(householdId)
     return startSync(householdId)
   }, [householdId])
 

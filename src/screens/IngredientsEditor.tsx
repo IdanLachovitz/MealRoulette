@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { AISLES, UNITS } from '../types'
 import type { Aisle, Ingredient, Unit } from '../types'
 
+/** A dish is built around one or two things — more than that and nothing is "main". */
+const MAX_MAINS = 2
+
 /**
  * Ingredients are optional everywhere — a dish with none still plans and still
  * appears on the shopping list, marked as having none (FR-1.2 acceptance).
@@ -14,6 +17,7 @@ export function IngredientsEditor({
   onChange: (next: Ingredient[]) => void
 }) {
   const [open, setOpen] = useState(ingredients.length > 0)
+  const mainCount = ingredients.filter((ing) => ing.is_main).length
 
   const update = (index: number, patch: Partial<Ingredient>) => {
     onChange(ingredients.map((ing, i) => (i === index ? { ...ing, ...patch } : ing)))
@@ -103,6 +107,15 @@ export function IngredientsEditor({
                   ))}
                 </select>
               </div>
+              <label className="field__hint" style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+                <input
+                  type="checkbox"
+                  checked={!!ing.is_main}
+                  disabled={!ing.is_main && mainCount >= MAX_MAINS}
+                  onChange={(e) => update(i, { is_main: e.target.checked })}
+                />
+                מצרך עיקרי (עד {MAX_MAINS} למנה)
+              </label>
               <div className="row row--between">
                 <label className="field__hint" style={{ display: 'flex', gap: 6 }}>
                   <input

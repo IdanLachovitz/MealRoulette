@@ -14,6 +14,7 @@
       "ingredients": [
         {
           "name": "פרגיות",
+          "is_main": true,
           "quantity": 600,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -42,6 +43,7 @@
         },
         {
           "name": "תפוח אדמה",
+          "is_main": true,
           "quantity": 3,
           "unit": "יח'",
           "aisle": "ירקות",
@@ -80,6 +82,7 @@
       "ingredients": [
         {
           "name": "פרגיות",
+          "is_main": true,
           "quantity": 600,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -115,6 +118,7 @@
         },
         {
           "name": "בטטה",
+          "is_main": true,
           "quantity": 2,
           "unit": "יח'",
           "aisle": "ירקות",
@@ -132,6 +136,7 @@
       "ingredients": [
         {
           "name": "חזה עוף",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -146,6 +151,7 @@
         },
         {
           "name": "ברוקולי",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -170,6 +176,7 @@
       "ingredients": [
         {
           "name": "חזה עוף",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -177,6 +184,7 @@
         },
         {
           "name": "אורז",
+          "is_main": true,
           "quantity": 1.5,
           "unit": "כוס",
           "aisle": "יבשים",
@@ -201,6 +209,7 @@
       "ingredients": [
         {
           "name": "חזה עוף",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -208,6 +217,7 @@
         },
         {
           "name": "פטריות",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -232,6 +242,7 @@
       "ingredients": [
         {
           "name": "חזה עוף",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -239,6 +250,7 @@
         },
         {
           "name": "פטריות",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -270,6 +282,7 @@
       "ingredients": [
         {
           "name": "חזה עוף בקוביות",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -298,6 +311,7 @@
         },
         {
           "name": "ברוקולי",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -322,6 +336,7 @@
       "ingredients": [
         {
           "name": "חזה עוף",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -329,6 +344,7 @@
         },
         {
           "name": "זיתים",
+          "is_main": true,
           "quantity": 200,
           "unit": "גרם",
           "aisle": "אחר",
@@ -353,6 +369,7 @@
       "ingredients": [
         {
           "name": "שוקיים עוף",
+          "is_main": true,
           "quantity": 6,
           "unit": "יח'",
           "aisle": "בשר ודגים",
@@ -360,6 +377,7 @@
         },
         {
           "name": "אפונה",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "קפואים",
@@ -398,6 +416,7 @@
       "ingredients": [
         {
           "name": "חזה עוף",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -419,6 +438,7 @@
         },
         {
           "name": "עגבניות מיובשות",
+          "is_main": true,
           "quantity": 0.3,
           "unit": "כוס",
           "aisle": "אחר",
@@ -436,6 +456,7 @@
       "ingredients": [
         {
           "name": "חזה עוף",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -443,6 +464,7 @@
         },
         {
           "name": "אורז",
+          "is_main": true,
           "quantity": 1.5,
           "unit": "כוס",
           "aisle": "יבשים",
@@ -481,6 +503,7 @@
       "ingredients": [
         {
           "name": "רצועות עוף",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -502,6 +525,7 @@
         },
         {
           "name": "טורטיות",
+          "is_main": true,
           "quantity": 8,
           "unit": "יח'",
           "aisle": "יבשים",
@@ -519,6 +543,7 @@
       "ingredients": [
         {
           "name": "חלקי עוף למרק",
+          "is_main": true,
           "quantity": 1,
           "unit": "ק\"ג",
           "aisle": "בשר ודגים",
@@ -564,6 +589,7 @@
       "ingredients": [
         {
           "name": "נגטס עוף קפואים",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "קפואים",
@@ -581,6 +607,7 @@
       "ingredients": [
         {
           "name": "בשר בקוביות",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -588,6 +615,7 @@
         },
         {
           "name": "פטריות",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -612,6 +640,7 @@
       "ingredients": [
         {
           "name": "בשר",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -619,6 +648,7 @@
         },
         {
           "name": "תפוח אדמה",
+          "is_main": true,
           "quantity": 3,
           "unit": "יח'",
           "aisle": "ירקות",
@@ -643,6 +673,7 @@
       "ingredients": [
         {
           "name": "אסאדו",
+          "is_main": true,
           "quantity": 1,
           "unit": "ק\"ג",
           "aisle": "בשר ודגים",
@@ -674,6 +705,7 @@
       "ingredients": [
         {
           "name": "בשר טחון",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -712,6 +744,7 @@
       "ingredients": [
         {
           "name": "קובה",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "קפואים",
@@ -719,6 +752,7 @@
         },
         {
           "name": "במיה",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -743,6 +777,7 @@
       "ingredients": [
         {
           "name": "קובה",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "קפואים",
@@ -750,6 +785,7 @@
         },
         {
           "name": "סלק",
+          "is_main": true,
           "quantity": 4,
           "unit": "יח'",
           "aisle": "ירקות",
@@ -774,6 +810,7 @@
       "ingredients": [
         {
           "name": "קובה",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "קפואים",
@@ -781,6 +818,7 @@
         },
         {
           "name": "קישואים",
+          "is_main": true,
           "quantity": 4,
           "unit": "יח'",
           "aisle": "ירקות",
@@ -812,6 +850,7 @@
         },
         {
           "name": "אורז",
+          "is_main": true,
           "quantity": 1,
           "unit": "כוס",
           "aisle": "יבשים",
@@ -819,6 +858,7 @@
         },
         {
           "name": "בשר טחון",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -836,6 +876,7 @@
       "ingredients": [
         {
           "name": "כרוב",
+          "is_main": true,
           "quantity": 1,
           "unit": "יח'",
           "aisle": "ירקות",
@@ -850,6 +891,7 @@
         },
         {
           "name": "בשר טחון",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -874,6 +916,7 @@
       "ingredients": [
         {
           "name": "קישואים",
+          "is_main": true,
           "quantity": 6,
           "unit": "יח'",
           "aisle": "ירקות",
@@ -888,6 +931,7 @@
         },
         {
           "name": "בשר טחון",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -912,6 +956,7 @@
       "ingredients": [
         {
           "name": "חציל",
+          "is_main": true,
           "quantity": 3,
           "unit": "יח'",
           "aisle": "ירקות",
@@ -919,6 +964,7 @@
         },
         {
           "name": "בשר טחון",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -943,6 +989,7 @@
       "ingredients": [
         {
           "name": "תפוח אדמה",
+          "is_main": true,
           "quantity": 8,
           "unit": "יח'",
           "aisle": "ירקות",
@@ -950,6 +997,7 @@
         },
         {
           "name": "בשר טחון",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -974,6 +1022,7 @@
       "ingredients": [
         {
           "name": "דפי לזניה",
+          "is_main": true,
           "quantity": 12,
           "unit": "יח'",
           "aisle": "יבשים",
@@ -981,6 +1030,7 @@
         },
         {
           "name": "בשר טחון",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1019,6 +1069,7 @@
       "ingredients": [
         {
           "name": "יריעות בצק בורקס",
+          "is_main": true,
           "quantity": 8,
           "unit": "יח'",
           "aisle": "קפואים",
@@ -1026,6 +1077,7 @@
         },
         {
           "name": "בשר טחון",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1057,6 +1109,7 @@
       "ingredients": [
         {
           "name": "בשר טחון",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1064,6 +1117,7 @@
         },
         {
           "name": "לחמניות",
+          "is_main": true,
           "quantity": 8,
           "unit": "יח'",
           "aisle": "יבשים",
@@ -1095,6 +1149,7 @@
       "ingredients": [
         {
           "name": "בשר טחון לקבב",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1133,6 +1188,7 @@
       "ingredients": [
         {
           "name": "בשר טחון להמבורגר",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1140,6 +1196,7 @@
         },
         {
           "name": "לחמניות המבורגר",
+          "is_main": true,
           "quantity": 4,
           "unit": "יח'",
           "aisle": "יבשים",
@@ -1171,6 +1228,7 @@
       "ingredients": [
         {
           "name": "בשר טחון",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1178,6 +1236,7 @@
         },
         {
           "name": "חסה",
+          "is_main": true,
           "quantity": 1,
           "unit": "יח'",
           "aisle": "ירקות",
@@ -1216,6 +1275,7 @@
       "ingredients": [
         {
           "name": "בשר/פרגיות לסטרוגנוף",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1223,6 +1283,7 @@
         },
         {
           "name": "פטריות",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -1254,6 +1315,7 @@
       "ingredients": [
         {
           "name": "בשר בקוביות",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1285,6 +1347,7 @@
       "ingredients": [
         {
           "name": "בשר בקוביות",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1292,6 +1355,7 @@
         },
         {
           "name": "אורז לבן",
+          "is_main": true,
           "quantity": 1.5,
           "unit": "כוס",
           "aisle": "יבשים",
@@ -1323,6 +1387,7 @@
       "ingredients": [
         {
           "name": "אטריות",
+          "is_main": true,
           "quantity": 250,
           "unit": "גרם",
           "aisle": "יבשים",
@@ -1330,6 +1395,7 @@
         },
         {
           "name": "רצועות בשר",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1361,6 +1427,7 @@
       "ingredients": [
         {
           "name": "בשר טחון",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1368,6 +1435,7 @@
         },
         {
           "name": "טורטיות טאקו",
+          "is_main": true,
           "quantity": 10,
           "unit": "יח'",
           "aisle": "יבשים",
@@ -1406,6 +1474,7 @@
       "ingredients": [
         {
           "name": "בשר טחון",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1413,6 +1482,7 @@
         },
         {
           "name": "פיתות",
+          "is_main": true,
           "quantity": 6,
           "unit": "יח'",
           "aisle": "יבשים",
@@ -1444,6 +1514,7 @@
       "ingredients": [
         {
           "name": "שעועית לבנה",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "יבשים",
@@ -1451,6 +1522,7 @@
         },
         {
           "name": "בשר/עוף",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1475,6 +1547,7 @@
       "ingredients": [
         {
           "name": "בטטה",
+          "is_main": true,
           "quantity": 4,
           "unit": "יח'",
           "aisle": "ירקות",
@@ -1482,6 +1555,7 @@
         },
         {
           "name": "בשר טחון",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1506,6 +1580,7 @@
       "ingredients": [
         {
           "name": "בשר טחון (מאסה)",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1513,6 +1588,7 @@
         },
         {
           "name": "טורטיות",
+          "is_main": true,
           "quantity": 8,
           "unit": "יח'",
           "aisle": "יבשים",
@@ -1544,6 +1620,7 @@
       "ingredients": [
         {
           "name": "חזה עוף לשניצל",
+          "is_main": true,
           "quantity": 4,
           "unit": "יח'",
           "aisle": "בשר ודגים",
@@ -1582,6 +1659,7 @@
       "ingredients": [
         {
           "name": "שניצל מוכן",
+          "is_main": true,
           "quantity": 4,
           "unit": "יח'",
           "aisle": "בשר ודגים",
@@ -1596,6 +1674,7 @@
         },
         {
           "name": "גבינה צהובה",
+          "is_main": true,
           "quantity": 150,
           "unit": "גרם",
           "aisle": "מוצרי חלב",
@@ -1620,6 +1699,7 @@
       "ingredients": [
         {
           "name": "פתיתים",
+          "is_main": true,
           "quantity": 1.5,
           "unit": "כוס",
           "aisle": "יבשים",
@@ -1627,6 +1707,7 @@
         },
         {
           "name": "שניצל",
+          "is_main": true,
           "quantity": 4,
           "unit": "יח'",
           "aisle": "בשר ודגים",
@@ -1651,6 +1732,7 @@
       "ingredients": [
         {
           "name": "אורז",
+          "is_main": true,
           "quantity": 1.5,
           "unit": "כוס",
           "aisle": "יבשים",
@@ -1658,6 +1740,7 @@
         },
         {
           "name": "שניצל",
+          "is_main": true,
           "quantity": 4,
           "unit": "יח'",
           "aisle": "בשר ודגים",
@@ -1689,6 +1772,7 @@
       "ingredients": [
         {
           "name": "פילה סלמון",
+          "is_main": true,
           "quantity": 2,
           "unit": "יח'",
           "aisle": "בשר ודגים",
@@ -1703,6 +1787,7 @@
         },
         {
           "name": "אורז",
+          "is_main": true,
           "quantity": 1.5,
           "unit": "כוס",
           "aisle": "יבשים",
@@ -1720,6 +1805,7 @@
       "ingredients": [
         {
           "name": "אורז",
+          "is_main": true,
           "quantity": 1.5,
           "unit": "כוס",
           "aisle": "יבשים",
@@ -1727,6 +1813,7 @@
         },
         {
           "name": "פילה סלמון",
+          "is_main": true,
           "quantity": 2,
           "unit": "יח'",
           "aisle": "בשר ודגים",
@@ -1758,6 +1845,7 @@
       "ingredients": [
         {
           "name": "פילה סלמון",
+          "is_main": true,
           "quantity": 2,
           "unit": "יח'",
           "aisle": "בשר ודגים",
@@ -1765,6 +1853,7 @@
         },
         {
           "name": "פטריות",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -1789,6 +1878,7 @@
       "ingredients": [
         {
           "name": "פילה דג",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1834,6 +1924,7 @@
       "ingredients": [
         {
           "name": "אורז לסושי",
+          "is_main": true,
           "quantity": 1.5,
           "unit": "כוס",
           "aisle": "יבשים",
@@ -1848,6 +1939,7 @@
         },
         {
           "name": "סלמון",
+          "is_main": true,
           "quantity": 200,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -1879,6 +1971,7 @@
       "ingredients": [
         {
           "name": "קופסת טונה",
+          "is_main": true,
           "quantity": 2,
           "unit": "יח'",
           "aisle": "בשר ודגים",
@@ -1886,6 +1979,7 @@
         },
         {
           "name": "פיתות",
+          "is_main": true,
           "quantity": 6,
           "unit": "יח'",
           "aisle": "יבשים",
@@ -1917,6 +2011,7 @@
       "ingredients": [
         {
           "name": "פסטה",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "יבשים",
@@ -1924,6 +2019,7 @@
         },
         {
           "name": "פטריות",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -1948,6 +2044,7 @@
       "ingredients": [
         {
           "name": "פסטה",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "יבשים",
@@ -1955,6 +2052,7 @@
         },
         {
           "name": "ערמונים קלופים",
+          "is_main": true,
           "quantity": 250,
           "unit": "גרם",
           "aisle": "אחר",
@@ -1979,6 +2077,7 @@
       "ingredients": [
         {
           "name": "פסטה",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "יבשים",
@@ -1986,6 +2085,7 @@
         },
         {
           "name": "עגבניות שרי",
+          "is_main": true,
           "quantity": 250,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -2017,6 +2117,7 @@
       "ingredients": [
         {
           "name": "פסטה",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "יבשים",
@@ -2031,6 +2132,7 @@
         },
         {
           "name": "פסטו",
+          "is_main": true,
           "quantity": 4,
           "unit": "כף",
           "aisle": "אחר",
@@ -2048,6 +2150,7 @@
       "ingredients": [
         {
           "name": "פסטה",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "יבשים",
@@ -2055,6 +2158,7 @@
         },
         {
           "name": "סלמון",
+          "is_main": true,
           "quantity": 200,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -2079,6 +2183,7 @@
       "ingredients": [
         {
           "name": "פסטה",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "יבשים",
@@ -2086,6 +2191,7 @@
         },
         {
           "name": "בשר טחון",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -2124,6 +2230,7 @@
       "ingredients": [
         {
           "name": "פסטה",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "יבשים",
@@ -2131,6 +2238,7 @@
         },
         {
           "name": "נקניקיות",
+          "is_main": true,
           "quantity": 6,
           "unit": "יח'",
           "aisle": "בשר ודגים",
@@ -2155,6 +2263,7 @@
       "ingredients": [
         {
           "name": "אטריות אורז",
+          "is_main": true,
           "quantity": 250,
           "unit": "גרם",
           "aisle": "יבשים",
@@ -2162,6 +2271,7 @@
         },
         {
           "name": "ברוקולי",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -2193,6 +2303,7 @@
       "ingredients": [
         {
           "name": "גריסי פולנטה",
+          "is_main": true,
           "quantity": 1.5,
           "unit": "כוס",
           "aisle": "יבשים",
@@ -2200,6 +2311,7 @@
         },
         {
           "name": "פטריות",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -2224,6 +2336,7 @@
       "ingredients": [
         {
           "name": "קישואים",
+          "is_main": true,
           "quantity": 4,
           "unit": "יח'",
           "aisle": "ירקות",
@@ -2231,6 +2344,7 @@
         },
         {
           "name": "ביצה",
+          "is_main": true,
           "quantity": 4,
           "unit": "יח'",
           "aisle": "מוצרי חלב",
@@ -2262,6 +2376,7 @@
       "ingredients": [
         {
           "name": "בצל",
+          "is_main": true,
           "quantity": 4,
           "unit": "יח'",
           "aisle": "ירקות",
@@ -2269,6 +2384,7 @@
         },
         {
           "name": "ביצה",
+          "is_main": true,
           "quantity": 4,
           "unit": "יח'",
           "aisle": "מוצרי חלב",
@@ -2300,6 +2416,7 @@
       "ingredients": [
         {
           "name": "חזה עוף מבושל וקצוץ",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -2314,6 +2431,7 @@
         },
         {
           "name": "בצק עלים",
+          "is_main": true,
           "quantity": 1,
           "unit": "יח'",
           "aisle": "קפואים",
@@ -2338,6 +2456,7 @@
       "ingredients": [
         {
           "name": "קישואים וגזר מגוררים",
+          "is_main": true,
           "quantity": 400,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -2376,6 +2495,7 @@
       "ingredients": [
         {
           "name": "עגבניות",
+          "is_main": true,
           "quantity": 1,
           "unit": "ק\"ג",
           "aisle": "ירקות",
@@ -2414,6 +2534,7 @@
       "ingredients": [
         {
           "name": "פטריות",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -2452,6 +2573,7 @@
       "ingredients": [
         {
           "name": "בטטה",
+          "is_main": true,
           "quantity": 3,
           "unit": "יח'",
           "aisle": "ירקות",
@@ -2490,6 +2612,7 @@
       "ingredients": [
         {
           "name": "קוסקוס",
+          "is_main": true,
           "quantity": 1.5,
           "unit": "כוס",
           "aisle": "יבשים",
@@ -2535,6 +2658,7 @@
       "ingredients": [
         {
           "name": "קוסקוס",
+          "is_main": true,
           "quantity": 1.5,
           "unit": "כוס",
           "aisle": "יבשים",
@@ -2566,6 +2690,7 @@
       "ingredients": [
         {
           "name": "בצק ג׳חנון קפוא",
+          "is_main": true,
           "quantity": 1,
           "unit": "יח'",
           "aisle": "קפואים",
@@ -2597,6 +2722,7 @@
       "ingredients": [
         {
           "name": "בשר לחמין",
+          "is_main": true,
           "quantity": 500,
           "unit": "גרם",
           "aisle": "בשר ודגים",
@@ -2604,6 +2730,7 @@
         },
         {
           "name": "גרעיני חיטה",
+          "is_main": true,
           "quantity": 1,
           "unit": "כוס",
           "aisle": "יבשים",
@@ -2642,6 +2769,7 @@
       "ingredients": [
         {
           "name": "תפוחי אדמה לצ׳יפס",
+          "is_main": true,
           "quantity": 600,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -2649,6 +2777,7 @@
         },
         {
           "name": "פטריות",
+          "is_main": true,
           "quantity": 300,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -2673,6 +2802,7 @@
       "ingredients": [
         {
           "name": "תפוחי אדמה לצ׳יפס",
+          "is_main": true,
           "quantity": 600,
           "unit": "גרם",
           "aisle": "ירקות",
@@ -2680,6 +2810,7 @@
         },
         {
           "name": "גבינת צ׳דר מגוררת",
+          "is_main": true,
           "quantity": 150,
           "unit": "גרם",
           "aisle": "מוצרי חלב",
@@ -2697,6 +2828,7 @@
       "ingredients": [
         {
           "name": "לחם",
+          "is_main": true,
           "quantity": 8,
           "unit": "יח'",
           "aisle": "יבשים",
@@ -2704,6 +2836,7 @@
         },
         {
           "name": "גבינת עזים",
+          "is_main": true,
           "quantity": 200,
           "unit": "גרם",
           "aisle": "מוצרי חלב",

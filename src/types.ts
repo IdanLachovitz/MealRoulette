@@ -26,6 +26,8 @@ export interface Ingredient {
   /** Salt, oil, spices — not multiplied by diners. Spec FR-7.3. */
   is_scalable: boolean
   aisle: Aisle
+  /** What the dish is built around — one or two per dish. Absent on older data = false. */
+  is_main?: boolean
 }
 
 /** Fields every synced row carries, for the write queue and LWW resolution. */
