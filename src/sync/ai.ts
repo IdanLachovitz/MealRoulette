@@ -29,6 +29,35 @@ export async function generateDishWithAi(ingredients: string[]): Promise<AiDish 
   }
 }
 
+export interface AiRecipe {
+  servings: number
+  prep_time_minutes: number | null
+  ingredients: { name: string; amount: string }[]
+  steps: string[]
+  tips: string[]
+}
+
+/**
+ * The full recipe behind a generate-dish suggestion — quantities and numbered
+ * steps (see supabase/functions/generate-recipe). Asked for only when the
+ * user opens it, so skipped suggestions never pay for the longer answer.
+ */
+export async function generateRecipeWithAi(dish: AiDish, servings: number): Promise<AiRecipe | null> {
+  if (!isSyncConfigured) return null
+  const client = await getSupabase()
+  if (!client) return null
+
+  try {
+    const { data, error } = await client.functions.invoke('generate-recipe', {
+      body: { name: dish.name, instructions: dish.instructions, ingredients: dish.ingredients, servings },
+    })
+    if (error || !Array.isArray(data?.steps) || !Array.isArray(data?.ingredients)) return null
+    return data as AiRecipe
+  } catch {
+    return null
+  }
+}
+
 /**
  * One-time picture generation for a dish with no photo yet (see
  * supabase/functions/generate-dish-image): Groq writes an English

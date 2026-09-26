@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { newId, now } from '../db/repo'
 import { EmptyState, Field } from '../components/ui'
-import { closeMatches, fullMatchesOnly, matchDishesToFridge } from '../engine/fridge'
+import { fullMatchesOnly, matchDishesToFridge } from '../engine/fridge'
 import { generateDishWithAi } from '../sync/ai'
 import type { AiDish } from '../sync/ai'
-import type { Dish, FridgeItem } from '../types'
+import { useApp } from '../state'
+import { AiRecipeSheet } from './AiRecipeSheet'
+import type { FridgeItem } from '../types'
 
 /**
  * "What can I make with what I've got?" — a free-text list of whatever's
@@ -22,10 +24,11 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
     [householdId],
     [] as FridgeItem[],
   )
+  // No default: undefined while loading, so an empty library isn't mistaken
+  // for "nothing matches" and doesn't fire the automatic AI request below.
   const dishes = useLiveQuery(
     () => db.dishes.where('household_id').equals(householdId).toArray(),
     [householdId],
-    [] as Dish[],
   )
 
   const items = useMemo(
@@ -38,30 +41,51 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
     [dishes, items],
   )
   const fullMatches = useMemo(() => fullMatchesOnly(matches), [matches])
-  // Dishes you're most of the way to — missing just a few things, listed so
-  // you know exactly what to grab instead of only ever seeing "no match".
-  const partialMatches = useMemo(() => closeMatches(matches), [matches])
+  // Every other dish built around something you have, with exactly what's
+  // missing — so it reads as a shopping list, not just a "no".
+  const partialMatches = useMemo(() => matches.filter((m) => m.covered < m.total), [matches])
+  const noLibraryMatch = dishes !== undefined && items.length > 0 && matches.length === 0
 
-  // A real recipe from Groq, opt-in (costs a network round-trip) and only
-  // offered once the instant local guess above is the best we've got.
+  // A real recipe from Groq. Asked for automatically when nothing in the
+  // library is built around what's in the fridge; otherwise opt-in, since it
+  // costs a network round-trip.
   const itemsKey = items.map((i) => i.name).join('|')
+  const latestItemsKey = useRef(itemsKey)
+  latestItemsKey.current = itemsKey
   const [aiDish, setAiDish] = useState<AiDish | null>(null)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState(false)
+  const [recipeOpen, setRecipeOpen] = useState(false)
+  const { settings } = useApp()
 
   useEffect(() => {
     setAiDish(null)
     setAiError(false)
+    setAiLoading(false)
+    setRecipeOpen(false)
   }, [itemsKey])
 
-  const askAi = async () => {
+  const askAi = async (names: string[], key: string) => {
     setAiLoading(true)
     setAiError(false)
-    const result = await generateDishWithAi(items.map((i) => i.name))
+    const result = await generateDishWithAi(names)
+    // The fridge changed while this was in flight — the answer is for a list
+    // that no longer exists, and a newer request (if any) owns the state now.
+    if (latestItemsKey.current !== key) return
     setAiLoading(false)
     if (result) setAiDish(result)
     else setAiError(true)
   }
+
+  useEffect(() => {
+    if (!noLibraryMatch) return
+    // Short delay so adding several items in a row asks once, not per item.
+    const names = items.map((i) => i.name)
+    const timer = setTimeout(() => void askAi(names, itemsKey), 600)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- items is new on
+    // every live-query tick; itemsKey is the stable stand-in for its contents.
+  }, [noLibraryMatch, itemsKey])
 
   const add = async () => {
     const trimmed = name.trim()
@@ -118,32 +142,39 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
             ))}
           </div>
 
-          <div className="label" style={{ marginBottom: 8 }}>
-            אפשר להכין — בלי שום דבר חסר
-          </div>
-          {fullMatches.length > 0 ? (
-            fullMatches.map(({ dish, total }) => (
-              <div key={dish.id} className="card" style={{ marginBottom: 8 }}>
-                <div className="row row--between">
-                  <span style={{ fontWeight: 500 }}>{dish.name}</span>
-                  <span className="label">{total} מרכיבים</span>
-                </div>
-              </div>
-            ))
-          ) : (
+          {noLibraryMatch ? (
             <p className="muted">
-              {partialMatches.length > 0
-                ? 'אין עדיין מנה מהמאגר שמכוסה לגמרי — אבל יש כאלה שקרובות, למטה.'
-                : 'אין עדיין מנה מהמאגר שמכוסה לגמרי — אפשר לבקש רעיון מה-AI למטה.'}
+              אין במאגר מנה שהמרכיב העיקרי שלה נמצא אצלך
+              {aiLoading ? ' — מבקשת רעיון מה-AI…' : aiDish ? ' — הנה רעיון מה-AI:' : '.'}
             </p>
+          ) : (
+            <>
+              <div className="label" style={{ marginBottom: 8 }}>
+                אפשר להכין — בלי שום דבר חסר
+              </div>
+              {fullMatches.length > 0 ? (
+                fullMatches.map(({ dish, total }) => (
+                  <div key={dish.id} className="card" style={{ marginBottom: 8 }}>
+                    <div className="row row--between">
+                      <span style={{ fontWeight: 500 }}>{dish.name}</span>
+                      <span className="label">{total} מרכיבים</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="muted">
+                  אין עדיין מנה מהמאגר שמכוסה לגמרי — אבל יש מנות שהמרכיב העיקרי שלהן אצלך, למטה.
+                </p>
+              )}
+            </>
           )}
 
-          {/* Not a full match, but not far off either — exactly what's
-              missing, so it's a shopping list, not just a "no" */}
+          {/* Built around something you have, but not fully covered —
+              exactly what's missing, so it's a shopping list, not just a "no" */}
           {partialMatches.length > 0 && (
             <>
               <div className="label" style={{ marginBottom: 8, marginTop: 14 }}>
-                קרוב — חסר רק קצת
+                יש לך את העיקר — חסר עוד
               </div>
               {partialMatches.map(({ dish, missing, covered, total }) => (
                 <div key={dish.id} className="card" style={{ marginBottom: 8 }}>
@@ -166,8 +197,8 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
             </>
           )}
 
-          {/* Always available, even with a reservoir match — a good real
-              recipe can still be worth asking for. */}
+          {/* Automatic when the library has nothing; otherwise still available —
+              a good real recipe can be worth asking for anyway. */}
           {aiDish && (
             <div className="card" style={{ marginBottom: 8 }}>
               <div className="row row--between">
@@ -188,15 +219,19 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
                   </div>
                 ) : null
               })()}
-              <button
-                type="button"
-                className="btn btn--ghost"
-                style={{ marginTop: 8 }}
-                disabled={aiLoading}
-                onClick={() => void askAi()}
-              >
-                {aiLoading ? 'חושבת…' : '🔄 מנה אחרת'}
-              </button>
+              <div className="row" style={{ gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                <button type="button" className="btn btn--primary" onClick={() => setRecipeOpen(true)}>
+                  📖 למתכון המלא
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  disabled={aiLoading}
+                  onClick={() => void askAi(items.map((i) => i.name), itemsKey)}
+                >
+                  {aiLoading ? 'חושבת…' : '🔄 מנה אחרת'}
+                </button>
+              </div>
             </div>
           )}
           {!aiDish && (
@@ -204,9 +239,9 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
               type="button"
               className="btn btn--ghost btn--block"
               disabled={aiLoading}
-              onClick={() => void askAi()}
+              onClick={() => void askAi(items.map((i) => i.name), itemsKey)}
             >
-              {aiLoading ? 'חושב' : '💡 רעיון מה-AI'}
+              {aiLoading ? 'חושבת…' : noLibraryMatch ? '🔄 לנסות שוב' : '💡 רעיון מה-AI'}
             </button>
           )}
           {aiError && (
@@ -215,6 +250,14 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
             </p>
           )}
         </>
+      )}
+
+      {recipeOpen && aiDish && (
+        <AiRecipeSheet
+          dish={aiDish}
+          servings={settings.default_diners}
+          onClose={() => setRecipeOpen(false)}
+        />
       )}
     </div>
   )
