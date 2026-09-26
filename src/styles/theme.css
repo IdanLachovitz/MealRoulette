@@ -88,6 +88,12 @@
      same reason: --saf itself is too pale to read against the ring's own
      tonal background. */
   --ring-progress: #0f7a94;
+
+  /* .btn--primary's hover glow — a deeper, more saturated version of
+     --glow-saf's blue (same family as --heading-grad-a) so hovering
+     intensifies the existing blue glow instead of switching it to the old
+     palette's brown. */
+  --glow-saf-hover: 0 8px 22px rgba(15, 122, 148, 0.45);
 }
 
 :root[data-theme='dark'] {
@@ -135,6 +141,7 @@
   --shadow-nav: 0 14px 32px -14px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --ring-progress: #c89c5a;
   --pill-glow: rgba(122, 59, 18, 0.4);
+  --glow-saf-hover: 0 8px 22px rgb(75, 42, 16);
 }
 
 /*
@@ -184,6 +191,7 @@
     --shadow-nav: 0 14px 32px -14px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     --ring-progress: #c89c5a;
     --pill-glow: rgba(122, 59, 18, 0.4);
+    --glow-saf-hover: 0 8px 22px rgb(75, 42, 16);
   }
 }
 
@@ -302,15 +310,22 @@ button {
   color: var(--heading-grad-a);
 }
 
-.topbar__sub {
+/* The selected week's date range, centered across the whole topbar rather
+   than tucked beside the title — absolute + translate so it stays centered
+   regardless of how wide the title or the trailing icons happen to be.
+   .topbar is `position: sticky`, which (like relative/absolute/fixed) still
+   establishes the containing block this centers against. */
+.topbar__date-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   font-family: var(--font-label);
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--mut);
-  /* -webkit-text-fill-color inherits independently of color — without this
-     reset, the subtitle would inherit the title's transparent fill and
-     vanish in WebKit. */
-  -webkit-text-fill-color: var(--mut);
-  font-weight: 400;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 /* ---- Bottom navigation ------------------------------------------------------
@@ -614,7 +629,7 @@ button {
 
 @media (hover: hover) {
   .btn--primary:hover:not(:disabled) {
-    box-shadow: 0 8px 22px rgb(75, 42, 16);
+    box-shadow: var(--glow-saf-hover);
     transform: translateY(-1px);
   }
 

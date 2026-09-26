@@ -8,9 +8,9 @@ import { Notice, Sheet, Switch } from '../components/ui'
 import { Icon } from '../components/Icon'
 import { DishPicture } from '../components/DishArt'
 import { PickDishSheet } from './PickDishSheet'
-import { addDays, dayName, dayOfMonth, formatWeekRange, toISODate } from '../engine/dates'
+import { addDays, dayName, dayOfMonth, toISODate } from '../engine/dates'
 import type { Notice as PlanNotice } from '../engine/planner'
-import { buildWeekUnits, planLeftoverSwap, planWeekSwap } from '../engine/weekSwap'
+import { buildWeekUnits, planLeftoverCookSwap, planLeftoverSwap, planWeekSwap } from '../engine/weekSwap'
 import type { WeekUnit } from '../engine/weekSwap'
 import {
   currentWeekStart,
@@ -59,9 +59,16 @@ function ringPct(value: number, target: number): number {
 export function WeekScreen({
   householdId,
   onGoToRoulette,
+  weekOffset,
+  onWeekOffsetChange,
 }: {
   householdId: string
   onGoToRoulette: () => void
+  /** 0 = the real current week, 1 = next week, -1 = last week, etc. — lifted
+   *  to the app shell so the topbar's centered date can show this same
+   *  changing week instead of always the real current week. */
+  weekOffset: number
+  onWeekOffsetChange: (offset: number) => void
 }) {
   const { settings, toast } = useApp()
   const [plan, setPlan] = useState<WeekPlan | null>(null)
@@ -76,8 +83,6 @@ export function WeekScreen({
   const [statsOpen, setStatsOpen] = useState(false)
   const [chooserDate, setChooserDate] = useState<string | null>(null)
   const [pickingDate, setPickingDate] = useState<string | null>(null)
-  /** 0 = the real current week, 1 = next week, -1 = last week, etc. */
-  const [weekOffset, setWeekOffset] = useState(0)
 
   const realWeekStart = currentWeekStart(settings)
   const weekStart = addDays(realWeekStart, weekOffset * 7)
@@ -173,9 +178,13 @@ export function WeekScreen({
   const today = toISODate(new Date())
 
   // ---- Drag-and-drop reordering (engine/weekSwap.ts has the actual logic) ----
+  const sessionsLike = useMemo(
+    () => sortedSessions.map((s) => ({ id: s.id, is_locked: s.is_locked })),
+    [sortedSessions],
+  )
   const weekUnits: WeekUnit[] = useMemo(
-    () => buildWeekUnits(sortedDays, sortedSessions.map((s) => ({ id: s.id, is_locked: s.is_locked }))),
-    [sortedDays, sortedSessions],
+    () => buildWeekUnits(sortedDays, sessionsLike),
+    [sortedDays, sessionsLike],
   )
   const cardRefs = useRef(new Map<string, HTMLButtonElement>())
   const dragInfo = useRef<DragInfo | null>(null)
@@ -207,7 +216,8 @@ export function WeekScreen({
   const targetDatesFor = (info: DragInfo, hovered: string | null): string[] | null => {
     if (!hovered || hovered === info.fromDate || info.blockDates.includes(hovered)) return null
     if (info.isLeftoverOnly) {
-      return planLeftoverSwap(sortedDays, info.fromDate, hovered) ? [hovered] : null
+      if (planLeftoverSwap(sortedDays, info.fromDate, hovered)) return [hovered]
+      return planLeftoverCookSwap(sortedDays, sessionsLike, info.fromDate, hovered) ? [hovered] : null
     }
     const moves = planWeekSwap(weekUnits, info.fromDate, hovered)
     if (!moves) return null
@@ -342,24 +352,23 @@ export function WeekScreen({
       {/* Centered, not pinned to a side — with just three short options this
           reads as one balanced control regardless of how wide the screen is,
           instead of looking stranded against one edge. flex-wrap is a safety
-          net for the narrowest phones, not the expected case. */}
+          net for the narrowest phones, not the expected case. The date for
+          the selected week itself now lives centered in the topbar above,
+          not duplicated here. */}
       <div
         className="chips"
-        style={{ marginBottom: 4, justifyContent: 'center', flexWrap: 'wrap', overflow: 'visible' }}
+        style={{ marginBottom: 10, justifyContent: 'center', flexWrap: 'wrap', overflow: 'visible' }}
       >
         {weekOptions.map((offset) => (
           <button
             key={offset}
             className="chip"
             aria-pressed={offset === weekOffset}
-            onClick={() => setWeekOffset(offset)}
+            onClick={() => onWeekOffsetChange(offset)}
           >
             {offset === 0 ? 'השבוע' : offset < 0 ? 'שבוע שעבר' : 'שבוע הבא'}
           </button>
         ))}
-      </div>
-      <div className="label" style={{ marginBottom: 10, textAlign: 'center' }}>
-        {formatWeekRange(plan.week_start_date)}
       </div>
 
       {/* FR-9.5 — the first two stats have a natural "out of": sessions against

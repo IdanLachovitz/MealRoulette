@@ -325,7 +325,7 @@ function DishSheet({
             disabled={photoBusy || aiPhotoBusy}
             onClick={() => fileInputRef.current?.click()}
           >
-            {photoBusy ? 'טוענת…' : `📷 ${draft.image_url ? 'שינוי תמונה' : 'צילום / בחירה מהגלריה'}`}
+            {photoBusy ? 'טוען…' : `${draft.image_url ? 'שינוי תמונה מהגלריה' : 'בחירה מהגלריה'}🏞️`}
           </button>
           {draft.image_url && (
             <button
@@ -345,7 +345,7 @@ function DishSheet({
           disabled={photoBusy || aiPhotoBusy}
           onClick={() => void onRegeneratePhoto()}
         >
-          {aiPhotoBusy ? 'יוצרת תמונה…' : `🎨 ${draft.image_url ? 'יצירת תמונה מחדש (AI)' : 'יצירת תמונה (AI)'}`}
+          {aiPhotoBusy ? 'יוצרת תמונה…' : `${draft.image_url ? 'יצירת תמונה מחדש (AI)' : 'יצירת תמונה (AI)'}🎨`}
         </button>
         <input
           ref={fileInputRef}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import { Icon } from './Icon'
 import type { TimeFilter } from '../types'
@@ -59,7 +60,12 @@ export function Modal({
     }
   }, [onClose])
 
-  return (
+  // Portaled to document.body — rendered inline, a fixed-position modal can
+  // still end up trapped inside an ancestor's stacking context (e.g.
+  // .tab-panel's `will-change` for its mount animation) and paint behind
+  // the topbar/nav dock instead of above them. Escaping the component tree
+  // entirely is what actually guarantees it stacks above everything.
+  return createPortal(
     <div
       className="modal-backdrop"
       onClick={(e) => {
@@ -83,7 +89,8 @@ export function Modal({
         </button>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
@@ -202,7 +209,12 @@ export function Sheet({
     dragStartY.current = null
   }
 
-  return (
+  // Portaled to document.body for the same reason as Modal above — rendered
+  // inline inside a screen's .tab-panel, this fixed-position sheet was
+  // getting trapped in that ancestor's stacking context (from its mount
+  // animation's `will-change`) and painting behind the topbar/nav dock
+  // instead of above them, cutting off the sheet's own bottom edge.
+  return createPortal(
     <div
       className="sheet-backdrop"
       onClick={(e) => {
@@ -237,7 +249,8 @@ export function Sheet({
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

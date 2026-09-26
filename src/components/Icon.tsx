@@ -25,6 +25,7 @@ export type IconName =
   | 'warning'
   | 'ban'
   | 'moon'
+  | 'sun'
   | 'signal-off'
   | 'fridge'
   | 'grip'
@@ -63,6 +64,9 @@ const PATHS: Record<IconName, string> = {
     'm10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.1l-8-14a2 2 0 0 0-3.4 0ZM12 9v4m0 3.5h.01',
   ban: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM5.5 5.5l13 13',
   moon: 'M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11Z',
+  // Center circle plus eight rays (cardinal + diagonal) — same
+  // multi-subpath technique as calendar/sliders above.
+  sun: 'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z M12 2v2M12 20v2M4 12H2M22 12h-2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41',
   'signal-off':
     'm3 3 18 18M8.5 8.5A5 5 0 0 0 7 12M12 7a5 5 0 0 1 5 5m-8.9-1.9A9 9 0 0 0 5 12m14-5a9 9 0 0 1 1.9 9.9M12 17h.01',
   fridge:

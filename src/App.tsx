@@ -10,7 +10,7 @@ import { SettingsScreen } from './screens/SettingsScreen'
 import { Onboarding } from './screens/Onboarding'
 import { Icon } from './components/Icon'
 import type { IconName } from './components/Icon'
-import { formatWeekRange } from './engine/dates'
+import { addDays, formatWeekRange } from './engine/dates'
 import { currentWeekStart } from './services/week'
 
 type Tab = 'week' | 'roulette' | 'library' | 'fridge' | 'shopping' | 'settings'
@@ -24,8 +24,11 @@ const TABS: { id: Tab; label: string; icon: IconName }[] = [
 ]
 
 function Shell() {
-  const { household, ready, settings } = useApp()
+  const { household, ready, settings, resolvedTheme, setTheme } = useApp()
   const [tab, setTab] = useState<Tab>('week')
+  // Lifted out of WeekScreen so the topbar's centered date can track the
+  // same this/last/next week choice as WeekScreen's own chips.
+  const [weekOffset, setWeekOffset] = useState(0)
   const sync = useSyncStatus()
 
   // "Glass capsule dock" — one pill that slides to whichever tab is active,
@@ -154,15 +157,17 @@ function Shell() {
   return (
     <div className="app">
       <header className="topbar">
-        <h1 className="topbar__title">
-          {titles[tab]}
-          {tab === 'week' && (
-            <>
-              {' '}
-              <span className="topbar__sub">{formatWeekRange(currentWeekStart(settings))}</span>
-            </>
-          )}
-        </h1>
+        <h1 className="topbar__title">{titles[tab]}</h1>
+
+        {/* Centered across the full topbar width (absolute + translate,
+            not squeezed next to the title in the flex flow) so it reads as
+            its own element regardless of how wide the title or the icons
+            on the other side are. */}
+        {tab === 'week' && (
+          <span className="topbar__date-center">
+            {formatWeekRange(addDays(currentWeekStart(settings), weekOffset * 7))}
+          </span>
+        )}
 
         {sync.state === 'offline' && (
           <span className="row label" style={{ gap: 4 }} title="נשמר מקומית, יסונכרן כשתהיה רשת">
@@ -171,6 +176,19 @@ function Shell() {
           </span>
         )}
         {sync.state === 'syncing' && <span className="label">מסנכרן…</span>}
+
+        {/* Quick light/dark toggle — the sun/moon reflects the theme
+            actually on screen right now (resolvedTheme), including when the
+            setting itself is still "לפי המכשיר" (system). Tapping always
+            commits to an explicit light/dark choice; picking "system" back
+            stays a Settings-screen action via the three-way control there. */}
+        <button
+          className="btn btn--ghost btn--icon btn--sm"
+          aria-label={resolvedTheme === 'dark' ? 'עבור למצב בהיר' : 'עבור למצב כהה'}
+          onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+        >
+          <Icon name={resolvedTheme === 'dark' ? 'moon' : 'sun'} size={17} />
+        </button>
 
         <button
           className="btn btn--ghost btn--icon btn--sm"
@@ -188,7 +206,12 @@ function Shell() {
             replay every time, instead of only on first load. */}
         <div key={tab} className="tab-panel">
           {tab === 'week' && (
-            <WeekScreen householdId={household.id} onGoToRoulette={() => setTab('roulette')} />
+            <WeekScreen
+              householdId={household.id}
+              onGoToRoulette={() => setTab('roulette')}
+              weekOffset={weekOffset}
+              onWeekOffsetChange={setWeekOffset}
+            />
           )}
           {tab === 'roulette' && (
             <RouletteScreen householdId={household.id} onGoToLibrary={() => setTab('library')} />

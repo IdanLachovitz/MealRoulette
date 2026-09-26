@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildWeekUnits, planLeftoverSwap, planWeekSwap } from './weekSwap'
+import { buildWeekUnits, planLeftoverCookSwap, planLeftoverSwap, planWeekSwap } from './weekSwap'
 import type { DaySlotLike, SessionLike } from './weekSwap'
 
 /** A one-week (Sun–Sat) run of plain days, easy to override per test. */
@@ -343,5 +343,87 @@ describe('planLeftoverSwap — dragging one leftover day on its own', () => {
     // s1's leftover (24) is before s2's cook day (27) — handing it to s2
     // would give s2 a "leftover" that predates its own cook day.
     expect(planLeftoverSwap(days, '2026-08-24', '2026-08-28')).toBeNull()
+  })
+})
+
+describe('planLeftoverCookSwap — dragging a leftover onto a different session\'s cook day', () => {
+  it("relocates the cook day to the leftover's old spot, and the leftover's session absorbs the vacated one", () => {
+    const days = week({
+      '2026-08-23': { role: 'cook', cook_session_id: 's1' },
+      '2026-08-24': { role: 'leftovers', cook_session_id: 's1' },
+      '2026-08-27': { role: 'cook', cook_session_id: 's2' },
+    })
+    const moves = planLeftoverCookSwap(days, [session('s1'), session('s2')], '2026-08-24', '2026-08-27')
+    expect(moves).toEqual([
+      {
+        leftoverSessionId: 's1',
+        leftoverCoveredDates: ['2026-08-27'],
+        cookSessionId: 's2',
+        newCookDate: '2026-08-24',
+      },
+    ])
+  })
+
+  it('rejects a session\'s own leftover dropped on its own cook day', () => {
+    const days = week({
+      '2026-08-23': { role: 'cook', cook_session_id: 's1' },
+      '2026-08-24': { role: 'leftovers', cook_session_id: 's1' },
+    })
+    expect(planLeftoverCookSwap(days, [session('s1')], '2026-08-24', '2026-08-23')).toBeNull()
+  })
+
+  it('rejects when either session is locked', () => {
+    const days = week({
+      '2026-08-23': { role: 'cook', cook_session_id: 's1' },
+      '2026-08-24': { role: 'leftovers', cook_session_id: 's1' },
+      '2026-08-27': { role: 'cook', cook_session_id: 's2' },
+    })
+    expect(
+      planLeftoverCookSwap(days, [session('s1', true), session('s2')], '2026-08-24', '2026-08-27'),
+    ).toBeNull()
+    expect(
+      planLeftoverCookSwap(days, [session('s1'), session('s2', true)], '2026-08-24', '2026-08-27'),
+    ).toBeNull()
+  })
+
+  it("rejects landing before the dragged leftover's own cook day", () => {
+    const days = week({
+      '2026-08-26': { role: 'cook', cook_session_id: 's1' },
+      '2026-08-27': { role: 'leftovers', cook_session_id: 's1' },
+      '2026-08-23': { role: 'cook', cook_session_id: 's2' },
+    })
+    // s2's cook day (23) is before s1's own cook day (26) — s1's leftover
+    // would predate its own cook day at that spot.
+    expect(
+      planLeftoverCookSwap(days, [session('s1'), session('s2')], '2026-08-27', '2026-08-23'),
+    ).toBeNull()
+  })
+
+  it("rejects when the displaced session's other leftovers would end up before its relocated cook day", () => {
+    const days = week({
+      '2026-08-23': { role: 'cook', cook_session_id: 's1' },
+      '2026-08-29': { role: 'leftovers', cook_session_id: 's1' },
+      '2026-08-25': { role: 'cook', cook_session_id: 's2' },
+      '2026-08-26': { role: 'leftovers', cook_session_id: 's2' },
+    })
+    // Moving s2's cook day forward to 29 (a later leftover of s1) would
+    // leave its existing leftover (26) sitting before its new cook date.
+    expect(
+      planLeftoverCookSwap(days, [session('s1'), session('s2')], '2026-08-29', '2026-08-25'),
+    ).toBeNull()
+  })
+
+  it('only targets a cook day — rejects an empty day, "לא מבשלים", or another leftover', () => {
+    const days = week({
+      '2026-08-23': { role: 'cook', cook_session_id: 's1' },
+      '2026-08-24': { role: 'leftovers', cook_session_id: 's1' },
+      '2026-08-26': { role: 'none' },
+      '2026-08-27': { role: 'cook', cook_session_id: 's2' },
+      '2026-08-28': { role: 'leftovers', cook_session_id: 's2' },
+    })
+    const sessions = [session('s1'), session('s2')]
+    expect(planLeftoverCookSwap(days, sessions, '2026-08-24', '2026-08-25')).toBeNull() // empty
+    expect(planLeftoverCookSwap(days, sessions, '2026-08-24', '2026-08-26')).toBeNull() // none
+    expect(planLeftoverCookSwap(days, sessions, '2026-08-24', '2026-08-28')).toBeNull() // another leftover
   })
 })

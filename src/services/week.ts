@@ -10,7 +10,7 @@ import { eligibleDishes, planWeek } from '../engine/planner'
 import type { PlanResult, PlannerInput } from '../engine/planner'
 import { buildShoppingList } from '../engine/shopping'
 import { seedFrom } from '../engine/rng'
-import { buildWeekUnits, planLeftoverSwap, planWeekSwap } from '../engine/weekSwap'
+import { buildWeekUnits, planLeftoverCookSwap, planLeftoverSwap, planWeekSwap } from '../engine/weekSwap'
 import { pickWeekDishesWithAi } from '../sync/ai'
 import type {
   Component,
@@ -350,18 +350,54 @@ export async function swapWeekBlock(planId: string, fromDate: string, toDate: st
  * day — moves just that day (see engine/weekSwap.ts's planLeftoverSwap for
  * the exact valid-target rules). This is the one placement a plain
  * covers_days count can't express, hence covered_dates.
+ *
+ * Falls back to planLeftoverCookSwap when the target is a *different*
+ * session's cook day: that session's whole cook date relocates to where the
+ * leftover was, while the leftover's own session absorbs the vacated slot.
  */
 export async function swapLeftoverDay(planId: string, fromDate: string, toDate: string): Promise<boolean> {
   const { sessions, days } = await loadWeek(planId)
+
   const moves = planLeftoverSwap(days, fromDate, toDate)
-  if (!moves) return false
+  if (moves) {
+    const updated = moves
+      .map((m) => ({ session: sessions.find((s) => s.id === m.sessionId), coveredDates: m.coveredDates }))
+      .filter((x): x is { session: CookSession; coveredDates: string[] } => !!x.session)
+      .map(({ session, coveredDates }) => ({ ...session, covered_dates: coveredDates }))
+    if (updated.length) await saveMany('cook_sessions', updated)
+    const sessionsAfter = sessions.map((s) => updated.find((u) => u.id === s.id) ?? s)
+    await relayoutDays(planId, days, sessionsAfter)
+    return true
+  }
 
-  const updated = moves
-    .map((m) => ({ session: sessions.find((s) => s.id === m.sessionId), coveredDates: m.coveredDates }))
-    .filter((x): x is { session: CookSession; coveredDates: string[] } => !!x.session)
-    .map(({ session, coveredDates }) => ({ ...session, covered_dates: coveredDates }))
-  if (updated.length) await saveMany('cook_sessions', updated)
+  const cookMove = planLeftoverCookSwap(
+    days,
+    sessions.map((s) => ({ id: s.id, is_locked: s.is_locked })),
+    fromDate,
+    toDate,
+  )
+  if (!cookMove) return false
+  const [{ leftoverSessionId, leftoverCoveredDates, cookSessionId, newCookDate }] = cookMove
 
+  const leftoverSession = sessions.find((s) => s.id === leftoverSessionId)
+  const cookSession = sessions.find((s) => s.id === cookSessionId)
+  if (!leftoverSession || !cookSession) return false
+
+  // Same trick as swapWeekBlock: a custom leftover arrangement travels with
+  // the cook day, shifted by the same delta, rather than being left behind
+  // at its old absolute dates.
+  const shift = daysBetween(cookSession.cook_date, newCookDate)
+  const updated = [
+    { ...leftoverSession, covered_dates: leftoverCoveredDates },
+    {
+      ...cookSession,
+      cook_date: newCookDate,
+      covered_dates: cookSession.covered_dates
+        ? cookSession.covered_dates.map((d) => addDays(d, shift))
+        : null,
+    },
+  ]
+  await saveMany('cook_sessions', updated)
   const sessionsAfter = sessions.map((s) => updated.find((u) => u.id === s.id) ?? s)
   await relayoutDays(planId, days, sessionsAfter)
   return true

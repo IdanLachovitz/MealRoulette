@@ -22,6 +22,11 @@ interface AppState {
   toast: (text: string, action?: { label: string; onAction: () => void }) => void
   theme: 'light' | 'dark' | 'system'
   setTheme: (t: 'light' | 'dark' | 'system') => void
+  /** `theme` with 'system' resolved against the OS preference — what's
+   *  actually on screen right now, for UI (like the topbar's sun/moon
+   *  toggle) that needs to show or react to the effective mode rather than
+   *  the raw three-way setting. */
+  resolvedTheme: 'light' | 'dark'
 }
 
 const Ctx = createContext<AppState | null>(null)
@@ -39,6 +44,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<'light' | 'dark' | 'system'>(
     () => (localStorage.getItem('theme') as 'light' | 'dark' | 'system') ?? 'system',
   )
+  // Only consulted while theme === 'system' — tracked live so the topbar
+  // toggle's icon flips immediately if the OS switches modes while the app
+  // is open, not just on next load.
+  const [systemPrefersDark, setSystemPrefersDark] = useState(
+    () => window.matchMedia('(prefers-color-scheme: dark)').matches,
+  )
+
+  useEffect(() => {
+    const mql = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = (e: MediaQueryListEvent) => setSystemPrefersDark(e.matches)
+    mql.addEventListener('change', handler)
+    return () => mql.removeEventListener('change', handler)
+  }, [])
 
   useEffect(() => {
     void currentHouseholdId().then((id) => {
@@ -129,6 +147,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   )
 
+  const resolvedTheme: 'light' | 'dark' =
+    theme === 'system' ? (systemPrefersDark ? 'dark' : 'light') : theme
+
   const value = useMemo<AppState>(
     () => ({
       household: household ?? null,
@@ -138,8 +159,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toast,
       theme,
       setTheme: setThemeState,
+      resolvedTheme,
     }),
-    [household, settings, ready, updateSettings, toast, theme],
+    [household, settings, ready, updateSettings, toast, theme, resolvedTheme],
   )
 
   const current = toasts[toasts.length - 1]

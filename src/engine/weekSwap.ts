@@ -181,3 +181,70 @@ export function planLeftoverSwap(days: DaySlotLike[], fromDate: string, toDate: 
 function cookDateOf(days: DaySlotLike[], sessionId: string): string | undefined {
   return days.find((d) => d.role === 'cook' && d.cook_session_id === sessionId)?.date
 }
+
+export interface LeftoverCookSwapMove {
+  /** The dragged leftover's own session — absorbs `toDate` (the displaced
+   *  cook day's old spot) as a new leftover slot. */
+  leftoverSessionId: string
+  leftoverCoveredDates: string[]
+  /** The session whose cook day got dragged onto — its cook day relocates
+   *  to `fromDate` (the leftover's old spot). */
+  cookSessionId: string
+  newCookDate: string
+}
+
+/**
+ * The other narrow single-day drag: a leftover dropped directly onto a
+ * *different* session's cook day. The cook day's session relocates its
+ * whole anchor to where the leftover was; the leftover's session absorbs
+ * the vacated slot as its new leftover day. Rejected when either session is
+ * locked, when it's a session's own cook day (nothing to swap), or when the
+ * result would leave a leftover sitting before its own session's cook
+ * day — the dragged leftover relative to its unmoved cook date, or the
+ * displaced session's *other* leftovers relative to its new one.
+ */
+export function planLeftoverCookSwap(
+  days: DaySlotLike[],
+  sessions: SessionLike[],
+  fromDate: string,
+  toDate: string,
+): LeftoverCookSwapMove[] | null {
+  if (fromDate === toDate) return null
+  const byDate = new Map(days.map((d) => [d.date, d]))
+  const from = byDate.get(fromDate)
+  const to = byDate.get(toDate)
+  if (!from || !to) return null
+  if (from.role !== 'leftovers' || to.role !== 'cook') return null
+
+  const leftoverSessionId = from.cook_session_id!
+  const cookSessionId = to.cook_session_id!
+  if (leftoverSessionId === cookSessionId) return null
+
+  const lockedById = new Map(sessions.map((s) => [s.id, s.is_locked]))
+  if (lockedById.get(leftoverSessionId) || lockedById.get(cookSessionId)) return null
+
+  // Same rule as planLeftoverSwap: a leftover can't land before its own
+  // (unmoved) cook day.
+  const leftoverCookDate = cookDateOf(days, leftoverSessionId)
+  if (leftoverCookDate && toDate < leftoverCookDate) return null
+
+  // The displaced session's cook day is moving to fromDate — its *other*
+  // leftovers, wherever they currently sit, must not end up before it.
+  const cookOtherLeftovers = days
+    .filter((d) => d.cook_session_id === cookSessionId && d.role === 'leftovers' && d.date !== toDate)
+    .map((d) => d.date)
+  if (cookOtherLeftovers.some((d) => d < fromDate)) return null
+
+  const leftoverRest = days
+    .filter((d) => d.cook_session_id === leftoverSessionId && d.role === 'leftovers' && d.date !== fromDate)
+    .map((d) => d.date)
+
+  return [
+    {
+      leftoverSessionId,
+      leftoverCoveredDates: [...leftoverRest, toDate].sort(),
+      cookSessionId,
+      newCookDate: fromDate,
+    },
+  ]
+}
