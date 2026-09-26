@@ -1,8 +1,7 @@
 /**
  * "What can I make with what's already in the fridge?" — matches the
  * household's dish library against a free-text list of things currently on
- * hand (leftovers, open ingredients, whatever). Pure and local: no dish is
- * ever excluded for lacking a match, it's just ranked lower.
+ * hand (leftovers, open ingredients, whatever). Pure and local.
  */
 import { normaliseName } from './shopping'
 import type { Dish } from '../types'
@@ -27,8 +26,9 @@ function haveIt(ingredientName: string, fridge: string[]): boolean {
 
 /**
  * Ranks active dishes by how much of their ingredient list is already on
- * hand. A dish with zero matches is dropped — with an empty or unrelated
- * fridge list there's nothing useful to say about it. Sorted by coverage
+ * hand. Only a dish whose *main* ingredient (Ingredient.is_main) is in the
+ * fridge counts — having the onion for a salmon dish isn't a reason to
+ * suggest it. A dish with no mains marked never matches. Sorted by coverage
  * fraction first (100% — "you can make this right now" — floats to the top
  * regardless of how long the ingredient list is), then by raw count.
  */
@@ -39,7 +39,7 @@ export function matchDishesToFridge(dishes: Dish[], fridgeItemNames: string[]): 
   const matches: FridgeMatch[] = []
   for (const dish of dishes) {
     if (dish.deleted_at || !dish.is_active || dish.is_excluded) continue
-    if (dish.ingredients.length === 0) continue
+    if (!dish.ingredients.some((ing) => ing.is_main && haveIt(ing.name, fridge))) continue
 
     const missing: string[] = []
     let covered = 0
@@ -47,7 +47,6 @@ export function matchDishesToFridge(dishes: Dish[], fridgeItemNames: string[]): 
       if (haveIt(ing.name, fridge)) covered++
       else missing.push(ing.name)
     }
-    if (covered === 0) continue
     matches.push({ dish, covered, total: dish.ingredients.length, missing })
   }
 
@@ -61,19 +60,4 @@ export function matchDishesToFridge(dishes: Dish[], fridgeItemNames: string[]): 
 /** Only dishes with nothing missing — "you can cook this right now, as-is". */
 export function fullMatchesOnly(matches: FridgeMatch[]): FridgeMatch[] {
   return matches.filter((m) => m.covered === m.total)
-}
-
-/**
- * "You're most of the way there" — dishes missing only a handful of
- * ingredients, not most of them. `matches` is already sorted by coverage
- * fraction (see matchDishesToFridge), so the result stays closest-first;
- * capped so a well-stocked fridge doesn't turn this into a second, noisier
- * copy of the whole library.
- */
-export function closeMatches(
-  matches: FridgeMatch[],
-  maxMissing = 3,
-  limit = 6,
-): FridgeMatch[] {
-  return matches.filter((m) => m.covered < m.total && m.missing.length <= maxMissing).slice(0, limit)
 }
