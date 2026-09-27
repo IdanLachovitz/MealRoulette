@@ -124,7 +124,7 @@ export function PickDishSheet({
         <EmptyState
           icon="🍲"
           title={search ? 'אין התאמות לחיפוש' : 'המאגר ריק'}
-          body={search ? 'נסי שם אחר.' : 'אין עדיין מנות במאגר.'}
+          body={search ? 'נסה שם אחר.' : 'אין עדיין מנות במאגר.'}
         />
       ) : (
         <div style={{ maxHeight: '55vh', overflowY: 'auto' }}>

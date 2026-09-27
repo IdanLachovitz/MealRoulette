@@ -31,7 +31,7 @@ export interface PlannerInput {
   /**
    * Every dish this week's wizard has ever proposed, across every re-roll —
    * not just the plan this run is about to replace. CookHistory only grows
-   * when a session is actually marked cooked, so pressing "תכנני לי את
+   * when a session is actually marked cooked, so pressing "תכנן לי את
    * השבוע" again and again to re-roll a plan nobody has cooked yet would
    * otherwise have no memory of what it already showed beyond the single
    * most recent generation, letting the third or fourth re-roll bring back a
@@ -177,7 +177,7 @@ export function planWeek(input: PlannerInput): PlanResult {
 
   if (lockedCount > 0 && sessionsNeeded === 0) {
     // EC-5
-    pushNotice('all_locked', 'כל הבישולים נעולים. פתחי נעילה כדי לתכנן מחדש.')
+    pushNotice('all_locked', 'כל הבישולים נעולים. פתח נעילה כדי לתכנן מחדש.')
   }
 
   // Step 3 — how many days each cook should stretch to.
@@ -228,7 +228,7 @@ export function planWeek(input: PlannerInput): PlanResult {
         )
         .sort((a, b) => (lastCooked.get(a.id) ?? '').localeCompare(lastCooked.get(b.id) ?? ''))
       if (cooldownOnly.length > 0) {
-        pushNotice('cycle_restarted', 'עברתי על כל המנות במאגר — מתחילה סבב חדש.')
+        pushNotice('cycle_restarted', 'עברתי על כל המנות במאגר — מתחיל סבב חדש.')
         const dish = cooldownOnly[0]
         return { dish, covers: Math.min(cover, Math.max(1, dish.max_cover_days)) }
       }
@@ -265,7 +265,7 @@ export function planWeek(input: PlannerInput): PlanResult {
     }
 
     // EC-1 / EC-4
-    pushNotice('empty_pool', 'אין מנות זמינות שעונות על הסינון. נסי לנקות סינון או להוסיף מנה.')
+    pushNotice('empty_pool', 'אין מנות זמינות שעונות על הסינון. נסה לנקות סינון או להוסיף מנה.')
     return null
   }
 

@@ -122,7 +122,7 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
         <EmptyState
           icon="🧊"
           title="המקרר ריק"
-          body="הוסיפי מה שיש לך עכשיו — שאריות, ירק פתוח, מה שבא ליד — ונציע לך מנות מהמאגר שאפשר להכין מזה."
+          body="הוסף מה שיש לך עכשיו — שאריות, ירק פתוח, מה שבא ליד — ונציע לך מנות מהמאגר שאפשר להכין מזה."
         />
       ) : (
         <>
@@ -145,7 +145,7 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
           {noLibraryMatch ? (
             <p className="muted">
               אין במאגר מנה שהמרכיב העיקרי שלה נמצא אצלך
-              {aiLoading ? ' — מבקשת רעיון מה-AI…' : aiDish ? ' — הנה רעיון מה-AI:' : '.'}
+              {aiLoading ? ' — מבקש רעיון מה-AI…' : aiDish ? ' — הנה רעיון מה-AI:' : '.'}
             </p>
           ) : (
             <>
@@ -229,7 +229,7 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
                   disabled={aiLoading}
                   onClick={() => void askAi(items.map((i) => i.name), itemsKey)}
                 >
-                  {aiLoading ? 'חושבת…' : '🔄 מנה אחרת'}
+                  {aiLoading ? 'חושב…' : '🔄 מנה אחרת'}
                 </button>
               </div>
             </div>
@@ -241,7 +241,7 @@ export function FridgeScreen({ householdId }: { householdId: string }) {
               disabled={aiLoading}
               onClick={() => void askAi(items.map((i) => i.name), itemsKey)}
             >
-              {aiLoading ? 'חושבת…' : noLibraryMatch ? '🔄 לנסות שוב' : '💡 רעיון מה-AI'}
+              {aiLoading ? 'חושב…' : noLibraryMatch ? '🔄 לנסות שוב' : '💡 רעיון מה-AI'}
             </button>
           )}
           {aiError && (

@@ -107,7 +107,7 @@ export function LibraryScreen({ householdId }: { householdId: string }) {
           title={query ? 'אין התאמות לחיפוש' : 'אין כאן עדיין כלום'}
           body={
             query
-              ? 'נסי שם אחר, או נקי את החיפוש.'
+              ? 'נסה שם אחר, או נקה את החיפוש.'
               : 'שם וזמן הכנה מספיקים כדי לשמור. מצרכים אפשר להשלים אחר כך — או אף פעם.'
           }
           action={
@@ -345,7 +345,7 @@ function DishSheet({
           disabled={photoBusy || aiPhotoBusy}
           onClick={() => void onRegeneratePhoto()}
         >
-          {aiPhotoBusy ? 'יוצרת תמונה…' : `${draft.image_url ? 'יצירת תמונה מחדש (AI)' : 'יצירת תמונה (AI)'}🎨`}
+          {aiPhotoBusy ? 'יוצר תמונה…' : `${draft.image_url ? 'יצירת תמונה מחדש (AI)' : 'יצירת תמונה (AI)'}🎨`}
         </button>
         <input
           ref={fileInputRef}

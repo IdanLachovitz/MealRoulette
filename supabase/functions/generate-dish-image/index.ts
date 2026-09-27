@@ -73,7 +73,7 @@ Deno.serve(async (req: Request) => {
     const ingredientLine = ingredients?.length ? ` המרכיבים העיקריים: ${ingredients.slice(0, 6).join(', ')}.` : ''
     const promptRequest =
       `שם המנה: "${name}".${ingredientLine}\n` +
-      'כתבי תיאור קצר באנגלית (משפט אחד) למחולל תמונות, שיתאר תמונת אוכל מקצועית ' +
+      'כתוב תיאור קצר באנגלית (משפט אחד) למחולל תמונות, שיתאר תמונת אוכל מקצועית ' +
       'ומתאבנת של המנה הזו — לא מתכון, רק תיאור ויזואלי. ' +
       'ענה אך ורק ב-JSON תקין: {"prompt": "..."}'
 

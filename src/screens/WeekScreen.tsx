@@ -439,7 +439,7 @@ export function WeekScreen({
 
       {libraryEmpty ? (
         <Notice warn>
-          המאגר ריק, אז אי אפשר לתכנן עדיין. הוסיפי מנה במסך המאגר — שם וזמן הכנה מספיקים.
+          המאגר ריק, אז אי אפשר לתכנן עדיין. הוסף מנה במסך המאגר — שם וזמן הכנה מספיקים.
         </Notice>
       ) : (
         <div className="row" style={{ marginBottom: 12 }}>
@@ -854,7 +854,7 @@ function SessionSheet({
           onClick={() => onPickDifferent(session.cook_date)}
         >
           <Icon name="list" size={16} />
-          בחרי מנה אחרת מהמאגר
+          בחר מנה אחרת מהמאגר
         </button>
         <button
           className="btn btn--ghost btn--block"
@@ -867,7 +867,7 @@ function SessionSheet({
           className="btn btn--subtle btn--block"
           onClick={() => void markCooked(householdId, session, !session.is_cooked)}
         >
-          {session.is_cooked ? 'ביטול סימון "בושל"' : 'סמני כבושל'}
+          {session.is_cooked ? 'ביטול סימון "בושל"' : 'סמן כבושל'}
         </button>
         {day && (
           <button
@@ -877,7 +877,7 @@ function SessionSheet({
               onClose()
             }}
           >
-            {day.role === 'none' ? 'החזרת היום לתכנון' : 'סמני "לא מבשלים" ביום הזה'}
+            {day.role === 'none' ? 'החזרת היום לתכנון' : 'סמן "לא מבשלים" ביום הזה'}
           </button>
         )}
         <button

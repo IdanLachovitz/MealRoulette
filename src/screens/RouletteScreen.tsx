@@ -221,7 +221,7 @@ export function RouletteScreen({
     if (!dish) return
     await save('dishes', { ...dish, is_excluded: true })
     toast(`"${dish.name}" לא תוצע יותר`, {
-      label: 'בטלי',
+      label: 'בטל',
       onAction: () => void save('dishes', { ...dish, is_excluded: false }),
     })
     // Close the window while the wheel re-spins; it reopens on the new result.
@@ -237,7 +237,7 @@ export function RouletteScreen({
     if (!comp) return
     await save('components', { ...comp, is_excluded: true })
     toast(`"${comp.name}" לא יוצע יותר`, {
-      label: 'בטלי',
+      label: 'בטל',
       onAction: () => void save('components', { ...comp, is_excluded: false }),
     })
     setShowResult(false)
@@ -526,7 +526,7 @@ function ComboResultModal({
       )}
       {loading && (
         <p className="label" style={{ textAlign: 'center', marginTop: 8 }}>
-          יוצרת תמונה…
+          יוצר תמונה…
         </p>
       )}
 
@@ -592,13 +592,13 @@ function DishMode({
         body={
           hasFilter
             ? 'אפשר לנקות את הסינון, או להוסיף מנה שמתאימה לזמן שבחרת.'
-            : 'הוסיפי מנה — שם וזמן הכנה מספיקים, כל השאר אפשר להשלים אחר כך.'
+            : 'הוסף מנה — שם וזמן הכנה מספיקים, כל השאר אפשר להשלים אחר כך.'
         }
         action={
           <div className="row" style={{ justifyContent: 'center' }}>
             {hasFilter && (
               <button className="btn btn--ghost" onClick={onClearFilter}>
-                נקי סינון
+                נקה סינון
               </button>
             )}
             <button className="btn btn--primary" onClick={onAddDish}>
@@ -726,7 +726,7 @@ function ComboMode({
           <div className="row" style={{ justifyContent: 'center' }}>
             {hasFilter && (
               <button className="btn btn--ghost" onClick={onClearFilter}>
-                נקי סינון
+                נקה סינון
               </button>
             )}
             {onGoToLibrary && (
@@ -837,7 +837,7 @@ function ComboMode({
         )}
       </div>
 
-      {allLocked && <Notice warn>כל הרכיבים נעולים. פתחי נעילה כדי לסובב.</Notice>}
+      {allLocked && <Notice warn>כל הרכיבים נעולים. פתח נעילה כדי לסובב.</Notice>}
 
       <div className="stack" style={{ marginTop: 10 }}>
         <div className="row">

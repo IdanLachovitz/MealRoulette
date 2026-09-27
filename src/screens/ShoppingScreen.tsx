@@ -116,7 +116,7 @@ export function ShoppingScreen({ householdId }: { householdId: string }) {
         <EmptyState
           icon="🛒"
           title="הרשימה ריקה"
-          body="הרשימה נבנית מהבישולים של השבוע. אחרי שתתכנני שבוע — ותוסיפי מצרכים למנות — היא תתמלא לבד."
+          body="הרשימה נבנית מהבישולים של השבוע. אחרי שתתכנן שבוע — ותוסיף מצרכים למנות — היא תתמלא לבד."
           action={
             <button className="btn btn--ghost" onClick={() => setAdding(true)}>
               הוספה ידנית

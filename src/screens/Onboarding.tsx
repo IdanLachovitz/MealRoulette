@@ -25,8 +25,8 @@ export function Onboarding() {
               מה מבשלים השבוע
             </h1>
             <p style={{ lineHeight: 1.7, color: 'var(--mut)' }}>
-              במקום להחליט כל ערב מה מכינים — מחליטים פעם אחת בשבוע. את מזינה פעם אחת את מה
-              שאת יודעת לבשל, והאפליקציה מרכיבה לך שבוע.
+              במקום להחליט כל ערב מה מכינים — מחליטים פעם אחת בשבוע. אתה מזין פעם אחת את מה
+              שאתה יודע לבשל, והאפליקציה מרכיבה לך שבוע.
             </p>
             <button
               className="btn btn--primary btn--block"
@@ -78,7 +78,7 @@ export function Onboarding() {
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 20 }}>המאגר ההתחלתי</h2>
             <p style={{ lineHeight: 1.7, color: 'var(--mut)' }}>
               יש מאגר מוכן עם {SEED_COUNTS.dishes} מנות ו־{SEED_COUNTS.components} רכיבים, כדי
-              שלא תתחילי ממסך ריק. הוא לא סגור — אפשר לערוך, לכבות, להדיר ולהוסיף בכל רגע.
+              שלא תתחיל ממסך ריק. הוא לא סגור — אפשר לערוך, לכבות, להדיר ולהוסיף בכל רגע.
             </p>
             <div className="stack" style={{ marginTop: 24 }}>
               <button
@@ -86,7 +86,7 @@ export function Onboarding() {
                 disabled={busy}
                 onClick={() => void finish(true)}
               >
-                {busy ? 'מכינה…' : 'כן, טענו את המאגר'}
+                {busy ? 'מכין…' : 'כן, טענו את המאגר'}
               </button>
               <button
                 className="btn btn--ghost btn--block"

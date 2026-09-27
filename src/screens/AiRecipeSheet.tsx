@@ -127,7 +127,7 @@ export function AiRecipeSheet({
         </>
       ) : (
         <p className="muted" style={{ marginTop: 0 }}>
-          {loading ? 'כותבת את המתכון המלא…' : ''}
+          {loading ? 'כותב את המתכון המלא…' : ''}
         </p>
       )}
     </Sheet>

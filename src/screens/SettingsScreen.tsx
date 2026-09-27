@@ -171,7 +171,7 @@ function DishImagesSection({
 
   const run = async () => {
     if (!isSyncConfigured) {
-      onToast('הסנכרון כבוי, אז אין גישה ל-AI. הגדירי אותו קודם.')
+      onToast('הסנכרון כבוי, אז אין גישה ל-AI. הגדר אותו קודם.')
       return
     }
     const targets = missing
@@ -214,14 +214,14 @@ function DishImagesSection({
     <div className="card">
       <span className="label">תמונות למנות (AI, חד פעמי)</span>
       <p className="field__hint" style={{ marginTop: 6, lineHeight: 1.6 }}>
-        מייצרת תמונה אמיתית לכל מנה שאין לה עדיין תמונה — לא נוגעת במנה שכבר יש לה אחת,
+        מייצר תמונה אמיתית לכל מנה שאין לה עדיין תמונה — לא נוגע במנה שכבר יש לה אחת,
         גם אם הועלתה ידנית. פועל רק כשהסנכרון דלוק.
       </p>
 
       {running ? (
         <>
           <p className="field__hint" style={{ marginTop: 10 }}>
-            מייצרת תמונה… {progress.done}/{progress.total}
+            מייצר תמונה… {progress.done}/{progress.total}
           </p>
           <button
             className="btn btn--danger btn--block"
@@ -347,14 +347,14 @@ function SyncSection({ household }: { household: Household }) {
           </div>
           {sent && (
             <p className="field__hint">
-              נשלח קישור התחברות ל־{email}. אחרי שתלחצי עליו, חזרי לכאן.
+              נשלח קישור התחברות ל־{email}. אחרי שתלחץ עליו, חזור לכאן.
             </p>
           )}
         </>
       ) : (
         <>
           <p className="field__hint" style={{ marginTop: 8 }}>
-            מחוברת כ־{signedInAs}
+            מחובר כ־{signedInAs}
           </p>
 
           {/* Two ways in: publish this kitchen, or join the one your partner made. */}
@@ -364,7 +364,7 @@ function SyncSection({ household }: { household: Household }) {
               disabled={busy}
               onClick={() => void guard(() => registerHousehold(household))}
             >
-              פרסמי את המטבח הזה לשרת
+              פרסם את המטבח הזה לשרת
             </button>
 
             <div className="row" style={{ gap: 8 }}>
@@ -386,7 +386,7 @@ function SyncSection({ household }: { household: Household }) {
                   })
                 }
               >
-                הצטרפי
+                הצטרף
               </button>
             </div>
 
@@ -418,7 +418,7 @@ function SyncSection({ household }: { household: Household }) {
       <p className="field__hint" style={{ marginTop: 10 }}>
         קוד הצטרפות למטבח הזה:{' '}
         <strong style={{ letterSpacing: '0.15em' }}>{household.invite_code}</strong>
-        {' — '}מסרי אותו לבן/בת הזוג כדי שיצטרפו לאותו מאגר.
+        {' — '}מסור אותו לבן/בת הזוג כדי שיצטרפו לאותו מאגר.
       </p>
     </div>
   )
@@ -576,7 +576,7 @@ function HistorySection({ householdId }: { householdId: string }) {
         <EmptyState
           icon="🗓️"
           title="עוד לא בושל כלום"
-          body='אחרי שתסמני בישול כ"בושל", הוא יופיע כאן — וגם ייכנס לצינון כדי שלא יחזור מיד.'
+          body='אחרי שתסמן בישול כ"בושל", הוא יופיע כאן — וגם ייכנס לצינון כדי שלא יחזור מיד.'
         />
       ) : (
         <>
