@@ -9,6 +9,7 @@ import { Icon } from '../components/Icon'
 import { DishPicture } from '../components/DishArt'
 import { PickDishSheet } from './PickDishSheet'
 import { addDays, dayName, dayOfMonth, toISODate } from '../engine/dates'
+import { spreadEvenly } from '../engine/planner'
 import type { Notice as PlanNotice } from '../engine/planner'
 import { buildWeekUnits, planLeftoverCookSwap, planLeftoverSwap, planWeekSwap } from '../engine/weekSwap'
 import type { WeekUnit } from '../engine/weekSwap'
@@ -23,7 +24,7 @@ import {
   swapLeftoverDay,
   swapWeekBlock,
 } from '../services/week'
-import type { Component, CookSession, DaySlot, Dish, PlanningParams, WeekPlan } from '../types'
+import type { Component, CookDayChoice, CookSession, DaySlot, Dish, PlanningParams, WeekPlan } from '../types'
 
 /** How long the settle/snap-back transition on a drag takes. */
 const DRAG_SETTLE_MS = 200
@@ -624,7 +625,11 @@ export function WeekScreen({
       {wizardOpen && (
         <PlanningWizard
           initial={plan.planning_params}
-          maxCookDays={sortedDays.filter((d) => d.role !== 'none').length}
+          weekDays={sortedDays.map((d) => ({
+            date: d.date,
+            notCooking: d.role === 'none',
+            locked: sortedSessions.some((s) => s.is_locked && s.cook_date === d.date),
+          }))}
           onClose={() => setWizardOpen(false)}
           onRun={runWizard}
         />
@@ -692,41 +697,62 @@ export function WeekScreen({
 }
 
 /** FR-4.1 — the three-question wizard. */
+const PREP_OPTIONS: { label: string; value: number | null }[] = [
+  { label: 'עד 20', value: 20 },
+  { label: 'עד 40', value: 40 },
+  { label: 'ללא הגבלה', value: null },
+]
+
 function PlanningWizard({
   initial,
-  maxCookDays,
+  weekDays,
   onClose,
   onRun,
 }: {
   initial: PlanningParams
-  maxCookDays: number
+  weekDays: { date: string; notCooking: boolean; locked: boolean }[]
   onClose: () => void
   onRun: (p: PlanningParams) => Promise<void>
 }) {
-  const [count, setCount] = useState(Math.min(initial.cook_days_count, Math.max(1, maxCookDays)))
+  // A day marked "not cooking" or holding a locked session isn't the
+  // wizard's to plan (EC-15, FR-4.3), so it can't be picked.
+  const pickable = weekDays.filter((d) => !d.notCooking && !d.locked).map((d) => d.date)
+
+  // Start from this week's last choice; a week never planned this way gets
+  // the old count spread evenly, each with the old single time limit.
+  const [chosen, setChosen] = useState<Map<string, number | null>>(() => {
+    const previous = (initial.cook_days ?? []).filter((c) => pickable.includes(c.date))
+    if (previous.length > 0) return new Map(previous.map((c) => [c.date, c.max_prep_time]))
+    const spread = spreadEvenly(pickable, Math.min(initial.cook_days_count, pickable.length))
+    return new Map(spread.map((date) => [date, initial.max_prep_time]))
+  })
   const [leftovers, setLeftovers] = useState(initial.include_leftovers)
-  const [maxPrep, setMaxPrep] = useState<number | null>(initial.max_prep_time)
   const [busy, setBusy] = useState(false)
 
+  // Quick mode: just how many times and how long — the planner spreads the days.
   // EC-15 — never offer more cook days than there are free days.
-  const options = [2, 3, 4, 5].filter((n) => n <= Math.max(2, maxCookDays))
+  const maxCookDays = weekDays.filter((d) => !d.notCooking).length
+  const countOptions = [2, 3, 4, 5].filter((n) => n <= Math.max(2, maxCookDays))
+  const [count, setCount] = useState(Math.min(initial.cook_days_count, Math.max(1, maxCookDays)))
+  const [maxPrep, setMaxPrep] = useState<number | null>(initial.max_prep_time)
+
+  const run = (params: PlanningParams) => {
+    setBusy(true)
+    void onRun(params).finally(() => setBusy(false))
+  }
+
+  const toggle = (date: string) =>
+    setChosen((prev) => {
+      const next = new Map(prev)
+      if (next.has(date)) next.delete(date)
+      else next.set(date, initial.max_prep_time)
+      return next
+    })
+  const setPrep = (date: string, value: number | null) =>
+    setChosen((prev) => new Map(prev).set(date, value))
 
   return (
     <Sheet title="תכנן לי את השבוע" onClose={onClose}>
-      <div className="field">
-        <span className="label">כמה פעמים לבשל השבוע?</span>
-        <div className="chips">
-          {options.map((n) => (
-            <button key={n} className="chip" aria-pressed={count === n} onClick={() => setCount(n)}>
-              {n}
-            </button>
-          ))}
-        </div>
-        {maxCookDays < 5 && (
-          <span className="field__hint">יש {maxCookDays} ימים פנויים השבוע.</span>
-        )}
-      </div>
-
       <div className="field">
         <div className="row row--between">
           <span className="label">לשלב שאריות?</span>
@@ -734,19 +760,27 @@ function PlanningWizard({
         </div>
         <span className="field__hint">
           {leftovers
-            ? 'כל בישול יכסה גם את היום או היומיים שאחריו.'
-            : 'כל בישול מכסה יום אחד. ימים שלא נכנסו יישארו ריקים.'}
+            ? 'כל בישול יכסה גם את הימים שאחריו, עד הבישול הבא.'
+            : 'כל בישול מכסה יום אחד. ימים בלי בישול יישארו ריקים.'}
         </span>
+      </div>
+
+      <div className="field">
+        <span className="label">כמה פעמים לבשל השבוע?</span>
+        <div className="chips">
+          {countOptions.map((n) => (
+            <button key={n} className="chip" aria-pressed={count === n} onClick={() => setCount(n)}>
+              {n}
+            </button>
+          ))}
+        </div>
+        {maxCookDays < 5 && <span className="field__hint">יש {maxCookDays} ימים פנויים השבוע.</span>}
       </div>
 
       <div className="field">
         <span className="label">זמן הכנה מקסימלי</span>
         <div className="chips">
-          {[
-            { label: 'עד 20', value: 20 },
-            { label: 'עד 40', value: 40 },
-            { label: 'ללא הגבלה', value: null },
-          ].map((o) => (
+          {PREP_OPTIONS.map((o) => (
             <button
               key={o.label}
               className="chip"
@@ -762,16 +796,79 @@ function PlanningWizard({
       <button
         className="btn btn--primary btn--block"
         disabled={busy}
-        onClick={() => {
-          setBusy(true)
-          void onRun({
-            cook_days_count: count,
-            include_leftovers: leftovers,
-            max_prep_time: maxPrep,
-          }).finally(() => setBusy(false))
-        }}
+        onClick={() =>
+          run({ cook_days_count: count, include_leftovers: leftovers, max_prep_time: maxPrep, cook_days: null })
+        }
       >
         {busy ? 'מתכנן…' : 'תכנן'}
+      </button>
+
+      <div className="label" style={{ textAlign: 'center', margin: '18px 0 4px' }}>
+        או לבחור ימים בעצמך
+      </div>
+
+      <div className="field">
+        <span className="label">באילו ימים מבשלים, וכמה זמן יש?</span>
+        <div className="stack" style={{ gap: 8, marginTop: 6 }}>
+          {weekDays.map((d) => {
+            const on = chosen.has(d.date)
+            const disabled = d.notCooking || d.locked
+            return (
+              <div
+                key={d.date}
+                className="card card--flat"
+                style={{ padding: '8px 10px', opacity: disabled ? 0.55 : 1 }}
+              >
+                <div className="row row--between" style={{ gap: 8, flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="chip"
+                    aria-pressed={on}
+                    disabled={disabled}
+                    onClick={() => toggle(d.date)}
+                  >
+                    {dayName(d.date)} {dayOfMonth(d.date)}
+                  </button>
+                  {disabled ? (
+                    <span className="field__hint">{d.locked ? 'בישול נעול' : 'לא מבשלים'}</span>
+                  ) : on ? (
+                    <div className="chips" style={{ margin: 0 }}>
+                      {PREP_OPTIONS.map((o) => (
+                        <button
+                          key={o.label}
+                          type="button"
+                          className="chip"
+                          aria-pressed={chosen.get(d.date) === o.value}
+                          onClick={() => setPrep(d.date, o.value)}
+                        >
+                          {o.label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      <button
+        className="btn btn--primary btn--block"
+        disabled={busy || chosen.size === 0}
+        onClick={() => {
+          const cookDays: CookDayChoice[] = [...chosen]
+            .map(([date, max_prep_time]) => ({ date, max_prep_time }))
+            .sort((a, b) => a.date.localeCompare(b.date))
+          run({
+            cook_days_count: cookDays.length,
+            include_leftovers: leftovers,
+            max_prep_time: maxPrep,
+            cook_days: cookDays,
+          })
+        }}
+      >
+        {busy ? 'מתכנן…' : chosen.size === 0 ? 'בחר לפחות יום אחד' : `תכנן ${chosen.size} בישולים`}
       </button>
     </Sheet>
   )

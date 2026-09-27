@@ -418,3 +418,83 @@ describe('spreadEvenly', () => {
     }
   })
 })
+
+describe('planWeek — chosen cook days with their own time budget', () => {
+  const quick = dish('מהירה', { prep_time_minutes: 15, max_cover_days: 4 })
+  const slow = Array.from({ length: 6 }, (_, i) => dish(`איטית ${i + 1}`, { prep_time_minutes: 90, max_cover_days: 4 }))
+
+  it('cooks on exactly the chosen days', () => {
+    const result = planWeek(
+      input({
+        params: {
+          cook_days_count: 3,
+          include_leftovers: false,
+          max_prep_time: null,
+          cook_days: [
+            { date: DATES[1], max_prep_time: null },
+            { date: DATES[4], max_prep_time: null },
+          ],
+        },
+      }),
+    )
+    expect(result.sessions.map((s) => s.cook_date)).toEqual([DATES[1], DATES[4]])
+  })
+
+  it("fits each day's dish to that day's time budget", () => {
+    const result = planWeek(
+      input({
+        dishes: [quick, ...slow],
+        params: {
+          cook_days_count: 3,
+          include_leftovers: false,
+          max_prep_time: null,
+          cook_days: [
+            { date: DATES[0], max_prep_time: null },
+            { date: DATES[2], max_prep_time: 20 },
+          ],
+        },
+      }),
+    )
+    const byDate = new Map(result.sessions.map((s) => [s.cook_date, s.dish_id]))
+    expect(byDate.get(DATES[2])).toBe('מהירה')
+    expect(byDate.get(DATES[0])).not.toBe('מהירה')
+  })
+
+  it('stretches leftovers up to the next chosen day', () => {
+    const result = planWeek(
+      input({
+        dishes: slow,
+        params: {
+          cook_days_count: 3,
+          include_leftovers: true,
+          max_prep_time: null,
+          cook_days: [
+            { date: DATES[0], max_prep_time: null },
+            { date: DATES[3], max_prep_time: null },
+          ],
+        },
+      }),
+    )
+    const roles = result.days.map((d) => d.role)
+    expect(roles.slice(0, 3)).toEqual(['cook', 'leftovers', 'leftovers'])
+    expect(roles[3]).toBe('cook')
+  })
+
+  it('skips a chosen day that is marked "not cooking"', () => {
+    const result = planWeek(
+      input({
+        excludedDates: [DATES[2]],
+        params: {
+          cook_days_count: 3,
+          include_leftovers: false,
+          max_prep_time: null,
+          cook_days: [
+            { date: DATES[1], max_prep_time: null },
+            { date: DATES[2], max_prep_time: null },
+          ],
+        },
+      }),
+    )
+    expect(result.sessions.map((s) => s.cook_date)).toEqual([DATES[1]])
+  })
+})

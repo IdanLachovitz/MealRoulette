@@ -152,6 +152,9 @@ function isRestingInCycle(dish: Dish, pool: Dish[], lastCooked: Map<string, stri
   return overtakenBy < pool.length - 1
 }
 
+/** The spec's ceiling on how many days one cook covers (see CookSession.covers_days). */
+const MAX_COVER_DAYS = 4
+
 export function planWeek(input: PlannerInput): PlanResult {
   const { dates, excludedDates, lockedSessions, dishes, history, params, settings } = input
   const rng = makeRng(input.seed)
@@ -162,11 +165,22 @@ export function planWeek(input: PlannerInput): PlanResult {
 
   const excluded = new Set(excludedDates)
   const availableDates = dates.filter((d) => !excluded.has(d))
+  const lockedDates = new Set(lockedSessions.map((s) => s.cook_date))
+
+  // The user picked the exact days (and a time budget for each) — cook on
+  // those, skipping any that are "not cooking" or already hold a locked session.
+  const chosenDays = params.cook_days?.length
+    ? params.cook_days
+        .filter((c) => availableDates.includes(c.date) && !lockedDates.has(c.date))
+        .sort((a, b) => a.date.localeCompare(b.date))
+    : null
 
   // Step 2 — locked sessions count against the requested quota (FR-4.3).
   const lockedCount = lockedSessions.length
-  const requested = Math.min(params.cook_days_count, availableDates.length)
-  if (params.cook_days_count > availableDates.length) {
+  const requested = chosenDays
+    ? chosenDays.length + lockedCount
+    : Math.min(params.cook_days_count, availableDates.length)
+  if (!chosenDays && params.cook_days_count > availableDates.length) {
     // EC-15
     pushNotice(
       'coverage_reduced',
@@ -187,7 +201,6 @@ export function planWeek(input: PlannerInput): PlanResult {
 
   // ---- Step 4: choose a dish per session -------------------------------------
   const lastCooked = lastCookedMap(history)
-  const pool0 = eligibleDishes(dishes, params.max_prep_time)
 
   // Hard rule FR-5.5: a dish already placed this week is out, locked ones
   // included — and so is the plan this run is replacing, so a re-roll never
@@ -198,7 +211,7 @@ export function planWeek(input: PlannerInput): PlanResult {
   ])
   const preferred = input.preferredDishIds?.length ? new Set(input.preferredDishIds) : null
 
-  const pickOne = (): { dish: Dish; covers: number } | null => {
+  const pickOne = (pool0: Dish[], targetCover: number): { dish: Dish; covers: number } | null => {
     let cover = targetCover
     while (cover >= 1) {
       const eligibleBase = (d: Dish) => !usedThisWeek.has(d.id) && (cover === 1 || d.max_cover_days >= cover)
@@ -270,17 +283,35 @@ export function planWeek(input: PlannerInput): PlanResult {
   }
 
   const chosen: { dish: Dish; covers: number }[] = []
-  for (let i = 0; i < sessionsNeeded; i++) {
-    const picked = pickOne()
-    if (!picked) break
-    chosen.push(picked)
-    usedThisWeek.add(picked.dish.id)
-  }
+  let cookDates: string[]
+  if (chosenDays) {
+    // Each chosen day draws from the dishes that fit its own time budget, and
+    // with leftovers stretches until the next cook day (layOutDays trims it).
+    const allCookDates = [...chosenDays.map((c) => c.date), ...lockedDates].sort()
+    cookDates = []
+    for (const day of chosenDays) {
+      const next = allCookDates.find((d) => d > day.date)
+      const gap = availableDates.filter((d) => d >= day.date && (!next || d < next)).length
+      const cover = params.include_leftovers ? Math.max(1, Math.min(MAX_COVER_DAYS, gap)) : 1
+      const picked = pickOne(eligibleDishes(dishes, day.max_prep_time), cover)
+      if (!picked) continue
+      chosen.push(picked)
+      cookDates.push(day.date)
+      usedThisWeek.add(picked.dish.id)
+    }
+  } else {
+    const pool = eligibleDishes(dishes, params.max_prep_time)
+    for (let i = 0; i < sessionsNeeded; i++) {
+      const picked = pickOne(pool, targetCover)
+      if (!picked) break
+      chosen.push(picked)
+      usedThisWeek.add(picked.dish.id)
+    }
 
-  // ---- Step 5: spread the cook days evenly ------------------------------------
-  const lockedDates = new Set(lockedSessions.map((s) => s.cook_date))
-  const freeDates = availableDates.filter((d) => !lockedDates.has(d))
-  const cookDates = spreadEvenly(freeDates, chosen.length)
+    // ---- Step 5: spread the cook days evenly ----------------------------------
+    const freeDates = availableDates.filter((d) => !lockedDates.has(d))
+    cookDates = spreadEvenly(freeDates, chosen.length)
+  }
 
   const sessions: DraftSession[] = lockedSessions.map((s) => ({
     cook_date: s.cook_date,

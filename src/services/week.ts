@@ -115,7 +115,15 @@ export async function runPlanningWizard(
     ...locked.map((s) => s.dish_id).filter((id): id is string => !!id),
     ...previousSessionDishIds,
   ])
-  const candidates = eligibleDishes(dishes, params.max_prep_time).filter((d) => !alreadyUsed.has(d.id))
+  // With chosen days, the shortlist spans the most generous day's budget —
+  // planWeek still holds each day to its own.
+  const chosenDays = params.cook_days?.length ? params.cook_days : null
+  const shortlistMaxPrep = chosenDays
+    ? chosenDays.some((c) => c.max_prep_time === null)
+      ? null
+      : Math.max(...chosenDays.map((c) => c.max_prep_time as number))
+    : params.max_prep_time
+  const candidates = eligibleDishes(dishes, shortlistMaxPrep).filter((d) => !alreadyUsed.has(d.id))
   const recentNames = history
     .filter((h) => h.entity_type === 'dish')
     .sort((a, b) => b.cooked_on.localeCompare(a.cooked_on))
@@ -124,7 +132,7 @@ export async function runPlanningWizard(
     .filter((name): name is string => !!name)
   const aiShortlist = await pickWeekDishesWithAi(
     candidates.map((d) => ({ id: d.id, name: d.name, prep_time_minutes: d.prep_time_minutes })),
-    params.cook_days_count,
+    chosenDays ? chosenDays.length : params.cook_days_count,
     recentNames,
   )
   // The model's own "be varied" instruction isn't a guarantee — this is:
