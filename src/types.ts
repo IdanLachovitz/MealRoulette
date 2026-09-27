@@ -54,6 +54,13 @@ export interface Dish extends Synced {
   is_excluded: boolean
   image_url: string | null
   created_by: string | null
+  /** How to cook it — set on a dish saved from an AI suggestion. Absent on older data. */
+  recipe?: DishRecipe | null
+}
+
+export interface DishRecipe {
+  steps: string[]
+  tips: string[]
 }
 
 export interface Component extends Synced {
@@ -71,6 +78,18 @@ export type WeekStatus = 'draft' | 'active' | 'archived'
 export interface PlanningParams {
   cook_days_count: number
   include_leftovers: boolean
+  /** null = no limit */
+  max_prep_time: number | null
+  /**
+   * The exact days to cook, each with its own prep-time ceiling. When set it
+   * replaces cook_days_count (how many) and max_prep_time (how long) — the
+   * planner cooks on these dates only. Absent on plans made before it existed.
+   */
+  cook_days?: CookDayChoice[] | null
+}
+
+export interface CookDayChoice {
+  date: string
   /** null = no limit */
   max_prep_time: number | null
 }

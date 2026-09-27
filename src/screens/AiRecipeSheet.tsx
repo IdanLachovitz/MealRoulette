@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Sheet } from '../components/ui'
 import { generateRecipeWithAi } from '../sync/ai'
 import type { AiDish, AiRecipe } from '../sync/ai'
+import type { DishRecipe } from '../types'
 
 /**
  * Recipes already fetched this session, keyed by the suggestion object itself
@@ -9,15 +10,91 @@ import type { AiDish, AiRecipe } from '../sync/ai'
  * a new suggestion is a new object, so it never picks up a stale recipe.
  */
 const recipeCache = new WeakMap<AiDish, AiRecipe>()
+/** Requests in flight, so the sheet and the save button never ask twice at once. */
+const pending = new WeakMap<AiDish, Promise<AiRecipe | null>>()
+
+/** Seeds the cache with a recipe kept from an earlier visit, so it isn't fetched again. */
+export function rememberRecipe(dish: AiDish, recipe: AiRecipe): void {
+  recipeCache.set(dish, recipe)
+}
+
+/** The recipe for a suggestion — from this session's cache, or fetched once. */
+export function fetchRecipe(dish: AiDish, servings: number): Promise<AiRecipe | null> {
+  const cached = recipeCache.get(dish)
+  if (cached) return Promise.resolve(cached)
+  let request = pending.get(dish)
+  if (!request) {
+    request = generateRecipeWithAi(dish, servings).then((result) => {
+      pending.delete(dish)
+      if (result) recipeCache.set(dish, result)
+      return result
+    })
+    pending.set(dish, request)
+  }
+  return request
+}
+
+/** Numbered steps, then any tips — shared by the AI sheet and a saved dish's page. */
+export function RecipeSteps({ recipe }: { recipe: DishRecipe }) {
+  return (
+    <>
+      <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+        {recipe.steps.map((step, i) => (
+          <li key={i} style={{ display: 'flex', gap: 10, marginBottom: 12, alignItems: 'flex-start' }}>
+            <span
+              aria-hidden="true"
+              style={{
+                flex: '0 0 26px',
+                height: 26,
+                borderRadius: '50%',
+                background: 'var(--saf-tonal)',
+                display: 'grid',
+                placeItems: 'center',
+                fontSize: 13,
+                fontWeight: 600,
+              }}
+            >
+              {i + 1}
+            </span>
+            <span style={{ lineHeight: 1.55, paddingTop: 2 }}>{step}</span>
+          </li>
+        ))}
+      </ol>
+
+      {recipe.tips.length > 0 && (
+        <div className="card card--flat" style={{ marginTop: 4 }}>
+          <div className="label" style={{ marginBottom: 6 }}>
+            טיפים
+          </div>
+          {recipe.tips.map((tip, i) => (
+            <p key={i} className="field__hint" style={{ margin: i === 0 ? 0 : '6px 0 0' }}>
+              {tip} 💡
+            </p>
+          ))}
+        </div>
+      )}
+    </>
+  )
+}
 
 /** The full recipe behind an AI fridge suggestion: amounts, then numbered steps. */
 export function AiRecipeSheet({
   dish,
   servings,
+  saved,
+  saving,
+  onSave,
+  onRecipe,
   onClose,
 }: {
   dish: AiDish
   servings: number
+  /** Already in the library under this name. */
+  saved: boolean
+  saving: boolean
+  onSave: () => void
+  /** Called once the recipe is on hand, so the caller can keep it. */
+  onRecipe?: (recipe: AiRecipe) => void
   onClose: () => void
 }) {
   const [recipe, setRecipe] = useState<AiRecipe | null>(() => recipeCache.get(dish) ?? null)
@@ -27,11 +104,11 @@ export function AiRecipeSheet({
   const load = async () => {
     setLoading(true)
     setFailed(false)
-    const result = await generateRecipeWithAi(dish, servings)
+    const result = await fetchRecipe(dish, servings)
     setLoading(false)
     if (result) {
-      recipeCache.set(dish, result)
       setRecipe(result)
+      onRecipe?.(result)
     } else {
       setFailed(true)
     }
@@ -76,45 +153,13 @@ export function AiRecipeSheet({
           <div className="label" style={{ marginBottom: 8 }}>
             אופן ההכנה
           </div>
-          <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            {recipe.steps.map((step, i) => (
-              <li key={i} style={{ display: 'flex', gap: 10, marginBottom: 12, alignItems: 'flex-start' }}>
-                <span
-                  aria-hidden="true"
-                  style={{
-                    flex: '0 0 26px',
-                    height: 26,
-                    borderRadius: '50%',
-                    background: 'var(--saf-tonal)',
-                    display: 'grid',
-                    placeItems: 'center',
-                    fontSize: 13,
-                    fontWeight: 600,
-                  }}
-                >
-                  {i + 1}
-                </span>
-                <span style={{ lineHeight: 1.55, paddingTop: 2 }}>{step}</span>
-              </li>
-            ))}
-          </ol>
-
-          {recipe.tips.length > 0 && (
-            <div className="card card--flat" style={{ marginTop: 4 }}>
-              <div className="label" style={{ marginBottom: 6 }}>
-                טיפים
-              </div>
-              {recipe.tips.map((tip, i) => (
-                <p key={i} className="field__hint" style={{ margin: i === 0 ? 0 : '6px 0 0' }}>
-                  💡 {tip}
-                </p>
-              ))}
-            </div>
-          )}
+          <RecipeSteps recipe={recipe} />
 
           <p className="field__hint" style={{ marginTop: 12 }}>
             מתכון שנכתב ע״י AI — כדאי לסמוך על הטעם והעין שלך בדרך.
           </p>
+
+          <SaveToLibraryButton saved={saved} saving={saving} onSave={onSave} />
         </>
       ) : failed ? (
         <>
@@ -122,7 +167,7 @@ export function AiRecipeSheet({
             לא הצלחתי להביא את המתכון כרגע — אולי אין רשת, או שהתכונה עוד לא מוגדרת.
           </p>
           <button type="button" className="btn btn--ghost btn--block" onClick={() => void load()}>
-            🔄 לנסות שוב
+            לנסות שוב 🔄
           </button>
         </>
       ) : (
@@ -131,5 +176,30 @@ export function AiRecipeSheet({
         </p>
       )}
     </Sheet>
+  )
+}
+
+/** Saves the suggestion, recipe included, as a regular library dish. */
+export function SaveToLibraryButton({
+  saved,
+  saving,
+  onSave,
+  block = true,
+}: {
+  saved: boolean
+  saving: boolean
+  onSave: () => void
+  block?: boolean
+}) {
+  return (
+    <button
+      type="button"
+      className={`btn btn--primary${block ? ' btn--block' : ''}`}
+      style={block ? { marginTop: 12 } : undefined}
+      disabled={saved || saving}
+      onClick={onSave}
+    >
+      {saved ? 'נשמר במאגר ✓' : saving ? 'שומר…' : 'שמירה במאגר 💾'}
+    </button>
   )
 }

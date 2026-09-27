@@ -243,7 +243,7 @@ function DishImagesSection({
           >
             {missing.length === 0
               ? 'לכל המנות כבר יש תמונה'
-              : `🎨 יצירת תמונות ל־${missing.length} מנות`}
+              : `יצירת תמונות ל־${missing.length} מנות 🎨`}
           </button>
           {lastFailed.length > 0 && (
             <p className="field__hint" style={{ marginTop: 8 }}>

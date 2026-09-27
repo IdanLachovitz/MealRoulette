@@ -96,6 +96,10 @@ Deno.serve(async (req: Request) => {
         // Reasoning tokens count against this too, and a full recipe is a lot
         // longer than generate-dish's 2-4 sentences.
         max_tokens: 2500,
+        // Steps quote words ("אל דנטה") with bare double quotes often enough
+        // that free-form output kept breaking JSON.parse — JSON mode makes
+        // Groq return only a valid object.
+        response_format: { type: 'json_object' },
       }),
     })
 

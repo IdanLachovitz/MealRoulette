@@ -9,8 +9,9 @@ import { Icon } from '../components/Icon'
 import { DishPicture } from '../components/DishArt'
 import { QuickAddDish } from './QuickAddDish'
 import { IngredientsEditor } from './IngredientsEditor'
+import { RecipeSteps } from './AiRecipeSheet'
 import { fileToCompressedDataUrl } from '../engine/image'
-import { generateDishImageWithAi } from '../sync/ai'
+import { generateDishImageWithAi, generateRecipeWithAi } from '../sync/ai'
 import { passesTimeFilter } from '../engine/planner'
 import type { Component, ComponentType, Dish } from '../types'
 import { COMPONENT_LABEL } from '../types'
@@ -57,6 +58,15 @@ export function LibraryScreen({ householdId }: { householdId: string }) {
 
   return (
     <div>
+      <input
+        className="field__input"
+        style={{ marginBottom: 10 }}
+        type="search"
+        value={search}
+        placeholder="חיפוש במאגר"
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
       {/* Just four fixed tabs that must always read as one row — see
           .chips--fit — rather than the default scrolling `.chips`, which
           let the last tab run past the edge on a narrow phone. */}
@@ -74,15 +84,6 @@ export function LibraryScreen({ householdId }: { householdId: string }) {
           </button>
         ))}
       </div>
-
-      <input
-        className="field__input"
-        style={{ marginBottom: 10 }}
-        type="search"
-        value={search}
-        placeholder="חיפוש במאגר"
-        onChange={(e) => setSearch(e.target.value)}
-      />
 
       <TimeFilterChips
         value={filter}
@@ -196,7 +197,12 @@ function DishSheet({
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [photoBusy, setPhotoBusy] = useState(false)
   const [aiPhotoBusy, setAiPhotoBusy] = useState(false)
+  const [recipeBusy, setRecipeBusy] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  // The recipe request takes a while — edits made meanwhile must survive it,
+  // so it patches the latest draft rather than the one it started from.
+  const latestDraft = useRef(draft)
+  latestDraft.current = draft
 
   // EC-3 — deleting a dish that is scheduled has to say what it will break.
   const affected = useLiveQuery(
@@ -241,6 +247,29 @@ function DishSheet({
       }
     } finally {
       setAiPhotoBusy(false)
+    }
+  }
+
+  /** Has the AI write steps for this dish from its own ingredients and amounts. */
+  const onGenerateRecipe = async () => {
+    setRecipeBusy(true)
+    try {
+      const ingredients = draft.ingredients
+        .filter((i) => i.name.trim())
+        .map((i) => (i.quantity != null && i.unit ? `${i.name} (${i.quantity} ${i.unit})` : i.name))
+      const recipe = await generateRecipeWithAi(
+        { name: draft.name, instructions: '', ingredients: ingredients.length ? ingredients : [draft.name] },
+        draft.fixed_servings ?? draft.base_servings,
+      )
+      if (!recipe) {
+        toast('לא הצלחתי לכתוב מתכון. אפשר לנסות שוב.')
+        return
+      }
+      const next = { ...latestDraft.current, recipe: { steps: recipe.steps, tips: recipe.tips } }
+      setDraft(next)
+      void save('dishes', next)
+    } finally {
+      setRecipeBusy(false)
     }
   }
 
@@ -370,6 +399,26 @@ function DishSheet({
         ingredients={draft.ingredients}
         onChange={(ingredients) => patch({ ingredients })}
       />
+
+      <div style={{ marginTop: 14 }}>
+        {draft.recipe && draft.recipe.steps.length > 0 && (
+          <>
+            <div className="label" style={{ marginBottom: 8 }}>
+              אופן ההכנה
+            </div>
+            <RecipeSteps recipe={draft.recipe} />
+          </>
+        )}
+        <button
+          type="button"
+          className="btn btn--ghost btn--block"
+          style={{ marginTop: draft.recipe ? 10 : 0 }}
+          disabled={recipeBusy}
+          onClick={() => void onGenerateRecipe()}
+        >
+          {recipeBusy ? 'כותב מתכון…' : draft.recipe ? 'מתכון חדש (AI) 🔄' : 'יצירת מתכון (AI) 📖'}
+        </button>
+      </div>
 
       <div className="card" style={{ marginTop: 14 }}>
         <div className="row row--between" style={{ marginBottom: 10 }}>
