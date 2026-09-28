@@ -8,6 +8,9 @@ import { Notice, Sheet, Switch } from '../components/ui'
 import { Icon } from '../components/Icon'
 import { DishPicture } from '../components/DishArt'
 import { PickDishSheet } from './PickDishSheet'
+import { RecipeSteps } from './AiRecipeSheet'
+import { dishPhotoUrl } from '../db/photos'
+import { generateDishRecipe } from '../sync/ai'
 import { addDays, dayName, dayOfMonth, toISODate } from '../engine/dates'
 import { spreadEvenly } from '../engine/planner'
 import type { Notice as PlanNotice } from '../engine/planner'
@@ -151,7 +154,7 @@ export function WeekScreen({
       return {
         name: dish.name,
         ingredients: dish.ingredients.map((i) => i.name),
-        imageUrl: dish.image_url,
+        imageUrl: dishPhotoUrl(dish, settings),
       }
     }
     const parts = [session.protein_id, session.carb_id, session.veg_id]
@@ -433,7 +436,11 @@ export function WeekScreen({
       )}
 
       {notices.map((n) => (
-        <Notice key={n.code} warn={n.code !== 'cooldown_relaxed' && n.code !== 'cycle_restarted'}>
+        <Notice
+          key={n.code}
+          warn={n.code !== 'cooldown_relaxed' && n.code !== 'cycle_restarted'}
+          onDismiss={() => setNotices((prev) => prev.filter((x) => x.code !== n.code))}
+        >
           {n.message}
         </Notice>
       ))}
@@ -640,6 +647,7 @@ export function WeekScreen({
           session={editing}
           title={describe(editing)}
           picture={pictureFor(editing)}
+          dish={editing.dish_id ? dishById.get(editing.dish_id) : undefined}
           day={sortedDays.find((d) => d.date === editing.cook_date)}
           maxCoverDays={
             editing.dish_id ? (dishById.get(editing.dish_id)?.max_cover_days ?? 4) : 4
@@ -878,6 +886,7 @@ function SessionSheet({
   session,
   title,
   picture,
+  dish,
   day,
   maxCoverDays,
   onClose,
@@ -887,6 +896,8 @@ function SessionSheet({
   session: CookSession
   title: string
   picture: { name: string; ingredients: string[]; imageUrl: string | null } | null
+  /** The library dish, for a dish session — undefined for a roulette combo. */
+  dish: Dish | undefined
   day: DaySlot | undefined
   maxCoverDays: number
   onClose: () => void
@@ -895,6 +906,37 @@ function SessionSheet({
 }) {
   const { settings, toast } = useApp()
   const [note, setNote] = useState(session.note ?? '')
+  const [recipeBusy, setRecipeBusy] = useState(false)
+
+  /** Writes (or rewrites) the dish's recipe and saves it onto the library dish. */
+  const onGenerateRecipe = async () => {
+    if (!dish) return
+    setRecipeBusy(true)
+    try {
+      const recipe = await generateDishRecipe(dish)
+      if (!recipe) {
+        toast('לא הצלחתי לכתוב מתכון. אפשר לנסות שוב.')
+        return
+      }
+      // Re-read so an edit made on another screen meanwhile isn't overwritten.
+      const current = await db.dishes.get(dish.id)
+      if (current) await save('dishes', { ...current, recipe })
+    } finally {
+      setRecipeBusy(false)
+    }
+  }
+
+  const recipeButton = dish && (
+    <button
+      type="button"
+      className="btn btn--ghost btn--block"
+      style={{ marginTop: 10 }}
+      disabled={recipeBusy}
+      onClick={() => void onGenerateRecipe()}
+    >
+      {recipeBusy ? 'כותב מתכון…' : dish.recipe ? 'מתכון חדש (AI) 🔄' : 'יצירת מתכון (AI) 📖'}
+    </button>
+  )
 
   return (
     <Sheet title={title || 'בישול'} onClose={onClose}>
@@ -910,6 +952,39 @@ function SessionSheet({
           />
         </div>
       )}
+
+      {/* On the day you cook, the recipe is what you open this for. */}
+      {dish?.recipe && dish.recipe.steps.length > 0 ? (
+        <div className="field">
+          <span className="label">מצרכים · ל־{dish.base_servings} סועדים</span>
+          <div className="card" style={{ margin: '6px 0 14px' }}>
+            {dish.ingredients.map((ing, i) => (
+              <div
+                key={`${ing.name}-${i}`}
+                className="row row--between"
+                style={{ gap: 12, padding: '6px 0', borderTop: i === 0 ? 'none' : '1px solid var(--line)' }}
+              >
+                <span>{ing.name}</span>
+                {ing.quantity != null && ing.unit && (
+                  <span className="muted" style={{ textAlign: 'end' }}>
+                    {ing.quantity} {ing.unit}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+          <span className="label" style={{ display: 'block', marginBottom: 8 }}>
+            אופן ההכנה
+          </span>
+          <RecipeSteps recipe={dish.recipe} />
+          {recipeButton}
+        </div>
+      ) : dish ? (
+        <div className="field">
+          <span className="field__hint">אין עדיין מתכון למנה הזו.</span>
+          {recipeButton}
+        </div>
+      ) : null}
 
       <div className="field">
         <span className="label">כמה ימים זה מכסה?</span>

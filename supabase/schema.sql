@@ -126,6 +126,8 @@ alter table public.cook_sessions add column if not exists covered_dates jsonb;
 
 -- Steps and tips for a dish saved from an AI suggestion (see Dish.recipe).
 alter table public.dishes add column if not exists recipe jsonb;
+-- A real photo found online for a dish, with its license credit (see Dish.real_photo).
+alter table public.dishes add column if not exists real_photo jsonb;
 
 create table if not exists public.day_slots (
   id              uuid primary key,

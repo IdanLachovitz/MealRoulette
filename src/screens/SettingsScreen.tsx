@@ -9,6 +9,9 @@ import { getSupabase, isSyncConfigured } from '../sync/supabase'
 import { runSync } from '../sync/sync'
 import { currentUserEmail, joinHousehold, registerHousehold, signOut } from '../sync/household'
 import { generateDishImageWithAi } from '../sync/ai'
+import { licenseLabel, realPhotoOf } from '../db/photos'
+import { fetchRealPhoto } from '../services/dishPhotos'
+import type { PhotoCredit } from '../types'
 import { daysBetween, toISODate } from '../engine/dates'
 import type { Component, CookHistory, Dish, Household } from '../types'
 import { COMPONENT_LABEL } from '../types'
@@ -136,10 +139,114 @@ export function SettingsScreen({ householdId }: { householdId: string }) {
             </div>
           </div>
 
+          <PhotoSourceSection householdId={householdId} onToast={toast} />
+
           <DishImagesSection householdId={householdId} onToast={toast} />
 
           <BackupSection householdId={householdId} onToast={toast} />
         </>
+      )}
+    </div>
+  )
+}
+
+/** AI photos or hand-picked real ones — plus the credits the real ones' licenses require. */
+function PhotoSourceSection({ householdId, onToast }: { householdId: string; onToast: (msg: string) => void }) {
+  const { settings, updateSettings } = useApp()
+  const [showCredits, setShowCredits] = useState(false)
+  const [finding, setFinding] = useState<{ done: number; total: number } | null>(null)
+  const dishes = useLiveQuery(
+    async () => alive(await db.dishes.where('household_id').equals(householdId).toArray()),
+    [householdId],
+    [] as Dish[],
+  )
+  // Every real photo a dish in this library actually shows — the bundled ones
+  // and the ones found online — since each needs its credit (CC BY / BY-SA).
+  const credits = (dishes ?? [])
+    .map((d) => [d.name, realPhotoOf(d)?.credit] as const)
+    .filter((e): e is readonly [string, PhotoCredit] => !!e[1])
+    .sort(([a], [b]) => a.localeCompare(b, 'he'))
+  const withoutReal = (dishes ?? []).filter((d) => d.is_active && !realPhotoOf(d))
+
+  /** Dishes added before real photos existed — one search at a time. */
+  const findMissing = async () => {
+    if (!isSyncConfigured) {
+      onToast('הסנכרון כבוי, אז אין גישה לחיפוש תמונות. הגדר אותו קודם.')
+      return
+    }
+    const targets = withoutReal
+    let found = 0
+    setFinding({ done: 0, total: targets.length })
+    for (const dish of targets) {
+      const photo = await fetchRealPhoto(dish)
+      if (photo) {
+        const current = await db.dishes.get(dish.id)
+        if (current && !current.real_photo) {
+          await save('dishes', { ...current, real_photo: photo })
+          found++
+        }
+      }
+      setFinding((f) => (f ? { ...f, done: f.done + 1 } : f))
+    }
+    setFinding(null)
+    onToast(`נמצאו תמונות אמיתיות ל־${found} מתוך ${targets.length} מנות.`)
+  }
+
+  return (
+    <div className="card">
+      <span className="label">איזה תמונות להציג</span>
+      <div className="chips" style={{ marginTop: 8 }}>
+        {(
+          [
+            ['ai', 'תמונות AI'],
+            ['real', 'תמונות אמיתיות'],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            className="chip"
+            aria-pressed={settings.photo_source === value}
+            onClick={() => void updateSettings({ photo_source: value })}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <p className="field__hint" style={{ marginTop: 6, lineHeight: 1.6 }}>
+        למנות מאגר ההתחלה נבחרה ידנית תמונה אמיתית ברישיון חופשי, ולכל מנה חדשה מחפשים
+        אחת אוטומטית ברשת. מנה בלי תמונה אמיתית ממשיכה להציג את התמונה שלה.
+      </p>
+      {withoutReal.length > 0 && (
+        <button
+          className="btn btn--ghost btn--block"
+          style={{ marginTop: 6 }}
+          disabled={!!finding}
+          onClick={() => void findMissing()}
+        >
+          {finding
+            ? `מחפש תמונות… ${finding.done}/${finding.total}`
+            : `חיפוש תמונות אמיתיות ל־${withoutReal.length} מנות 🔎`}
+        </button>
+      )}
+      <button
+        className="btn btn--ghost btn--sm"
+        style={{ marginTop: 6 }}
+        onClick={() => setShowCredits((v) => !v)}
+        aria-expanded={showCredits}
+      >
+        {showCredits ? 'הסתרת הקרדיטים' : `קרדיטים לתמונות (${credits.length})`}
+      </button>
+      {showCredits && (
+        <ul className="field__hint" style={{ margin: '8px 0 0', paddingInlineStart: 18, lineHeight: 1.7 }}>
+          {credits.map(([dish, photo]) => (
+            <li key={dish}>
+              {dish}: "{photo.title}" · {photo.creator ?? 'צלם לא ידוע'} ·{' '}
+              <a href={photo.landing} target="_blank" rel="noreferrer">
+                {licenseLabel(photo)}
+              </a>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   )

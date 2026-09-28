@@ -6,6 +6,7 @@
  * alternative without their own try/catch.
  */
 import { isSyncConfigured, getSupabase } from './supabase'
+import type { Dish, DishRecipe, PhotoCredit } from '../types'
 
 export interface AiDish {
   name: string
@@ -122,6 +123,51 @@ export async function pickWeekDishesWithAi(
     const validIds = new Set(candidates.map((c) => c.id))
     const picked = data.dish_ids.filter((id: unknown): id is string => typeof id === 'string' && validIds.has(id))
     return picked.length > 0 ? picked : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * A recipe for an existing library dish, written from its own ingredients
+ * and amounts so the steps match what the shopping list buys. Only the steps
+ * and tips come back — the dish's ingredient list stays the user's.
+ */
+export async function generateDishRecipe(dish: Dish): Promise<DishRecipe | null> {
+  const ingredients = dish.ingredients
+    .filter((i) => i.name.trim())
+    .map((i) => (i.quantity != null && i.unit ? `${i.name} (${i.quantity} ${i.unit})` : i.name))
+  const recipe = await generateRecipeWithAi(
+    { name: dish.name, instructions: '', ingredients: ingredients.length ? ingredients : [dish.name] },
+    dish.fixed_servings ?? dish.base_servings,
+  )
+  return recipe ? { steps: recipe.steps, tips: recipe.tips } : null
+}
+
+export interface FoundPhoto extends PhotoCredit {
+  image_data_url: string
+}
+
+/**
+ * A real, freely licensed photo of the dish from Wikimedia Commons or
+ * Openverse (see supabase/functions/find-dish-photo). `exclude` lists photo
+ * pages already tried, so asking again finds a different one.
+ */
+export async function findRealDishPhoto(
+  name: string,
+  ingredients: string[],
+  exclude: string[] = [],
+): Promise<FoundPhoto | null> {
+  if (!isSyncConfigured) return null
+  const client = await getSupabase()
+  if (!client) return null
+
+  try {
+    const { data, error } = await client.functions.invoke('find-dish-photo', {
+      body: { name, ingredients, exclude },
+    })
+    if (error || typeof data?.image_data_url !== 'string' || typeof data?.landing !== 'string') return null
+    return data as FoundPhoto
   } catch {
     return null
   }

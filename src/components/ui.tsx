@@ -277,11 +277,25 @@ export function EmptyState({
   )
 }
 
-export function Notice({ children, warn }: { children: ReactNode; warn?: boolean }) {
+export function Notice({
+  children,
+  warn,
+  onDismiss,
+}: {
+  children: ReactNode
+  warn?: boolean
+  /** When set, the notice gets an ✕ that hides it. */
+  onDismiss?: () => void
+}) {
   return (
     <div className={warn ? 'notice notice--warn' : 'notice'} role="status">
       <Icon name={warn ? 'warning' : 'info'} size={17} strokeWidth={2} style={{ flex: 'none', marginTop: 1 }} />
-      <span>{children}</span>
+      <span style={{ flex: 1 }}>{children}</span>
+      {onDismiss && (
+        <button type="button" className="notice__close" onClick={onDismiss} aria-label="הסתרת ההודעה">
+          ✕
+        </button>
+      )}
     </div>
   )
 }

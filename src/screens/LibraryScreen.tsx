@@ -10,8 +10,10 @@ import { DishPicture } from '../components/DishArt'
 import { QuickAddDish } from './QuickAddDish'
 import { IngredientsEditor } from './IngredientsEditor'
 import { RecipeSteps } from './AiRecipeSheet'
+import { dishPhotoUrl, licenseLabel, realPhotoOf } from '../db/photos'
+import { fetchRealPhoto } from '../services/dishPhotos'
 import { fileToCompressedDataUrl } from '../engine/image'
-import { generateDishImageWithAi, generateRecipeWithAi } from '../sync/ai'
+import { generateDishImageWithAi, generateDishRecipe } from '../sync/ai'
 import { passesTimeFilter } from '../engine/planner'
 import type { Component, ComponentType, Dish } from '../types'
 import { COMPONENT_LABEL } from '../types'
@@ -192,8 +194,13 @@ function DishSheet({
   onClose: () => void
   onDeleted: () => void
 }) {
-  const { toast } = useApp()
+  const { toast, settings } = useApp()
   const [draft, setDraft] = useState<Dish>(dish)
+  const realPhoto = realPhotoOf(draft)
+  const showingReal = settings.photo_source === 'real' ? realPhoto?.credit : null
+  const [realBusy, setRealBusy] = useState(false)
+  // Photo pages already shown for this dish, so "another" never repeats one.
+  const [triedReal, setTriedReal] = useState<string[]>(() => (realPhoto ? [realPhoto.credit.landing] : []))
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [photoBusy, setPhotoBusy] = useState(false)
   const [aiPhotoBusy, setAiPhotoBusy] = useState(false)
@@ -250,22 +257,35 @@ function DishSheet({
     }
   }
 
+  /** Finds a real photo online (or a different one than now) and keeps it on the dish. */
+  const onFindRealPhoto = async () => {
+    setRealBusy(true)
+    try {
+      const photo = await fetchRealPhoto(draft, triedReal)
+      if (!photo) {
+        toast('לא מצאתי תמונה אמיתית מתאימה. אפשר לנסות שוב.')
+        return
+      }
+      setTriedReal((prev) => [...prev, photo.landing])
+      const next = { ...latestDraft.current, real_photo: photo }
+      setDraft(next)
+      void save('dishes', next)
+      if (settings.photo_source !== 'real') toast('נמצאה תמונה אמיתית — היא מוצגת כשבהגדרות נבחר "תמונות אמיתיות".')
+    } finally {
+      setRealBusy(false)
+    }
+  }
+
   /** Has the AI write steps for this dish from its own ingredients and amounts. */
   const onGenerateRecipe = async () => {
     setRecipeBusy(true)
     try {
-      const ingredients = draft.ingredients
-        .filter((i) => i.name.trim())
-        .map((i) => (i.quantity != null && i.unit ? `${i.name} (${i.quantity} ${i.unit})` : i.name))
-      const recipe = await generateRecipeWithAi(
-        { name: draft.name, instructions: '', ingredients: ingredients.length ? ingredients : [draft.name] },
-        draft.fixed_servings ?? draft.base_servings,
-      )
+      const recipe = await generateDishRecipe(draft)
       if (!recipe) {
         toast('לא הצלחתי לכתוב מתכון. אפשר לנסות שוב.')
         return
       }
-      const next = { ...latestDraft.current, recipe: { steps: recipe.steps, tips: recipe.tips } }
+      const next = { ...latestDraft.current, recipe }
       setDraft(next)
       void save('dishes', next)
     } finally {
@@ -342,7 +362,16 @@ function DishSheet({
       </Field>
 
       <div style={{ marginBottom: 10 }}>
-        <DishPicture className="dish-shot" name={draft.name} imageUrl={draft.image_url} />
+        <DishPicture className="dish-shot" name={draft.name} imageUrl={dishPhotoUrl(draft, settings)} />
+        {showingReal && (
+          <p className="field__hint" style={{ margin: '6px 0 0' }}>
+            תמונה אמיתית: {showingReal.creator ?? 'צלם לא ידוע'} ·{' '}
+            <a href={showingReal.landing} target="_blank" rel="noreferrer">
+              {licenseLabel(showingReal)}
+            </a>
+            . התמונה שלמטה מוצגת כשבהגדרות נבחר "תמונות AI".
+          </p>
+        )}
       </div>
 
       <Field label="תמונה (אופציונלי)" hint="תמונה אמיתית של המנה — נוצרת אוטומטית ב-AI, או מהמצלמה/גלריה/קישור.">
@@ -376,6 +405,15 @@ function DishSheet({
         >
           {aiPhotoBusy ? 'יוצר תמונה…' : `${draft.image_url ? 'יצירת תמונה מחדש (AI)' : 'יצירת תמונה (AI)'}🎨`}
         </button>
+        <button
+          type="button"
+          className="btn btn--ghost btn--block"
+          style={{ marginTop: 8 }}
+          disabled={realBusy}
+          onClick={() => void onFindRealPhoto()}
+        >
+          {realBusy ? 'מחפש תמונה…' : realPhoto ? 'תמונה אמיתית אחרת 🔎' : 'חיפוש תמונה אמיתית 🔎'}
+        </button>
         <input
           ref={fileInputRef}
           type="file"
@@ -387,7 +425,7 @@ function DishSheet({
           className="field__input"
           type="url"
           dir="ltr"
-          placeholder="או הדביקי קישור לתמונה — https://…"
+          placeholder="או הדבק קישור לתמונה — https://…"
           style={{ marginTop: 8 }}
           value={draft.image_url?.startsWith('data:') ? '' : (draft.image_url ?? '')}
           onChange={(e) => setDraft({ ...draft, image_url: e.target.value || null })}

@@ -8,6 +8,7 @@ import { Icon } from '../components/Icon'
 import { Wheel, rotationFor } from '../components/Wheel'
 import { DishPicture } from '../components/DishArt'
 import { generateDishImageWithAi } from '../sync/ai'
+import { dishPhotoUrl } from '../db/photos'
 import type { RingSpec } from '../components/Wheel'
 import {
   applyCooldown,
@@ -441,10 +442,11 @@ function DishResultModal({
   onExclude: () => void
   onClose: () => void
 }) {
+  const { settings } = useApp()
   return (
     <Modal title={dish.name} onClose={onClose}>
       <div className="dish-shot-wrap">
-        <DishPicture className="dish-shot" name={dish.name} imageUrl={dish.image_url} />
+        <DishPicture className="dish-shot" name={dish.name} imageUrl={dishPhotoUrl(dish, settings)} />
         <div className="dish-shot__caption">{dish.name}</div>
       </div>
 

@@ -1664,6 +1664,24 @@ button {
   margin-bottom: 9px;
 }
 
+/* A small, quiet ✕ at the notice's end — enough to tap, not a second button. */
+.notice__close {
+  flex: none;
+  align-self: flex-start;
+  width: 26px;
+  height: 26px;
+  margin: -4px -6px -4px 0;
+  border-radius: 50%;
+  color: var(--mut);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.notice__close:hover {
+  background: color-mix(in srgb, var(--txt) 8%, transparent);
+  color: var(--txt);
+}
+
 .notice--warn {
   background: var(--saf-tonal);
   border-color: color-mix(in srgb, var(--saf) 40%, var(--line));

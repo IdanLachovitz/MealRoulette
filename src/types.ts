@@ -56,6 +56,26 @@ export interface Dish extends Synced {
   created_by: string | null
   /** How to cook it — set on a dish saved from an AI suggestion. Absent on older data. */
   recipe?: DishRecipe | null
+  /** A real, freely licensed photo found online, with the credit its license requires (see db/photos.ts). */
+  real_photo?: DishRealPhoto | null
+}
+
+/** Who took a free-licensed photo and under which license — shown in the credits. */
+export interface PhotoCredit {
+  title: string
+  creator: string | null
+  creator_url: string | null
+  /** 'by' | 'by-sa' | 'cc0' | 'pdm' */
+  license: string
+  license_version: string | null
+  license_url: string | null
+  /** The photo's own page (Flickr, Wikimedia Commons, …). */
+  landing: string
+}
+
+export interface DishRealPhoto extends PhotoCredit {
+  /** Compressed data URL, like an uploaded photo. */
+  image_url: string
 }
 
 export interface DishRecipe {
@@ -180,7 +200,11 @@ export interface HouseholdSettings {
   max_prep_time_filter: number | null
   /** FR-6.1 — the "מעל 40 דק'" chip needs a lower bound, not an upper one. */
   min_prep_time_filter: number | null
+  /** Show hand-picked real photos where the starter library has one (see db/photos.ts). */
+  photo_source: PhotoSource
 }
+
+export type PhotoSource = 'ai' | 'real'
 
 export const DEFAULT_SETTINGS: HouseholdSettings = {
   default_diners: 2,
@@ -191,6 +215,7 @@ export const DEFAULT_SETTINGS: HouseholdSettings = {
   default_cook_days_count: 3,
   max_prep_time_filter: null,
   min_prep_time_filter: null,
+  photo_source: 'ai',
 }
 
 /**
