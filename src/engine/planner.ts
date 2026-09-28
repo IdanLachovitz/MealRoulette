@@ -8,6 +8,7 @@
 import type { CookHistory, Dish, HouseholdSettings, PlanningParams, TimeFilter } from '../types'
 import { addDays, daysBetween } from './dates'
 import { makeRng } from './rng'
+import { leastRepetitive } from './variety'
 
 export interface LockedSession {
   cook_date: string
@@ -211,6 +212,14 @@ export function planWeek(input: PlannerInput): PlanResult {
   ])
   const preferred = input.preferredDishIds?.length ? new Set(input.preferredDishIds) : null
 
+  // What the week already holds — locked sessions first, then each pick as
+  // it's made — so every later pick can steer away from dishes too much like
+  // them (see engine/variety.ts). Within each tier below this only narrows
+  // the choice; it never empties a tier that had options.
+  const weekDishes: Dish[] = lockedSessions
+    .map((s) => dishes.find((d) => d.id === s.dish_id))
+    .filter((d): d is Dish => !!d)
+
   const pickOne = (pool0: Dish[], targetCover: number): { dish: Dish; covers: number } | null => {
     let cover = targetCover
     while (cover >= 1) {
@@ -222,10 +231,11 @@ export function planWeek(input: PlannerInput): PlanResult {
           !isInCooldown(d, lastCooked, input.today, settings.dish_cooldown_days) &&
           !isRestingInCycle(d, pool0, lastCooked),
       )
-      // Draw from the AI's shortlist first when it overlaps the fresh pool —
-      // falls straight through to the same `fresh` set the moment it doesn't.
-      const freshPreferred = preferred ? fresh.filter((d) => preferred.has(d.id)) : []
-      const freshChoice = freshPreferred.length > 0 ? freshPreferred : fresh
+      // Least like the rest of the week first, then the AI's shortlist within
+      // that when it overlaps — falls straight through the moment it doesn't.
+      const variedFresh = leastRepetitive(fresh, weekDishes)
+      const freshPreferred = preferred ? variedFresh.filter((d) => preferred.has(d.id)) : []
+      const freshChoice = freshPreferred.length > 0 ? freshPreferred : variedFresh
       if (freshChoice.length > 0) {
         const dish = rng.pick(freshChoice)
         return { dish, covers: Math.min(cover, Math.max(1, dish.max_cover_days)) }
@@ -242,7 +252,7 @@ export function planWeek(input: PlannerInput): PlanResult {
         .sort((a, b) => (lastCooked.get(a.id) ?? '').localeCompare(lastCooked.get(b.id) ?? ''))
       if (cooldownOnly.length > 0) {
         pushNotice('cycle_restarted', 'עברתי על כל המנות במאגר — מתחיל סבב חדש.')
-        const dish = cooldownOnly[0]
+        const dish = leastRepetitive(cooldownOnly, weekDishes)[0]
         return { dish, covers: Math.min(cover, Math.max(1, dish.max_cover_days)) }
       }
 
@@ -255,7 +265,8 @@ export function planWeek(input: PlannerInput): PlanResult {
         .sort((a, b) => (lastCooked.get(a.id) ?? '').localeCompare(lastCooked.get(b.id) ?? ''))
       if (relaxable.length > 0) {
         pushNotice('cooldown_relaxed', 'חזרתי על מנה שבושלה לאחרונה — המאגר קטן מדי לשבוע שלם.')
-        return { dish: relaxable[0], covers: Math.min(cover, Math.max(1, relaxable[0].max_cover_days)) }
+        const dish = leastRepetitive(relaxable, weekDishes)[0]
+        return { dish, covers: Math.min(cover, Math.max(1, dish.max_cover_days)) }
       }
 
       cover -= 1
@@ -274,7 +285,7 @@ export function planWeek(input: PlannerInput): PlanResult {
     // as any alternative exists, and only break it to avoid an empty session.
     if (pool0.length > 0) {
       pushNotice('repeated_dish', 'המאגר קטן מדי לשבוע שלם, אז מנה אחת חוזרת פעמיים.')
-      return { dish: rng.pick(pool0), covers: 1 }
+      return { dish: rng.pick(leastRepetitive(pool0, weekDishes)), covers: 1 }
     }
 
     // EC-1 / EC-4
@@ -298,6 +309,7 @@ export function planWeek(input: PlannerInput): PlanResult {
       chosen.push(picked)
       cookDates.push(day.date)
       usedThisWeek.add(picked.dish.id)
+      weekDishes.push(picked.dish)
     }
   } else {
     const pool = eligibleDishes(dishes, params.max_prep_time)
@@ -306,6 +318,7 @@ export function planWeek(input: PlannerInput): PlanResult {
       if (!picked) break
       chosen.push(picked)
       usedThisWeek.add(picked.dish.id)
+      weekDishes.push(picked.dish)
     }
 
     // ---- Step 5: spread the cook days evenly ----------------------------------
