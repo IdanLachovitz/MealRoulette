@@ -2,7 +2,22 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import { Icon } from './Icon'
+import { backStack } from './backStack'
 import type { TimeFilter } from '../types'
+
+/**
+ * Hands the phone's back button to this sheet or popup while it's open (see
+ * backStack.ts). Registered once per mount, with the latest handler read
+ * through a ref, since callers pass inline functions that change on every
+ * render.
+ */
+function usePhoneBack(handler: () => void) {
+  const ref = useRef(handler)
+  useEffect(() => {
+    ref.current = handler
+  }, [handler])
+  useEffect(() => backStack().register(() => ref.current()), [])
+}
 
 export function Switch({
   checked,
@@ -45,6 +60,7 @@ export function Modal({
   children: ReactNode
 }) {
   const ref = useRef<HTMLDivElement>(null)
+  usePhoneBack(onClose)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -118,6 +134,9 @@ export function Sheet({
   const startScrollTop = useRef(0)
   const [dragY, setDragY] = useState(0)
   const [dragging, setDragging] = useState(false)
+  // The phone's back button does what the in-app → does, or closes the
+  // sheet when this is the first step.
+  usePhoneBack(onBack ?? onClose)
 
   // Callers almost always pass an inline `onClose` (e.g. `() =>
   // setEditing(null)`), so its identity changes on every render of the
