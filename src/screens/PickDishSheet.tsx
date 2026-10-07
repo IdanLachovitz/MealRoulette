@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { alive } from '../db/repo'
-import { Sheet, EmptyState } from '../components/ui'
+import { CoverDaysChips, Sheet, EmptyState } from '../components/ui'
 import { dayName, dayOfMonth } from '../engine/dates'
 import { assignToDay } from '../services/week'
 import type { Dish, HouseholdSettings, WeekPlan } from '../types'
@@ -19,6 +19,7 @@ export function PickDishSheet({
   date,
   settings,
   onClose,
+  onBack,
   onAssigned,
 }: {
   householdId: string
@@ -26,6 +27,8 @@ export function PickDishSheet({
   date: string
   settings: HouseholdSettings
   onClose: () => void
+  /** Back from the dish list to whatever opened it (see Sheet's onBack). */
+  onBack?: () => void
   onAssigned: (name: string) => void
 }) {
   const [search, setSearch] = useState('')
@@ -62,37 +65,27 @@ export function PickDishSheet({
     onClose()
   }
 
+  // Back to the list, with the search kept, so a mis-tapped dish is one tap
+  // away from the right one.
+  const backToList = () => {
+    setChosen(null)
+    setCovers(1)
+  }
+
   if (chosen) {
     return (
-      <Sheet title="שיבוץ ידני" onClose={onClose}>
+      <Sheet title="שיבוץ ידני" onClose={onClose} onBack={backToList}>
         <p className="muted" style={{ marginTop: 0 }}>
           {dayName(date)} {dayOfMonth(date)} · {chosen.name}
         </p>
 
         <div className="field">
           <span className="label">כמה ימים המנה הזו תכסה?</span>
-          <div className="chips">
-            {[1, 2, 3, 4].map((n) => (
-              <button
-                key={n}
-                className="chip"
-                aria-pressed={covers === n}
-                disabled={n > Math.max(1, chosen.max_cover_days)}
-                onClick={() => setCovers(n)}
-              >
-                {n === 1 ? 'יום אחד' : `${n} ימים`}
-              </button>
-            ))}
-          </div>
-          {chosen.max_cover_days < 4 && (
-            <span className="field__hint">
-              המנה הזו מוגדרת כמספיקה לעד {chosen.max_cover_days} ימים.
-            </span>
-          )}
+          <CoverDaysChips value={covers} max={chosen.max_cover_days} onChange={setCovers} />
         </div>
 
         <div className="row">
-          <button className="btn btn--ghost" style={{ flex: 1 }} onClick={() => setChosen(null)}>
+          <button className="btn btn--ghost" style={{ flex: 1 }} onClick={backToList}>
             בחירה אחרת
           </button>
           <button
@@ -109,7 +102,7 @@ export function PickDishSheet({
   }
 
   return (
-    <Sheet title={`מה מבשלים ב${dayName(date)}?`} onClose={onClose}>
+    <Sheet title={`מה מבשלים ב${dayName(date)}?`} onClose={onClose} onBack={onBack}>
       <input
         className="field__input"
         style={{ marginBottom: 12 }}

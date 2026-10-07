@@ -4,7 +4,7 @@
  * The wheel is only an animation of a decision that has already been made here,
  * so none of this needs a browser to test.
  */
-import type { Component, ComponentType, CookHistory, Dish, TimeFilter } from '../types'
+import type { Component, ComponentType, CookHistory, Dish, Ingredient, TimeFilter } from '../types'
 import { lastCookedMap, passesTimeFilter } from './planner'
 import { daysBetween } from './dates'
 import type { Rng } from './rng'
@@ -97,4 +97,37 @@ export function comboLabel(parts: (Drawable | null | undefined)[]): string {
     .filter(Boolean)
     .map((p) => (p as Drawable).name)
     .join(' + ')
+}
+
+/**
+ * The ingredient list of a combo saved to the library as a regular dish.
+ * Each component's amounts are written for its own base_servings, so they
+ * are rescaled to the dish's `servings` first (salt and oil, not scalable,
+ * stay as they are). An ingredient two parts share in the same unit (שום in
+ * both the protein and the veg) becomes one line with the amounts added up.
+ *
+ * The protein's and the carb's first ingredient are marked is_main: that's
+ * what the dish is built around, and what fridge matching looks for.
+ */
+export function comboIngredients(parts: Component[], servings: number): Ingredient[] {
+  const merged: Ingredient[] = []
+  for (const part of parts) {
+    const factor = part.base_servings > 0 ? servings / part.base_servings : 1
+    part.ingredients.forEach((ing, index) => {
+      const quantity =
+        ing.quantity !== null && ing.is_scalable
+          ? Math.round(ing.quantity * factor * 100) / 100
+          : ing.quantity
+      const is_main = index === 0 && (part.type === 'protein' || part.type === 'carb')
+      const same = merged.find((m) => m.name.trim() === ing.name.trim() && m.unit === ing.unit)
+      if (same) {
+        if (same.quantity !== null && quantity !== null)
+          same.quantity = Math.round((same.quantity + quantity) * 100) / 100
+        same.is_main = same.is_main || is_main
+      } else {
+        merged.push({ ...ing, quantity, is_main })
+      }
+    })
+  }
+  return merged
 }

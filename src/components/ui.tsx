@@ -100,10 +100,17 @@ const SHEET_CLOSE_THRESHOLD = 90
 export function Sheet({
   title,
   onClose,
+  onBack,
   children,
 }: {
   title: string
   onClose: () => void
+  /**
+   * Set when this sheet is a later step of a flow (picked a dish, now
+   * choosing how many days): shows a back button that returns to the
+   * previous step, so a mis-tap doesn't mean closing and starting over.
+   */
+  onBack?: () => void
   children: ReactNode
 }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -242,7 +249,15 @@ export function Sheet({
           <div className="sheet__grip" />
         </div>
         <div className="row row--between" style={{ marginBottom: 12 }}>
-          <h2 className="sheet__title">{title}</h2>
+          <div className="row" style={{ gap: 8, minWidth: 0 }}>
+            {/* RTL: "back" points right, toward where the flow started. */}
+            {onBack && (
+              <button className="btn btn--ghost btn--icon btn--sm" onClick={onBack} aria-label="חזרה">
+                →
+              </button>
+            )}
+            <h2 className="sheet__title">{title}</h2>
+          </div>
           <button className="btn btn--ghost btn--icon btn--sm" onClick={onClose} aria-label="סגירה">
             ✕
           </button>
@@ -358,5 +373,52 @@ export function TimeFilterChips({
         </button>
       ))}
     </div>
+  )
+}
+
+/**
+ * "How many days does this cook cover?" — one chip per day, up to the dish's
+ * max_cover_days and no further. The chips past the limit used to show up
+ * greyed out, which read as "not right now" rather than "this dish doesn't
+ * stretch that far"; now they simply aren't there, and the hint says why.
+ */
+export function CoverDaysChips({
+  value,
+  max,
+  onChange,
+  shortOne = false,
+}: {
+  value: number
+  /** The dish's max_cover_days; 4 (the app-wide ceiling) for a combo. */
+  max: number
+  onChange: (days: number) => void
+  /** "יום" instead of "יום אחד", where the row is tight. */
+  shortOne?: boolean
+}) {
+  const limit = Math.min(4, Math.max(1, max))
+  return (
+    <>
+      <div className="chips">
+        {Array.from({ length: limit }, (_, i) => i + 1).map((n) => (
+          <button
+            key={n}
+            type="button"
+            className="chip"
+            aria-pressed={value === n}
+            onClick={() => onChange(n)}
+          >
+            {n === 1 ? (shortOne ? 'יום' : 'יום אחד') : `${n} ימים`}
+          </button>
+        ))}
+      </div>
+      {limit < 4 && (
+        <span className="field__hint">
+          {limit === 1
+            ? 'המנה הזו מוגדרת כמספיקה ליום אחד.'
+            : `המנה הזו מוגדרת כמספיקה לעד ${limit} ימים.`}{' '}
+          אפשר לשנות במסך המנה.
+        </span>
+      )}
+    </>
   )
 }

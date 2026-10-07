@@ -1517,23 +1517,7 @@ button {
   border: 1px dashed var(--line);
 }
 
-/* The combo result window generates its photo on the spot — this is what
-   shows while that's in flight, not a permanent "no photo" state. */
-.dish-shot--loading {
-  animation: dish-shot-pulse 1.6s ease-in-out infinite;
-}
-
-@keyframes dish-shot-pulse {
-  50% {
-    opacity: 0.55;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .dish-shot--loading {
-    animation: none;
-  }
-
   .modal-backdrop,
   .modal {
     animation: none;

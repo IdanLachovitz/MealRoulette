@@ -4,7 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { alive, save } from '../db/repo'
 import { useApp } from '../state'
-import { Notice, Sheet, Switch } from '../components/ui'
+import { CoverDaysChips, Notice, Sheet, Switch } from '../components/ui'
 import { Icon } from '../components/Icon'
 import { DishPicture } from '../components/DishArt'
 import { PickDishSheet } from './PickDishSheet'
@@ -87,6 +87,10 @@ export function WeekScreen({
   const [statsOpen, setStatsOpen] = useState(false)
   const [chooserDate, setChooserDate] = useState<string | null>(null)
   const [pickingDate, setPickingDate] = useState<string | null>(null)
+  // What opened the dish list, so its back button returns there: the
+  // "spin or pick" chooser for an empty day, or the cooking sheet whose
+  // "pick a different dish" led here.
+  const [pickingFrom, setPickingFrom] = useState<'chooser' | { sessionId: string } | null>(null)
 
   const realWeekStart = currentWeekStart(settings)
   const weekStart = addDays(realWeekStart, weekOffset * 7)
@@ -655,6 +659,7 @@ export function WeekScreen({
           onClose={() => setEditingId(null)}
           householdId={householdId}
           onPickDifferent={(date) => {
+            setPickingFrom({ sessionId: editing.id })
             setEditingId(null)
             setPickingDate(date)
           }}
@@ -679,6 +684,7 @@ export function WeekScreen({
             <button
               className="btn btn--ghost btn--block"
               onClick={() => {
+                setPickingFrom('chooser')
                 setPickingDate(chooserDate)
                 setChooserDate(null)
               }}
@@ -696,7 +702,20 @@ export function WeekScreen({
           plan={plan}
           date={pickingDate}
           settings={settings}
-          onClose={() => setPickingDate(null)}
+          onClose={() => {
+            setPickingDate(null)
+            setPickingFrom(null)
+          }}
+          onBack={
+            pickingFrom
+              ? () => {
+                  if (pickingFrom === 'chooser') setChooserDate(pickingDate)
+                  else setEditingId(pickingFrom.sessionId)
+                  setPickingDate(null)
+                  setPickingFrom(null)
+                }
+              : undefined
+          }
           onAssigned={(name) => toast(`${name} שובץ ל${dayName(pickingDate)}`)}
         />
       )}
@@ -988,24 +1007,12 @@ function SessionSheet({
 
       <div className="field">
         <span className="label">כמה ימים זה מכסה?</span>
-        <div className="chips">
-          {[1, 2, 3, 4].map((n) => (
-            <button
-              key={n}
-              className="chip"
-              aria-pressed={session.covers_days === n}
-              disabled={n > Math.max(1, maxCoverDays)}
-              onClick={() => void setCoversDays(session, n, settings)}
-            >
-              {n === 1 ? 'יום' : `${n} ימים`}
-            </button>
-          ))}
-        </div>
-        {maxCoverDays < 4 && (
-          <span className="field__hint">
-            המנה הזו מוגדרת כמספיקה לעד {maxCoverDays} ימים. אפשר לשנות במסך המנה.
-          </span>
-        )}
+        <CoverDaysChips
+          value={session.covers_days}
+          max={maxCoverDays}
+          onChange={(n) => void setCoversDays(session, n, settings)}
+          shortOne
+        />
       </div>
 
       <div className="field">

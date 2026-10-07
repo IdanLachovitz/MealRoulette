@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Sheet } from '../components/ui'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { db } from '../db/db'
+import { CoverDaysChips, Sheet } from '../components/ui'
 import { useApp } from '../state'
 import { dayName, dayOfMonth, weekDates } from '../engine/dates'
 import { assignToDay, currentWeekStart, ensureWeekPlan, loadWeek } from '../services/week'
@@ -11,11 +13,14 @@ export function AssignSheet({
   draft,
   title,
   onClose,
+  onBack,
 }: {
   householdId: string
   draft: SessionDraft
   title: string
   onClose: () => void
+  /** Back to the window this was opened from (see Sheet's onBack). */
+  onBack?: () => void
 }) {
   const { settings, toast } = useApp()
   const [plan, setPlan] = useState<WeekPlan | null>(null)
@@ -23,6 +28,13 @@ export function AssignSheet({
   const [sessions, setSessions] = useState<CookSession[]>([])
   const [covers, setCovers] = useState(1)
   const [saving, setSaving] = useState(false)
+  // How far this dish stretches. A combo has no dish row, so it gets the
+  // app-wide ceiling.
+  const maxCoverDays =
+    useLiveQuery(
+      async () => (draft.dish_id ? (await db.dishes.get(draft.dish_id))?.max_cover_days : undefined),
+      [draft.dish_id],
+    ) ?? 4
 
   useEffect(() => {
     let cancelled = false
@@ -51,26 +63,14 @@ export function AssignSheet({
   const dates = plan ? weekDates(plan.week_start_date) : []
 
   return (
-    <Sheet title="שיבוץ ליום" onClose={onClose}>
+    <Sheet title="שיבוץ ליום" onClose={onClose} onBack={onBack}>
       <p className="muted" style={{ marginTop: 0 }}>
         {title}
       </p>
 
       <div className="field">
         <span className="label">כמה ימים הבישול הזה מכסה?</span>
-        <div className="chips">
-          {[1, 2, 3, 4].map((n) => (
-            <button
-              key={n}
-              type="button"
-              className="chip"
-              aria-pressed={covers === n}
-              onClick={() => setCovers(n)}
-            >
-              {n === 1 ? 'יום אחד' : `${n} ימים`}
-            </button>
-          ))}
-        </div>
+        <CoverDaysChips value={covers} max={maxCoverDays} onChange={setCovers} />
         <span className="field__hint">
           {covers === 1
             ? 'מבשלים ואוכלים באותו יום.'
