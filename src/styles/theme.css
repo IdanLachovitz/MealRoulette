@@ -1541,12 +1541,14 @@ button {
   max-height: 90vh;
   overflow-y: auto;
   scrollbar-width: none;
-  /* Touch scrolling is driven manually in JS instead (see the Sheet
-     component) — native touch panning has to be off, or the browser can
-     claim a downward drag for its own scrolling before the close-drag
-     logic gets a chance to run. Wheel and keyboard scrolling still work;
-     touch-action only affects touch/pen panning. */
-  touch-action: none;
+  /* Native scrolling, momentum included; the close-drag claims a gesture
+     from a touchmove listener only when the content is already at the top
+     (see the Sheet component). overscroll-behavior keeps a scroll that hits
+     the end from carrying on to the page behind or triggering the
+     browser's pull-to-refresh. */
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   background: var(--bg);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   padding: 10px 18px calc(22px + env(safe-area-inset-bottom));

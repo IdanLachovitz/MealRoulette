@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import { Icon } from './Icon'
@@ -130,10 +130,6 @@ export function Sheet({
   children: ReactNode
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const dragStartY = useRef<number | null>(null)
-  const startScrollTop = useRef(0)
-  const [dragY, setDragY] = useState(0)
-  const [dragging, setDragging] = useState(false)
   // The phone's back button does what the in-app → does, or closes the
   // sheet when this is the first step.
   usePhoneBack(onBack ?? onClose)
@@ -166,73 +162,131 @@ export function Sheet({
   }, [])
 
   /**
-   * Pulling down anywhere in the sheet closes it — not just the grip, and
-   * without fighting the sheet's own scrolling. This can't be done by
-   * waiting to see the drag's direction and calling preventDefault() once
-   * a close-drag looks likely: on touch, by the time a few pixels of
-   * movement have gone by, the browser has usually already committed the
-   * gesture to native scrolling, and preventDefault() on a later event
-   * can't undo that (this is exactly why the previous version worked with
-   * a mouse — no competing native gesture — but not on a phone). .sheet
-   * has touch-action: none for that reason: touch scrolling is disabled
-   * there entirely, and both scrolling *and* the close-drag are driven
-   * from here instead, so there's nothing left for the browser to race us
-   * on. Wheel/keyboard scrolling are untouched — touch-action only governs
-   * touch/pen panning.
+   * Pulling down anywhere in the sheet closes it, while every other touch
+   * scrolls natively, with the browser's own momentum and bounce.
+   *
+   * This used to turn native touch scrolling off (touch-action: none) and
+   * move scrollTop by hand on every pointermove, because with pointer
+   * events the browser commits a gesture to scrolling before a script can
+   * claim it. Hand-driven scrolling has no momentum (it stopped dead when
+   * the finger lifted) and re-rendered the sheet on every move, which is
+   * what made it feel rough. Touch events don't have that race: with a
+   * non-passive touchmove listener, the browser waits for the first
+   * touchmove to say whether it may scroll. So the decision is made right
+   * there, once per gesture: content already at the top and the finger
+   * moving down means close-drag (preventDefault for the rest of the
+   * gesture); anything else is left entirely to native scrolling.
+   *
+   * The drag writes the transform straight onto the element instead of
+   * through React state, so dragging doesn't re-render the sheet's content
+   * on every frame.
    */
-  const onSheetDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    dragStartY.current = e.clientY
-    startScrollTop.current = ref.current?.scrollTop ?? 0
-  }
-  const onSheetMove = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (dragStartY.current == null || !ref.current) return
-    const delta = e.clientY - dragStartY.current
-    // Positive delta (finger/cursor moving down) shrinks scrollTop back
-    // toward 0; negative delta (moving up) grows it — the same
-    // relationship native touch scrolling has between finger and content.
-    const wantScrollTop = startScrollTop.current - delta
-    if (wantScrollTop > 0) {
-      ref.current.scrollTop = wantScrollTop
-      if (dragging) {
-        setDragging(false)
-        setDragY(0)
-      }
-      return
+  useEffect(() => {
+    const sheet = ref.current
+    if (!sheet) return
+    let startY = 0
+    let canClose = false
+    let mode: 'undecided' | 'drag' | 'scroll' = 'scroll'
+    let offset = 0
+
+    const place = (y: number) => {
+      offset = y
+      sheet.style.transform = y ? `translateY(${y}px)` : ''
+      sheet.style.opacity = y ? String(Math.max(0.5, 1 - y / 300)) : ''
     }
-    // Nothing left to scroll — from here, further downward motion closes
-    // the sheet instead.
-    ref.current.scrollTop = 0
-    const overshoot = -wantScrollTop
-    if (!dragging && overshoot < 6) return
-    if (!dragging) {
-      setDragging(true)
-      // Captured lazily, only once a real drag is confirmed — not on every
-      // pointerdown. Capturing eagerly on down (the previous approach) meant
-      // ANY press inside the sheet, including on a plain <button>, grabbed
-      // the pointer immediately; with a mouse (unlike touch) that retargets
-      // the resulting pointerup/click to this div instead of the button, so
-      // every button inside every sheet silently stopped responding to
-      // mouse clicks. Deferring capture to here means a plain tap/click
-      // never captures anything and reaches the button normally.
+    const release = () => {
+      if (mode === 'drag') {
+        if (offset > SHEET_CLOSE_THRESHOLD) {
+          onCloseRef.current()
+        } else {
+          sheet.style.transition = 'transform 0.2s ease, opacity 0.2s ease'
+          place(0)
+        }
+      }
+      mode = 'scroll'
+    }
+
+    // Closing is only possible when nothing between the finger and the
+    // sheet still has room to scroll up, so pulling down inside a scrolled
+    // inner list (the dish picker's) scrolls that list back first.
+    const atTop = (target: EventTarget | null) => {
+      for (let el = target as HTMLElement | null; el && el !== sheet; el = el.parentElement) {
+        if (el.scrollTop > 0 && el.scrollHeight > el.clientHeight) return false
+      }
+      return sheet.scrollTop <= 0
+    }
+
+    const onStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) {
+        mode = 'scroll'
+        return
+      }
+      startY = e.touches[0].clientY
+      canClose = atTop(e.target)
+      mode = canClose ? 'undecided' : 'scroll'
+    }
+    const onMove = (e: TouchEvent) => {
+      if (mode === 'scroll') return
+      const dy = e.touches[0].clientY - startY
+      if (mode === 'undecided') {
+        // Up, or not clearly vertical yet: hand the gesture to the browser.
+        if (dy <= 0) {
+          mode = 'scroll'
+          return
+        }
+        mode = 'drag'
+        sheet.style.transition = 'none'
+      }
+      e.preventDefault()
+      place(Math.max(0, dy))
+    }
+
+    sheet.addEventListener('touchstart', onStart, { passive: true })
+    sheet.addEventListener('touchmove', onMove, { passive: false })
+    sheet.addEventListener('touchend', release)
+    sheet.addEventListener('touchcancel', release)
+    return () => {
+      sheet.removeEventListener('touchstart', onStart)
+      sheet.removeEventListener('touchmove', onMove)
+      sheet.removeEventListener('touchend', release)
+      sheet.removeEventListener('touchcancel', release)
+    }
+  }, [])
+
+  /**
+   * With a mouse there's no touch gesture, so the grip strip is the drag
+   * handle (wheel scrolling is native). The pointer is only captured once a
+   * drag is under way: capturing on pointerdown would retarget a plain
+   * click's pointerup and break the buttons inside.
+   */
+  const mouseDrag = useRef<{ startY: number; offset: number } | null>(null)
+  const onGripDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== 'mouse') return
+    mouseDrag.current = { startY: e.clientY, offset: 0 }
+  }
+  const onGripMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = mouseDrag.current
+    const sheet = ref.current
+    if (!drag || !sheet) return
+    drag.offset = Math.max(0, e.clientY - drag.startY)
+    if (drag.offset > 0) {
       try {
         e.currentTarget.setPointerCapture(e.pointerId)
       } catch {
-        // Capture is a nice-to-have (keeps tracking if the pointer strays
-        // outside the sheet) — its failure shouldn't sink the gesture.
+        // Only keeps tracking when the cursor strays off the grip.
       }
     }
-    setDragY(overshoot)
+    sheet.style.transition = 'none'
+    sheet.style.transform = drag.offset ? `translateY(${drag.offset}px)` : ''
   }
-  const onSheetUp = () => {
-    if (dragging) {
-      if (dragY > SHEET_CLOSE_THRESHOLD) {
-        onClose()
-        return
-      }
-      setDragY(0)
-      setDragging(false)
-    }
-    dragStartY.current = null
+  const onGripUp = () => {
+    const drag = mouseDrag.current
+    const sheet = ref.current
+    mouseDrag.current = null
+    if (!drag || !sheet) return
+    if (drag.offset > SHEET_CLOSE_THRESHOLD) return onClose()
+    sheet.style.transition = 'transform 0.2s ease'
+    sheet.style.transform = ''
   }
 
   // Portaled to document.body for the same reason as Modal above — rendered
@@ -254,17 +308,14 @@ export function Sheet({
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
-        onPointerDown={onSheetDown}
-        onPointerMove={onSheetMove}
-        onPointerUp={onSheetUp}
-        onPointerCancel={onSheetUp}
-        style={{
-          transform: `translateY(${dragY}px)`,
-          transition: dragging ? 'none' : undefined,
-          opacity: dragY ? Math.max(0.5, 1 - dragY / 300) : undefined,
-        }}
       >
-        <div className="sheet__grip-area">
+        <div
+          className="sheet__grip-area"
+          onPointerDown={onGripDown}
+          onPointerMove={onGripMove}
+          onPointerUp={onGripUp}
+          onPointerCancel={onGripUp}
+        >
           <div className="sheet__grip" />
         </div>
         <div className="row row--between" style={{ marginBottom: 12 }}>
