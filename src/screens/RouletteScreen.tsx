@@ -718,9 +718,12 @@ function ComboMode({
       />
 
       {/* FR-3.4 / FR-3.5 — lock or spin each ring on its own. */}
-      <div className="chips" style={{ justifyContent: 'center', marginTop: 8 }}>
+      <div
+        className="ring-controls"
+        style={{ gridTemplateColumns: `repeat(${activeRings.length}, minmax(0, 1fr))` }}
+      >
         {activeRings.map((type) => (
-          <span key={type} className="row" style={{ gap: 3 }}>
+          <span key={type} className="ring-controls__ring">
             <button
               type="button"
               className="chip"

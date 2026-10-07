@@ -723,6 +723,47 @@ button {
   display: none;
 }
 
+/* The lock + re-spin pair per ring under the combo wheel. This used to be a
+   centred .chips strip, which on a phone ran past both edges of the screen:
+   centred flex content that overflows spills out on both sides, and the
+   part past the start can't even be scrolled to. A grid of equal columns,
+   one per ring, is exactly the screen's width by construction; inside each,
+   the lock chip takes what's left after the small ↻ and clips its label
+   only on the narrowest phones. */
+.ring-controls {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.ring-controls__ring {
+  display: flex;
+  gap: 3px;
+  min-width: 0;
+}
+
+/* A 375px phone leaves each column ~109px, so the padding and icon gap are
+   trimmed to fit "🔓 פחמימה" beside the ↻ without clipping it. */
+.ring-controls__ring .chip {
+  justify-content: center;
+  gap: 3px;
+  padding-inline: 6px;
+  font-size: 12px;
+}
+
+.ring-controls__ring .chip:first-child {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ring-controls__ring .chip:last-child {
+  flex: none;
+  width: 34px;
+  padding-inline: 0;
+}
+
 /* Unlike .chips (a single scrolling row of picker options), a tag list keeps
    growing as items get added — it wraps instead of scrolling sideways. */
 .tag-list {
