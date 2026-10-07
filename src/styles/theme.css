@@ -1541,14 +1541,13 @@ button {
   max-height: 90vh;
   overflow-y: auto;
   scrollbar-width: none;
-  /* Native scrolling, momentum included; the close-drag claims a gesture
-     from a touchmove listener only when the content is already at the top
-     (see the Sheet component). overscroll-behavior keeps a scroll that hits
-     the end from carrying on to the page behind or triggering the
-     browser's pull-to-refresh. */
-  touch-action: pan-y;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  /* Native scrolling, momentum included, so no touch-action here: on iPhone
+     a restricted touch-action on the scroller cost it its momentum (see the
+     Sheet component). overscroll-behavior: none keeps a scroll that hits the
+     end from carrying on to the page behind or the browser's
+     pull-to-refresh, and stops the content bouncing while a pull-down from
+     the top is moving the whole sheet instead. */
+  overscroll-behavior: none;
   background: var(--bg);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   padding: 10px 18px calc(22px + env(safe-area-inset-bottom));

@@ -162,31 +162,31 @@ export function Sheet({
   }, [])
 
   /**
-   * Pulling down anywhere in the sheet closes it, while every other touch
-   * scrolls natively, with the browser's own momentum and bounce.
+   * Pulling down from the top of the sheet closes it, while every touch
+   * scrolls natively, with the browser's own momentum.
    *
-   * This used to turn native touch scrolling off (touch-action: none) and
-   * move scrollTop by hand on every pointermove, because with pointer
-   * events the browser commits a gesture to scrolling before a script can
-   * claim it. Hand-driven scrolling has no momentum (it stopped dead when
-   * the finger lifted) and re-rendered the sheet on every move, which is
-   * what made it feel rough. Touch events don't have that race: with a
-   * non-passive touchmove listener, the browser waits for the first
-   * touchmove to say whether it may scroll. So the decision is made right
-   * there, once per gesture: content already at the top and the finger
-   * moving down means close-drag (preventDefault for the rest of the
-   * gesture); anything else is left entirely to native scrolling.
+   * Nothing here may stand between the finger and the browser's scrolling.
+   * The first version drove scrolling by hand (touch-action: none, scrollTop
+   * set on every pointermove), which had no momentum at all. The second
+   * gave scrolling back but kept touch-action: pan-y and a non-passive
+   * touchmove listener that could preventDefault, and on iPhone the scroll
+   * still stopped dead when the finger lifted. So every listener is passive
+   * now and the sheet has no touch-action of its own.
    *
-   * The drag writes the transform straight onto the element instead of
-   * through React state, so dragging doesn't re-render the sheet's content
-   * on every frame.
+   * Nothing needs blocking anyway: when the content is already at the top
+   * and the finger moves down, there's nothing for the browser to scroll,
+   * so the sheet can simply follow the finger. overscroll-behavior: none
+   * (theme.css) stops the browser's own bounce from playing at the same
+   * time. The drag writes the transform straight onto the element instead
+   * of through React state, so dragging doesn't re-render the sheet's
+   * content on every frame.
    */
   useEffect(() => {
     const sheet = ref.current
     if (!sheet) return
     let startY = 0
-    let canClose = false
-    let mode: 'undecided' | 'drag' | 'scroll' = 'scroll'
+    let tracking = false
+    let dragging = false
     let offset = 0
 
     const place = (y: number) => {
@@ -195,7 +195,7 @@ export function Sheet({
       sheet.style.opacity = y ? String(Math.max(0.5, 1 - y / 300)) : ''
     }
     const release = () => {
-      if (mode === 'drag') {
+      if (dragging) {
         if (offset > SHEET_CLOSE_THRESHOLD) {
           onCloseRef.current()
         } else {
@@ -203,7 +203,8 @@ export function Sheet({
           place(0)
         }
       }
-      mode = 'scroll'
+      tracking = false
+      dragging = false
     }
 
     // Closing is only possible when nothing between the finger and the
@@ -217,34 +218,31 @@ export function Sheet({
     }
 
     const onStart = (e: TouchEvent) => {
-      if (e.touches.length !== 1) {
-        mode = 'scroll'
-        return
-      }
-      startY = e.touches[0].clientY
-      canClose = atTop(e.target)
-      mode = canClose ? 'undecided' : 'scroll'
+      tracking = e.touches.length === 1 && atTop(e.target)
+      dragging = false
+      if (tracking) startY = e.touches[0].clientY
     }
     const onMove = (e: TouchEvent) => {
-      if (mode === 'scroll') return
+      if (!tracking) return
       const dy = e.touches[0].clientY - startY
-      if (mode === 'undecided') {
-        // Up, or not clearly vertical yet: hand the gesture to the browser.
-        if (dy <= 0) {
-          mode = 'scroll'
+      if (!dragging) {
+        // A first move upward is an ordinary scroll; leave it alone.
+        if (dy < 0) {
+          tracking = false
           return
         }
-        mode = 'drag'
+        if (dy < 4) return
+        dragging = true
         sheet.style.transition = 'none'
       }
-      e.preventDefault()
       place(Math.max(0, dy))
     }
 
-    sheet.addEventListener('touchstart', onStart, { passive: true })
-    sheet.addEventListener('touchmove', onMove, { passive: false })
-    sheet.addEventListener('touchend', release)
-    sheet.addEventListener('touchcancel', release)
+    const passive = { passive: true }
+    sheet.addEventListener('touchstart', onStart, passive)
+    sheet.addEventListener('touchmove', onMove, passive)
+    sheet.addEventListener('touchend', release, passive)
+    sheet.addEventListener('touchcancel', release, passive)
     return () => {
       sheet.removeEventListener('touchstart', onStart)
       sheet.removeEventListener('touchmove', onMove)
