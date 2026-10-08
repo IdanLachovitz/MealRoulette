@@ -9,6 +9,7 @@ import type { CookHistory, Dish, HouseholdSettings, PlanningParams, TimeFilter }
 import { addDays, daysBetween } from './dates'
 import { makeRng } from './rng'
 import { leastRepetitive } from './variety'
+import { pickFavored } from './favorites'
 
 export interface LockedSession {
   cook_date: string
@@ -237,7 +238,7 @@ export function planWeek(input: PlannerInput): PlanResult {
       const freshPreferred = preferred ? variedFresh.filter((d) => preferred.has(d.id)) : []
       const freshChoice = freshPreferred.length > 0 ? freshPreferred : variedFresh
       if (freshChoice.length > 0) {
-        const dish = rng.pick(freshChoice)
+        const dish = pickFavored(freshChoice, rng)
         return { dish, covers: Math.min(cover, Math.max(1, dish.max_cover_days)) }
       }
 

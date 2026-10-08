@@ -9,9 +9,8 @@ import { getSupabase, isSyncConfigured } from '../sync/supabase'
 import { runSync } from '../sync/sync'
 import { currentUserEmail, joinHousehold, registerHousehold, signOut } from '../sync/household'
 import { generateDishImageWithAi } from '../sync/ai'
-import { licenseLabel, realPhotoOf } from '../db/photos'
+import { realPhotoOf } from '../db/photos'
 import { fetchRealPhoto } from '../services/dishPhotos'
-import type { PhotoCredit } from '../types'
 import { daysBetween, toISODate } from '../engine/dates'
 import type { Component, CookHistory, Dish, Household } from '../types'
 import { COMPONENT_LABEL } from '../types'
@@ -150,22 +149,18 @@ export function SettingsScreen({ householdId }: { householdId: string }) {
   )
 }
 
-/** AI photos or hand-picked real ones — plus the credits the real ones' licenses require. */
+/**
+ * AI photos or real ones. The real photos' credits (CC BY / BY-SA) are shown
+ * under each photo on its dish's page in the library, not listed here.
+ */
 function PhotoSourceSection({ householdId, onToast }: { householdId: string; onToast: (msg: string) => void }) {
   const { settings, updateSettings } = useApp()
-  const [showCredits, setShowCredits] = useState(false)
   const [finding, setFinding] = useState<{ done: number; total: number } | null>(null)
   const dishes = useLiveQuery(
     async () => alive(await db.dishes.where('household_id').equals(householdId).toArray()),
     [householdId],
     [] as Dish[],
   )
-  // Every real photo a dish in this library actually shows — the bundled ones
-  // and the ones found online — since each needs its credit (CC BY / BY-SA).
-  const credits = (dishes ?? [])
-    .map((d) => [d.name, realPhotoOf(d)?.credit] as const)
-    .filter((e): e is readonly [string, PhotoCredit] => !!e[1])
-    .sort(([a], [b]) => a.localeCompare(b, 'he'))
   const withoutReal = (dishes ?? []).filter((d) => d.is_active && !realPhotoOf(d))
 
   /** Dishes added before real photos existed — one search at a time. */
@@ -227,26 +222,6 @@ function PhotoSourceSection({ householdId, onToast }: { householdId: string; onT
             ? `מחפש תמונות… ${finding.done}/${finding.total}`
             : `חיפוש תמונות אמיתיות ל־${withoutReal.length} מנות 🔎`}
         </button>
-      )}
-      <button
-        className="btn btn--ghost btn--sm"
-        style={{ marginTop: 6 }}
-        onClick={() => setShowCredits((v) => !v)}
-        aria-expanded={showCredits}
-      >
-        {showCredits ? 'הסתרת הקרדיטים' : `קרדיטים לתמונות (${credits.length})`}
-      </button>
-      {showCredits && (
-        <ul className="field__hint" style={{ margin: '8px 0 0', paddingInlineStart: 18, lineHeight: 1.7 }}>
-          {credits.map(([dish, photo]) => (
-            <li key={dish}>
-              {dish}: "{photo.title}" · {photo.creator ?? 'צלם לא ידוע'} ·{' '}
-              <a href={photo.landing} target="_blank" rel="noreferrer">
-                {licenseLabel(photo)}
-              </a>
-            </li>
-          ))}
-        </ul>
       )}
     </div>
   )

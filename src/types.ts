@@ -58,6 +58,8 @@ export interface Dish extends Synced {
   recipe?: DishRecipe | null
   /** A real, freely licensed photo found online, with the credit its license requires (see db/photos.ts). */
   real_photo?: DishRealPhoto | null
+  /** ♥ — drawn more often by the roulette and the planner (see engine/roulette.ts). Absent on older data. */
+  is_favorite?: boolean | null
 }
 
 /** Who took a free-licensed photo and under which license — shown in the credits. */

@@ -2,7 +2,27 @@ import { useEffect, useState } from 'react'
 import { Sheet } from '../components/ui'
 import { generateRecipeWithAi } from '../sync/ai'
 import type { AiDish, AiRecipe } from '../sync/ai'
-import type { DishRecipe } from '../types'
+import type { Dish, DishRecipe } from '../types'
+import { formatQuantity } from '../engine/shopping'
+import { CookMode } from './CookMode'
+import type { CookIngredient } from './CookMode'
+
+/**
+ * A library dish's ingredients for cooking mode, scaled to `servings` when
+ * given (a cook covering 3 days makes 3 days' worth). Salt, oil and spices
+ * (is_scalable = false) keep their amount, the same rule as the shopping
+ * list's.
+ */
+export function cookIngredients(dish: Dish, servings?: number): CookIngredient[] {
+  const factor = servings && dish.base_servings > 0 ? servings / dish.base_servings : 1
+  return dish.ingredients.map((ing) => ({
+    name: ing.name,
+    amount:
+      ing.quantity !== null && ing.unit
+        ? formatQuantity(ing.is_scalable ? ing.quantity * factor : ing.quantity, ing.unit)
+        : '',
+  }))
+}
 
 /**
  * Recipes already fetched this session, keyed by the suggestion object itself
@@ -35,9 +55,36 @@ export function fetchRecipe(dish: AiDish, servings: number): Promise<AiRecipe | 
 }
 
 /** Numbered steps, then any tips — shared by the AI sheet and a saved dish's page. */
-export function RecipeSteps({ recipe }: { recipe: DishRecipe }) {
+export function RecipeSteps({
+  recipe,
+  cook,
+}: {
+  recipe: DishRecipe
+  /** When set, a "cooking mode" button opens the recipe step by step (see CookMode). */
+  cook?: { title: string; ingredients: CookIngredient[] }
+}) {
+  const [cooking, setCooking] = useState(false)
   return (
     <>
+      {cook && recipe.steps.length > 0 && (
+        <button
+          type="button"
+          className="btn btn--primary btn--block"
+          style={{ marginBottom: 12 }}
+          onClick={() => setCooking(true)}
+        >
+          מצב בישול, שלב אחרי שלב 👨‍🍳
+        </button>
+      )}
+      {cooking && cook && (
+        <CookMode
+          title={cook.title}
+          ingredients={cook.ingredients}
+          steps={recipe.steps}
+          tips={recipe.tips}
+          onClose={() => setCooking(false)}
+        />
+      )}
       <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {recipe.steps.map((step, i) => (
           <li key={i} style={{ display: 'flex', gap: 10, marginBottom: 12, alignItems: 'flex-start' }}>
@@ -153,7 +200,7 @@ export function AiRecipeSheet({
           <div className="label" style={{ marginBottom: 8 }}>
             אופן ההכנה
           </div>
-          <RecipeSteps recipe={recipe} />
+          <RecipeSteps recipe={recipe} cook={{ title: dish.name, ingredients: recipe.ingredients }} />
 
           <p className="field__hint" style={{ marginTop: 12 }}>
             מתכון שנכתב ע״י AI — כדאי לסמוך על הטעם והעין שלך בדרך.

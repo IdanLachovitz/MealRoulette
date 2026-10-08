@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { CoverDaysChips, Sheet } from '../components/ui'
 import { useApp } from '../state'
-import { dayName, dayOfMonth, weekDates } from '../engine/dates'
+import { addDays, dayName, dayOfMonth, formatWeekRange, weekDates } from '../engine/dates'
 import { assignToDay, currentWeekStart, ensureWeekPlan, loadWeek } from '../services/week'
 import type { SessionDraft } from '../services/week'
 import type { CookSession, DaySlot, WeekPlan } from '../types'
@@ -28,6 +28,10 @@ export function AssignSheet({
   const [sessions, setSessions] = useState<CookSession[]>([])
   const [covers, setCovers] = useState(1)
   const [saving, setSaving] = useState(false)
+  // 0 = this week, 1 = next week. Planning usually happens on Thursday or
+  // Friday for the week ahead, so a spin or a fridge idea can go there too,
+  // not only onto what's left of this week.
+  const [weekOffset, setWeekOffset] = useState(0)
   // How far this dish stretches. A combo has no dish row, so it gets the
   // app-wide ceiling.
   const maxCoverDays =
@@ -39,7 +43,7 @@ export function AssignSheet({
   useEffect(() => {
     let cancelled = false
     void (async () => {
-      const weekStart = currentWeekStart(settings)
+      const weekStart = addDays(currentWeekStart(settings), weekOffset * 7)
       const p = await ensureWeekPlan(householdId, weekStart, settings)
       const loaded = await loadWeek(p.id)
       if (cancelled) return
@@ -50,13 +54,13 @@ export function AssignSheet({
     return () => {
       cancelled = true
     }
-  }, [householdId, settings])
+  }, [householdId, settings, weekOffset])
 
   const assign = async (date: string) => {
     if (!plan || saving) return
     setSaving(true)
     await assignToDay(householdId, plan, date, draft, settings, covers)
-    toast(`שובץ ל${dayName(date)}`)
+    toast(`שובץ ל${dayName(date)}${weekOffset ? ' בשבוע הבא' : ''}`)
     onClose()
   }
 
@@ -77,6 +81,25 @@ export function AssignSheet({
             : `יום בישול + ${covers - 1} ימי שאריות.`}
         </span>
       </div>
+
+      <div className="segmented" style={{ marginBottom: 6 }} role="group" aria-label="איזה שבוע">
+        {[0, 1].map((offset) => (
+          <button
+            key={offset}
+            type="button"
+            className="segmented__btn"
+            aria-pressed={weekOffset === offset}
+            onClick={() => setWeekOffset(offset)}
+          >
+            {offset === 0 ? 'השבוע' : 'שבוע הבא'}
+          </button>
+        ))}
+      </div>
+      {plan && (
+        <p className="field__hint" style={{ textAlign: 'center', margin: '0 0 10px' }}>
+          {formatWeekRange(plan.week_start_date)}
+        </p>
+      )}
 
       <div className="stack">
         {dates.map((date) => {

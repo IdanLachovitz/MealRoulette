@@ -1,17 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '../db/db'
+import { db, getMeta, setMeta } from '../db/db'
 import { alive, save } from '../db/repo'
 import { useApp } from '../state'
 import { CoverDaysChips, Notice, Sheet, Switch } from '../components/ui'
 import { Icon } from '../components/Icon'
 import { DishPicture } from '../components/DishArt'
 import { PickDishSheet } from './PickDishSheet'
-import { RecipeSteps } from './AiRecipeSheet'
+import { cookIngredients, RecipeSteps } from './AiRecipeSheet'
 import { dishPhotoUrl } from '../db/photos'
 import { generateDishRecipe } from '../sync/ai'
 import { addDays, dayName, dayOfMonth, toISODate } from '../engine/dates'
+import { stretchSuggestion } from '../engine/stretch'
+import type { StretchSuggestion } from '../engine/stretch'
 import { spreadEvenly } from '../engine/planner'
 import type { Notice as PlanNotice } from '../engine/planner'
 import { buildWeekUnits, planLeftoverCookSwap, planLeftoverSwap, planWeekSwap } from '../engine/weekSwap'
@@ -117,6 +119,33 @@ export function WeekScreen({
     [householdId],
     [] as Dish[],
   )
+
+  // EC-10 — the first visit of a new week, with nothing planned yet, says so
+  // and offers the wizard. Remembered per device (meta never syncs) by the
+  // week's start date, so it shows once a week. `planned` has no default:
+  // undefined while loading, so the notice doesn't flash on a planned week.
+  const greetKey = `week_greeted:${householdId}`
+  const [greetedWeek, setGreetedWeek] = useState<string | null | undefined>(undefined)
+  useEffect(() => {
+    void getMeta<string | null>(greetKey, null).then(setGreetedWeek)
+  }, [greetKey])
+  const planned = useLiveQuery(
+    async () =>
+      plan
+        ? alive(await db.cookSessions.where('week_plan_id').equals(plan.id).toArray()).length > 0
+        : undefined,
+    [plan?.id],
+  )
+  const showNewWeek =
+    weekOffset === 0 &&
+    plan?.week_start_date === realWeekStart &&
+    planned === false &&
+    greetedWeek !== undefined &&
+    greetedWeek !== realWeekStart
+  const greetWeek = () => {
+    setGreetedWeek(realWeekStart)
+    void setMeta(greetKey, realWeekStart)
+  }
   const components = useLiveQuery(
     () => db.components.where('household_id').equals(householdId).toArray(),
     [householdId],
@@ -179,6 +208,19 @@ export function WeekScreen({
   const sortedSessions = useMemo(
     () => [...(sessions ?? [])].sort((a, b) => a.cook_date.localeCompare(b.cook_date)),
     [sessions],
+  )
+
+  // FR-9.3 — dishes that keep longer than they're planned for, next to an
+  // empty day: "cook a bigger batch and cover tomorrow too". A dismissed
+  // offer stays dismissed for this visit to the screen.
+  const [dismissedStretch, setDismissedStretch] = useState<Set<string>>(() => new Set())
+  const stretches = useMemo(
+    () =>
+      sortedSessions
+        .filter((s) => !dismissedStretch.has(s.id))
+        .map((s) => stretchSuggestion(s, s.dish_id ? dishById.get(s.dish_id) : undefined, sortedDays))
+        .filter((s): s is StretchSuggestion => !!s),
+    [sortedSessions, sortedDays, dishById, dismissedStretch],
   )
 
   const covered = sortedDays.filter((d) => d.role === 'cook' || d.role === 'leftovers').length
@@ -446,6 +488,44 @@ export function WeekScreen({
           onDismiss={() => setNotices((prev) => prev.filter((x) => x.code !== n.code))}
         >
           {n.message}
+        </Notice>
+      ))}
+
+      {showNewWeek && !libraryEmpty && (
+        <Notice onDismiss={greetWeek}>
+          התחיל שבוע חדש, ועוד לא תוכנן בו כלום. לתכנן אותו עכשיו?{' '}
+          <button
+            type="button"
+            className="btn btn--sm btn--primary"
+            style={{ marginTop: 6 }}
+            onClick={() => {
+              greetWeek()
+              setWizardOpen(true)
+            }}
+          >
+            תכנן לי את השבוע 🗓️
+          </button>
+        </Notice>
+      )}
+
+      {stretches.map(({ session, date, coversDays }) => (
+        <Notice
+          key={session.id}
+          onDismiss={() => setDismissedStretch((prev) => new Set(prev).add(session.id))}
+        >
+          {dishById.get(session.dish_id!)?.name} מספיקה ליותר מיום אחד. אפשר להכין כמות גדולה יותר ב
+          {dayName(session.cook_date)} ולכסות גם את {dayName(date)}.{' '}
+          <button
+            type="button"
+            className="btn btn--sm btn--primary"
+            style={{ marginTop: 6 }}
+            onClick={() => {
+              void setCoversDays(session, coversDays, settings)
+              toast(`${dayName(date)} מכוסה בשאריות, ורשימת הקניות עודכנה`)
+            }}
+          >
+            להכין יותר 🍲
+          </button>
         </Notice>
       ))}
 
@@ -995,7 +1075,12 @@ function SessionSheet({
           <span className="label" style={{ display: 'block', marginBottom: 8 }}>
             אופן ההכנה
           </span>
-          <RecipeSteps recipe={dish.recipe} />
+          {/* Amounts for this cook as planned: covering three days means
+              cooking three days' worth. */}
+          <RecipeSteps
+            recipe={dish.recipe}
+            cook={{ title: dish.name, ingredients: cookIngredients(dish, session.servings) }}
+          />
           {recipeButton}
         </div>
       ) : dish ? (

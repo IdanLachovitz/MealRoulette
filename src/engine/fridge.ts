@@ -13,15 +13,68 @@ export interface FridgeMatch {
   missing: string[]
 }
 
+const FINAL_LETTERS: Record<string, string> = { ך: 'כ', ם: 'מ', ן: 'נ', ף: 'פ', ץ: 'צ' }
+
 /**
- * Loose containment, same spirit as the ingredient-icon and shelf-guess
- * matchers: "עגבניות שרי" in the fridge should still cover a dish that calls
- * for "עגבניה", and vice versa.
+ * A rough Hebrew stem, enough to tell that two spellings name the same
+ * thing: plural endings (ים / ות / יות), a trailing ה, the construct form's
+ * י (תפוחי אדמה), a doubled yod (עגבנייה), and final letter forms all go,
+ * so עגבניות, עגבניה and עגבנייה all come out as עגבנ. A trailing ת stays:
+ * stripping it would make שמנת (cream) the same as שמן (oil).
+ */
+function stem(word: string): string {
+  let w = word.replace(/[ךםןףץ]/g, (c) => FINAL_LETTERS[c]).replace(/יי/g, 'י')
+  const strip = (re: RegExp) => {
+    const next = w.replace(re, '')
+    if (next.length >= 2) w = next
+  }
+  strip(/(יות|ימ|ות)$/)
+  strip(/ה$/)
+  strip(/י$/)
+  return w
+}
+
+const stems = (name: string) => name.split(' ').map(stem).filter(Boolean)
+
+/**
+ * Whether the fridge covers an ingredient. Word by word on stems, either
+ * way round: "עגבניות" in the fridge covers "עגבניה", "עוף" covers "חזה
+ * עוף", and "בצל סגול" covers a plain "בצל". The old substring test stays
+ * as a fallback for names that run together differently.
  */
 function haveIt(ingredientName: string, fridge: string[]): boolean {
   const name = normaliseName(ingredientName)
   if (!name) return false
-  return fridge.some((f) => f && (name.includes(f) || f.includes(name)))
+  const nameStems = stems(name)
+  const within = (inner: string[], outer: string[]) =>
+    inner.length > 0 && inner.every((s) => outer.includes(s))
+  return fridge.some((f) => {
+    if (!f) return false
+    if (name.includes(f) || f.includes(name)) return true
+    const fridgeStems = stems(f)
+    return within(fridgeStems, nameStems) || within(nameStems, fridgeStems)
+  })
+}
+
+/**
+ * The shopping list's items split into what still has to be bought and what
+ * the fridge already has, by the same loose match the dish suggestions use.
+ * Rows typed in by hand move too: they used to stay put on the theory that
+ * they were added on purpose, but a "חזה עוף" on the list while there's
+ * חזה עוף in the fridge reads as the feature not working.
+ */
+export function splitByFridge<T extends { name: string }>(
+  items: T[],
+  fridgeItemNames: string[],
+): { toBuy: T[]; atHome: T[] } {
+  const fridge = fridgeItemNames.map(normaliseName).filter(Boolean)
+  const toBuy: T[] = []
+  const atHome: T[] = []
+  for (const item of items) {
+    if (haveIt(item.name, fridge)) atHome.push(item)
+    else toBuy.push(item)
+  }
+  return { toBuy, atHome }
 }
 
 /**

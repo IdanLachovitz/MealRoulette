@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fullMatchesOnly, matchDishesToFridge } from './fridge'
+import { fullMatchesOnly, matchDishesToFridge, splitByFridge } from './fridge'
 import type { Dish, Ingredient } from '../types'
 
 function ing(name: string, overrides: Partial<Ingredient> = {}): Ingredient {
@@ -96,5 +96,47 @@ describe('fullMatchesOnly', () => {
     const partial = dish({ id: 'partial', ingredients: [main('בצל'), ing('עוף')] })
     const kept = fullMatchesOnly(matchDishesToFridge([full, partial], ['בצל', 'שום']))
     expect(kept.map((m) => m.dish.id)).toEqual(['full'])
+  })
+})
+
+describe('splitByFridge', () => {
+  const item = (name: string, source: 'auto' | 'manual' = 'auto') => ({ name, source })
+
+  it('moves automatic rows the fridge already covers', () => {
+    const { toBuy, atHome } = splitByFridge(
+      [item('ביצים'), item('בצל'), item('חזה עוף')],
+      ['ביצים', 'בצל סגול'],
+    )
+    expect(atHome.map((i) => i.name)).toEqual(['ביצים', 'בצל'])
+    expect(toBuy.map((i) => i.name)).toEqual(['חזה עוף'])
+  })
+
+  it('moves rows added by hand too', () => {
+    const { toBuy, atHome } = splitByFridge([item('חזה עוף', 'manual')], ['חזה עוף'])
+    expect(toBuy).toHaveLength(0)
+    expect(atHome).toHaveLength(1)
+  })
+
+  it('leaves everything to buy when the fridge is empty', () => {
+    expect(splitByFridge([item('ביצים')], []).atHome).toHaveLength(0)
+  })
+})
+
+describe('Hebrew singular and plural', () => {
+  const covers = (listName: string, fridgeName: string) =>
+    splitByFridge([{ name: listName, source: 'auto' as const }], [fridgeName]).atHome.length === 1
+
+  it('matches across singular and plural', () => {
+    expect(covers('עגבניה', 'עגבניות')).toBe(true)
+    expect(covers('עגבנייה', 'עגבניות')).toBe(true)
+    expect(covers('ביצה', 'ביצים')).toBe(true)
+    expect(covers('תפוח אדמה', 'תפוחי אדמה')).toBe(true)
+    expect(covers('פלפל אדום', 'פלפלים')).toBe(true)
+  })
+
+  it('does not confuse different things', () => {
+    expect(covers('שמנת', 'שמן')).toBe(false)
+    expect(covers('גזר', 'עגבניות')).toBe(false)
+    expect(covers('תפוח עץ', 'תפוחי אדמה')).toBe(false)
   })
 })

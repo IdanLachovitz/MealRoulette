@@ -11,7 +11,7 @@ import type { TimeFilter } from '../types'
  * through a ref, since callers pass inline functions that change on every
  * render.
  */
-function usePhoneBack(handler: () => void) {
+export function usePhoneBack(handler: () => void) {
   const ref = useRef(handler)
   useEffect(() => {
     ref.current = handler
@@ -488,5 +488,35 @@ export function CoverDaysChips({
         </span>
       )}
     </>
+  )
+}
+
+/**
+ * ♥ on a dish — a favorite comes up more often in the roulette and the
+ * planner (engine/favorites.ts). One shared toggle so the dish page and the
+ * roulette's result window look and read the same.
+ */
+export function FavoriteToggle({
+  on,
+  onChange,
+  block = true,
+}: {
+  on: boolean
+  onChange: (on: boolean) => void
+  block?: boolean
+}) {
+  return (
+    <button
+      type="button"
+      className={`btn btn--ghost btn--sm${block ? ' btn--block' : ''}`}
+      style={block ? { marginBottom: 12 } : undefined}
+      aria-pressed={on}
+      onClick={() => onChange(!on)}
+    >
+      <span style={{ color: on ? 'var(--danger)' : 'var(--mut)' }} aria-hidden="true">
+        {on ? '♥' : '♡'}
+      </span>{' '}
+      {on ? 'מועדפת, תעלה ברולטה יותר' : 'סמן כמועדפת'}
+    </button>
   )
 }

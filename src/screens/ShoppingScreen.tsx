@@ -7,9 +7,10 @@ import { EmptyState, Field, Sheet } from '../components/ui'
 import { IngredientIcon } from '../components/IngredientIcon'
 import { guessAisle } from '../engine/ingredient-art'
 import { formatQuantity } from '../engine/shopping'
+import { splitByFridge } from '../engine/fridge'
 import { currentWeekStart, ensureWeekPlan, regenerateShoppingList } from '../services/week'
 import { AISLES } from '../types'
-import type { Aisle, ShoppingItem, Unit, WeekPlan } from '../types'
+import type { Aisle, FridgeItem, ShoppingItem, Unit, WeekPlan } from '../types'
 
 /** Step size and starting amount for each unit — grams move in 50s, a
  * kilo/cup in halves, everything else one at a time. */
@@ -40,10 +41,24 @@ export function ShoppingScreen({ householdId }: { householdId: string }) {
     [] as ShoppingItem[],
   )
 
+  // The fridge is per-device and never syncs, while the list is shared, so
+  // nothing is written back: each phone just sorts the list against its own
+  // fridge. Rows the fridge covers sit in their own group at the bottom
+  // instead of disappearing, in case there's not quite enough at home.
+  const fridgeItems = useLiveQuery(
+    () => db.fridgeItems.where('household_id').equals(householdId).toArray(),
+    [householdId],
+    [] as FridgeItem[],
+  )
+  const { toBuy, atHome } = useMemo(
+    () => splitByFridge(items ?? [], (fridgeItems ?? []).map((f) => f.name)),
+    [items, fridgeItems],
+  )
+
   const grouped = useMemo(() => {
     const map = new Map<Aisle, ShoppingItem[]>()
     for (const aisle of AISLES) map.set(aisle, [])
-    for (const item of items ?? []) {
+    for (const item of toBuy) {
       map.get(item.aisle)?.push(item)
     }
     // FR-7.7 — checked items sink to the bottom of their group.
@@ -54,10 +69,11 @@ export function ShoppingScreen({ householdId }: { householdId: string }) {
       })
     }
     return [...map.entries()].filter(([, list]) => list.length > 0)
-  }, [items])
+  }, [toBuy])
 
-  const total = items?.length ?? 0
-  const done = items?.filter((i) => i.is_checked).length ?? 0
+  // "נקנו" counts only what actually has to be bought.
+  const total = toBuy.length
+  const done = toBuy.filter((i) => i.is_checked).length
 
   /** FR-7.8 — plain text, so it pastes straight into WhatsApp. */
   const shareText = () => {
@@ -67,6 +83,10 @@ export function ShoppingScreen({ householdId }: { householdId: string }) {
       for (const item of list) {
         lines.push(`${item.is_checked ? '✓' : '•'} ${item.name}${item.quantity_text ? ` — ${item.quantity_text}` : ''}`)
       }
+    }
+    if (atHome.length > 0) {
+      lines.push('', '— יש במקרר —')
+      for (const item of atHome) lines.push('✓ ' + item.name)
     }
     return lines.join('\n')
   }
@@ -103,7 +123,7 @@ export function ShoppingScreen({ householdId }: { householdId: string }) {
           >
             ↻ רענון
           </button>
-          <button className="btn btn--sm btn--ghost" onClick={() => void share()} disabled={total === 0}>
+          <button className="btn btn--sm btn--ghost" onClick={() => void share()} disabled={(items?.length ?? 0) === 0}>
             שיתוף
           </button>
           <button className="btn btn--sm btn--primary" onClick={() => setAdding(true)}>
@@ -112,7 +132,7 @@ export function ShoppingScreen({ householdId }: { householdId: string }) {
         </div>
       </div>
 
-      {total === 0 ? (
+      {(items?.length ?? 0) === 0 ? (
         <EmptyState
           icon="🛒"
           title="הרשימה ריקה"
@@ -131,33 +151,25 @@ export function ShoppingScreen({ householdId }: { householdId: string }) {
               <span>{list.filter((i) => i.is_checked).length}/{list.length}</span>
             </div>
             {list.map((item) => (
-              <div key={item.id} className={`item${item.is_checked ? ' item--checked' : ''}`}>
-                <button
-                  className="row"
-                  style={{ flex: 1, gap: 10, minHeight: 32 }}
-                  aria-pressed={item.is_checked}
-                  onClick={() => void save('shopping_items', { ...item, is_checked: !item.is_checked })}
-                >
-                  <span className="item__box" aria-hidden="true">
-                    {item.is_checked ? '✓' : ''}
-                  </span>
-                  <IngredientIcon className="item__icon" name={item.name} aisle={item.aisle} />
-                  <span className="item__name">{item.name}</span>
-                  {item.quantity_text && <span className="item__qty">{item.quantity_text}</span>}
-                </button>
-                {item.source === 'manual' && (
-                  <button
-                    className="btn btn--danger btn--icon btn--sm"
-                    aria-label={`מחיקת ${item.name}`}
-                    onClick={() => void remove('shopping_items', item)}
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
+              <ItemRow key={item.id} item={item} />
             ))}
           </div>
         ))
+      )}
+
+      {atHome.length > 0 && (
+        <div className="aisle" style={{ opacity: 0.75 }}>
+          <div className="aisle__head">
+            <span>יש לך במקרר 🧊</span>
+            <span>{atHome.length}</span>
+          </div>
+          <p className="field__hint" style={{ margin: '0 0 6px' }}>
+            לפי מה שרשום אצלך במקרר. אם אין מספיק, סמן וקנה בכל זאת.
+          </p>
+          {atHome.map((item) => (
+            <ItemRow key={item.id} item={item} />
+          ))}
+        </div>
       )}
 
       {adding && (
@@ -166,6 +178,35 @@ export function ShoppingScreen({ householdId }: { householdId: string }) {
           planId={plan.id}
           onClose={() => setAdding(false)}
         />
+      )}
+    </div>
+  )
+}
+
+function ItemRow({ item }: { item: ShoppingItem }) {
+  return (
+    <div className={`item${item.is_checked ? ' item--checked' : ''}`}>
+      <button
+        className="row"
+        style={{ flex: 1, gap: 10, minHeight: 32 }}
+        aria-pressed={item.is_checked}
+        onClick={() => void save('shopping_items', { ...item, is_checked: !item.is_checked })}
+      >
+        <span className="item__box" aria-hidden="true">
+          {item.is_checked ? '✓' : ''}
+        </span>
+        <IngredientIcon className="item__icon" name={item.name} aisle={item.aisle} />
+        <span className="item__name">{item.name}</span>
+        {item.quantity_text && <span className="item__qty">{item.quantity_text}</span>}
+      </button>
+      {item.source === 'manual' && (
+        <button
+          className="btn btn--danger btn--icon btn--sm"
+          aria-label={`מחיקת ${item.name}`}
+          onClick={() => void remove('shopping_items', item)}
+        >
+          ✕
+        </button>
       )}
     </div>
   )

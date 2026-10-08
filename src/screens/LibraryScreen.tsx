@@ -4,12 +4,12 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { alive, remove, save } from '../db/repo'
 import { useApp } from '../state'
-import { EmptyState, Field, Notice, Sheet, Switch, TimeFilterChips } from '../components/ui'
+import { EmptyState, FavoriteToggle, Field, Notice, Sheet, Switch, TimeFilterChips } from '../components/ui'
 import { Icon } from '../components/Icon'
 import { DishPicture } from '../components/DishArt'
 import { QuickAddDish } from './QuickAddDish'
 import { IngredientsEditor } from './IngredientsEditor'
-import { RecipeSteps } from './AiRecipeSheet'
+import { cookIngredients, RecipeSteps } from './AiRecipeSheet'
 import { dishPhotoUrl, licenseLabel, realPhotoOf } from '../db/photos'
 import { fetchRealPhoto } from '../services/dishPhotos'
 import { fileToCompressedDataUrl } from '../engine/image'
@@ -133,6 +133,11 @@ export function LibraryScreen({ householdId }: { householdId: string }) {
             {tab !== 'dish' && <span className={`dot dot--${tab}`} aria-hidden="true" />}
             <span className="list-row__name">{item.name}</span>
             <span className="item__qty">{item.prep_time_minutes} דק׳</span>
+            {(item as Dish).is_favorite && (
+              <span aria-label="מועדפת" style={{ color: 'var(--danger)' }}>
+                ♥
+              </span>
+            )}
             {item.is_excluded && (
               <span aria-label="מודר" style={{ color: 'var(--danger)' }}>
                 <Icon name="ban" size={15} />
@@ -305,6 +310,11 @@ function DishSheet({
         />
       </Field>
 
+      <FavoriteToggle
+        on={!!draft.is_favorite}
+        onChange={(is_favorite) => patch({ is_favorite })}
+      />
+
       <div className="row" style={{ gap: 10 }}>
         <Field label="זמן הכנה (דק׳)">
           <input
@@ -444,7 +454,10 @@ function DishSheet({
             <div className="label" style={{ marginBottom: 8 }}>
               אופן ההכנה
             </div>
-            <RecipeSteps recipe={draft.recipe} />
+            <RecipeSteps
+              recipe={draft.recipe}
+              cook={{ title: draft.name, ingredients: cookIngredients(draft) }}
+            />
           </>
         )}
         <button

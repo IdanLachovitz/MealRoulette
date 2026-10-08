@@ -8,6 +8,7 @@ import type { Component, ComponentType, CookHistory, Dish, Ingredient, TimeFilte
 import { lastCookedMap, passesTimeFilter } from './planner'
 import { daysBetween } from './dates'
 import type { Rng } from './rng'
+import { pickFavored } from './favorites'
 
 export interface Drawable {
   id: string
@@ -78,12 +79,13 @@ export interface Draw<T extends Drawable> {
 }
 
 /**
- * Pick a winner at uniform weight from the whole eligible pool. The wheel shows
- * that same pool in full, so the number of slices always matches the library.
+ * Pick a winner from the whole eligible pool, ♥ dishes weighted up (see
+ * engine/favorites.ts). The wheel shows that same pool in full, so the
+ * number of slices always matches the library.
  */
 export function draw<T extends Drawable>(pool: T[], rng: Rng): Draw<T> | null {
   if (pool.length === 0) return null
-  return { winner: rng.pick(pool), slices: pool }
+  return { winner: pickFavored(pool, rng), slices: pool }
 }
 
 /** FR-3.7 — a combo takes as long as its slowest part, not the sum. */

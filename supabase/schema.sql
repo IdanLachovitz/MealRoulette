@@ -128,6 +128,8 @@ alter table public.cook_sessions add column if not exists covered_dates jsonb;
 alter table public.dishes add column if not exists recipe jsonb;
 -- A real photo found online for a dish, with its license credit (see Dish.real_photo).
 alter table public.dishes add column if not exists real_photo jsonb;
+-- ♥ — drawn more often by the roulette and the planner (see Dish.is_favorite).
+alter table public.dishes add column if not exists is_favorite boolean;
 
 create table if not exists public.day_slots (
   id              uuid primary key,
