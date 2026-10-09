@@ -97,25 +97,37 @@ async function call(body: Record<string, unknown>): Promise<{ ok: boolean; statu
  */
 export async function enablePush(): Promise<string | null> {
   if (pushSupport() !== 'ok') return 'המכשיר הזה לא תומך בהתראות'
-  const permission = await Notification.requestPermission()
-  if (permission !== 'granted') return 'ההתראות חסומות. אפשר להפעיל אותן בהגדרות של הטלפון.'
+  if (Notification.permission === 'denied') {
+    return 'ההתראות חסומות. אפשר להפעיל אותן בהגדרות של הטלפון.'
+  }
+  let sub: PushSubscription
   try {
-    const registration = await navigator.serviceWorker.ready
-    const sub =
+    // subscribe() goes first, straight from the tap, and asks for permission
+    // itself. Safari refuses it as "not from a user gesture" if it comes
+    // after awaiting Notification.requestPermission(): by the time the
+    // permission prompt is answered, the tap no longer counts.
+    const registration = await navigator.serviceWorker.getRegistration()
+    if (!registration) return 'האפליקציה עוד נטענת. נסה שוב בעוד רגע.'
+    sub =
       (await registration.pushManager.getSubscription()) ??
       (await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: base64UrlToBytes(VAPID_PUBLIC_KEY),
       }))
-    if (!(await call({ action: 'subscribe', subscription: sub.toJSON() })).ok) {
-      return 'לא הצלחתי להירשם להתראות. בדוק את החיבור לרשת ונסה שוב.'
+  } catch (e) {
+    // Read again: the prompt inside subscribe() may just have been answered "no".
+    if ((Notification.permission as NotificationPermission) === 'denied') {
+      return 'ההתראות חסומות. אפשר להפעיל אותן בהגדרות של הטלפון.'
     }
-    await setMeta(SENT_KEY, null)
-    pushChanged()
-    return null
-  } catch {
-    return 'לא הצלחתי להירשם להתראות'
+    // The phone's own reason, so a failure can be told apart from the rest.
+    return `לא הצלחתי להירשם להתראות (${e instanceof Error ? `${e.name}: ${e.message}` : String(e)})`
   }
+  if (!(await call({ action: 'subscribe', subscription: sub.toJSON() })).ok) {
+    return 'לא הצלחתי להירשם להתראות. בדוק את החיבור לרשת ונסה שוב.'
+  }
+  await setMeta(SENT_KEY, null)
+  pushChanged()
+  return null
 }
 
 export async function disablePush(): Promise<void> {
