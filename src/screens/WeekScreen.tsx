@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db, getMeta, setMeta } from '../db/db'
+import { db } from '../db/db'
 import { alive, save } from '../db/repo'
 import { useApp } from '../state'
 import { CoverDaysChips, Notice, Sheet, Switch } from '../components/ui'
@@ -120,32 +120,6 @@ export function WeekScreen({
     [] as Dish[],
   )
 
-  // EC-10 — the first visit of a new week, with nothing planned yet, says so
-  // and offers the wizard. Remembered per device (meta never syncs) by the
-  // week's start date, so it shows once a week. `planned` has no default:
-  // undefined while loading, so the notice doesn't flash on a planned week.
-  const greetKey = `week_greeted:${householdId}`
-  const [greetedWeek, setGreetedWeek] = useState<string | null | undefined>(undefined)
-  useEffect(() => {
-    void getMeta<string | null>(greetKey, null).then(setGreetedWeek)
-  }, [greetKey])
-  const planned = useLiveQuery(
-    async () =>
-      plan
-        ? alive(await db.cookSessions.where('week_plan_id').equals(plan.id).toArray()).length > 0
-        : undefined,
-    [plan?.id],
-  )
-  const showNewWeek =
-    weekOffset === 0 &&
-    plan?.week_start_date === realWeekStart &&
-    planned === false &&
-    greetedWeek !== undefined &&
-    greetedWeek !== realWeekStart
-  const greetWeek = () => {
-    setGreetedWeek(realWeekStart)
-    void setMeta(greetKey, realWeekStart)
-  }
   const components = useLiveQuery(
     () => db.components.where('household_id').equals(householdId).toArray(),
     [householdId],
@@ -490,23 +464,6 @@ export function WeekScreen({
           {n.message}
         </Notice>
       ))}
-
-      {showNewWeek && !libraryEmpty && (
-        <Notice onDismiss={greetWeek}>
-          התחיל שבוע חדש, ועוד לא תוכנן בו כלום. לתכנן אותו עכשיו?{' '}
-          <button
-            type="button"
-            className="btn btn--sm btn--primary"
-            style={{ marginTop: 6 }}
-            onClick={() => {
-              greetWeek()
-              setWizardOpen(true)
-            }}
-          >
-            תכנן לי את השבוע 🗓️
-          </button>
-        </Notice>
-      )}
 
       {stretches.map(({ session, date, coversDays }) => (
         <Notice

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { usePhoneBack } from '../components/ui'
 import { formatCountdown, stepTimers } from '../engine/stepTimers'
+import { newId } from '../db/repo'
+import { cancelTimerPush, scheduleTimerPush } from '../sync/push'
 
 export interface CookIngredient {
   name: string
@@ -11,6 +13,8 @@ export interface CookIngredient {
 
 interface RunningTimer {
   id: number
+  /** The server's copy, a push that goes off with the phone locked (sync/push.ts). */
+  pushId: string
   label: string
   endsAt: number
   done: boolean
@@ -63,18 +67,39 @@ export function CookMode({
     const tick = window.setInterval(() => setNow(Date.now()), 1000)
     return () => window.clearInterval(tick)
   }, [running])
+  // A timer that rang here, on screen, cancels its push so the phone doesn't
+  // announce it twice. One that ran out while the app was hidden keeps it:
+  // that push is how it was heard.
   useEffect(() => {
-    if (!timers.some((t) => !t.done && t.endsAt <= now)) return
+    const due = timers.filter((t) => !t.done && t.endsAt <= now)
+    if (due.length === 0) return
     ring()
+    if (document.visibilityState === 'visible') due.forEach((t) => void cancelTimerPush(t.pushId))
     setTimers((list) => list.map((t) => (!t.done && t.endsAt <= now ? { ...t, done: true } : t)))
   }, [now, timers])
+
+  // Leaving cooking mode drops its timers, so their pushes go too.
+  const timersRef = useRef(timers)
+  timersRef.current = timers
+  useEffect(
+    () => () => timersRef.current.filter((t) => !t.done).forEach((t) => void cancelTimerPush(t.pushId)),
+    [],
+  )
 
   const startTimer = (minutes: number) => {
     unlockAudio()
     const id = nextTimerId.current++
+    const pushId = newId()
     const label = current?.kind === 'step' ? `שלב ${current.index + 1} · ${minutes} דק׳` : `${minutes} דק׳`
+    const endsAt = Date.now() + minutes * 60_000
     setNow(Date.now())
-    setTimers((list) => [...list, { id, label, endsAt: Date.now() + minutes * 60_000, done: false }])
+    setTimers((list) => [...list, { id, pushId, label, endsAt, done: false }])
+    void scheduleTimerPush(pushId, endsAt, `${title} · ${label}`)
+  }
+
+  const dismissTimer = (timer: RunningTimer) => {
+    setTimers((list) => list.filter((x) => x.id !== timer.id))
+    if (!timer.done) void cancelTimerPush(timer.pushId)
   }
 
   return createPortal(
@@ -149,7 +174,7 @@ export function CookMode({
               key={t.id}
               type="button"
               className={`cook__timer${t.done ? ' cook__timer--done' : ''}`}
-              onClick={() => setTimers((list) => list.filter((x) => x.id !== t.id))}
+              onClick={() => dismissTimer(t)}
               aria-label={t.done ? `${t.label} הסתיים, הקשה לסגירה` : `${t.label}, הקשה לביטול`}
             >
               <span>{t.done ? 'הזמן נגמר ⏰' : formatCountdown((t.endsAt - now) / 1000)}</span>

@@ -12,6 +12,7 @@ import { Icon } from './components/Icon'
 import type { IconName } from './components/Icon'
 import { addDays, formatWeekRange } from './engine/dates'
 import { currentWeekStart } from './services/week'
+import { usePushSchedule } from './sync/push'
 
 type Tab = 'week' | 'roulette' | 'library' | 'fridge' | 'shopping' | 'settings'
 
@@ -29,6 +30,8 @@ function Shell() {
   // Lifted out of WeekScreen so the topbar's centered date can track the
   // same this/last/next week choice as WeekScreen's own chips.
   const [weekOffset, setWeekOffset] = useState(0)
+  // Keeps this phone's 18:00 cooking reminders in step with the plan.
+  usePushSchedule(household?.id)
   const sync = useSyncStatus()
 
   // "Glass capsule dock" — one pill that slides to whichever tab is active,

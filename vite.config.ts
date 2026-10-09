@@ -42,6 +42,9 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
         // Supabase responses are never precached — sync owns freshness, not the SW.
         navigateFallback: 'index.html',
+        // Push notifications (public/push-sw.js) — kept as a plain file next
+        // to sw.js rather than switching the whole worker to injectManifest.
+        importScripts: ['push-sw.js'],
         // Without these two, a newly-installed worker sits in "waiting" and
         // never takes over a tab that's already open — it only ever controls
         // the *next* fresh navigation. skipWaiting activates it the moment it

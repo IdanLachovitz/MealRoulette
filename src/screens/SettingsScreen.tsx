@@ -9,6 +9,16 @@ import { getSupabase, isSyncConfigured } from '../sync/supabase'
 import { runSync } from '../sync/sync'
 import { currentUserEmail, joinHousehold, registerHousehold, signOut } from '../sync/household'
 import { generateDishImageWithAi } from '../sync/ai'
+import {
+  disablePush,
+  enablePush,
+  getPushPrefs,
+  isPushEnabled,
+  pushSupport,
+  setPushPrefs,
+} from '../sync/push'
+import type { PushPrefs } from '../sync/push'
+import { REMINDER_HOUR } from '../engine/reminders'
 import { realPhotoOf } from '../db/photos'
 import { fetchRealPhoto } from '../services/dishPhotos'
 import { daysBetween, toISODate } from '../engine/dates'
@@ -138,6 +148,8 @@ export function SettingsScreen({ householdId }: { householdId: string }) {
             </div>
           </div>
 
+          <NotificationsSection />
+
           <PhotoSourceSection householdId={householdId} onToast={toast} />
 
           <DishImagesSection householdId={householdId} onToast={toast} />
@@ -145,6 +157,104 @@ export function SettingsScreen({ householdId }: { householdId: string }) {
           <BackupSection householdId={householdId} onToast={toast} />
         </>
       )}
+    </div>
+  )
+}
+
+/**
+ * Push notifications for this phone (sync/push.ts): the evening reminder on a
+ * cooking day, and cooking-mode timers that go off with the screen locked.
+ * Per device, like the fridge — turning them on here doesn't touch the
+ * partner's phone.
+ */
+function NotificationsSection() {
+  const support = pushSupport()
+  const [enabled, setEnabled] = useState<boolean | null>(null)
+  const [prefs, setPrefs] = useState<PushPrefs | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    void isPushEnabled().then(setEnabled)
+    void getPushPrefs().then(setPrefs)
+  }, [])
+
+  const update = (patch: Partial<PushPrefs>) => {
+    if (!prefs) return
+    const next = { ...prefs, ...patch }
+    setPrefs(next)
+    void setPushPrefs(next)
+  }
+
+  if (support === 'unsupported') return null
+
+  return (
+    <div className="card">
+      <span className="label">התראות</span>
+
+      {support === 'needs-install' ? (
+        <p className="field__hint" style={{ marginTop: 8, lineHeight: 1.6 }}>
+          באייפון, התראות עובדות רק כשהאפליקציה מותקנת במסך הבית: בספארי, שיתוף ← "הוספה
+          למסך הבית", ואז לפתוח אותה משם.
+        </p>
+      ) : enabled === null || prefs === null ? null : !enabled ? (
+        <>
+          <p className="field__hint" style={{ marginTop: 8, lineHeight: 1.6 }}>
+            תזכורת ב־{REMINDER_HOUR}:00 ביום שמבשלים בו, וטיימרים במצב בישול שמצלצלים גם כשהמסך כבוי.
+          </p>
+          <button
+            className="btn btn--primary btn--block"
+            style={{ marginTop: 10 }}
+            disabled={busy}
+            onClick={() =>
+              void (async () => {
+                setBusy(true)
+                setError(null)
+                const failure = await enablePush()
+                setBusy(false)
+                if (failure) setError(failure)
+                else setEnabled(true)
+              })()
+            }
+          >
+            {busy ? 'מפעיל…' : 'הפעל התראות 🔔'}
+          </button>
+        </>
+      ) : (
+        <>
+          <div className="row row--between" style={{ marginTop: 10 }}>
+            <div>
+              <div style={{ fontSize: 14 }}>תזכורת ביום בישול</div>
+              <div className="field__hint">ב־{REMINDER_HOUR}:00, עם המנה וזמן ההכנה.</div>
+            </div>
+            <Switch checked={prefs.daily} onChange={(v) => update({ daily: v })} label="תזכורת ביום בישול" />
+          </div>
+          <div className="row row--between" style={{ marginTop: 10 }}>
+            <div>
+              <div style={{ fontSize: 14 }}>טיימרים במצב בישול</div>
+              <div className="field__hint">מצלצלים גם כשהטלפון נעול.</div>
+            </div>
+            <Switch checked={prefs.timers} onChange={(v) => update({ timers: v })} label="טיימרים במצב בישול" />
+          </div>
+          <button
+            className="btn btn--sm btn--ghost"
+            style={{ marginTop: 12 }}
+            disabled={busy}
+            onClick={() =>
+              void (async () => {
+                setBusy(true)
+                await disablePush()
+                setBusy(false)
+                setEnabled(false)
+              })()
+            }
+          >
+            כבה התראות במכשיר הזה
+          </button>
+        </>
+      )}
+
+      {error && <p className="field__error">{error}</p>}
     </div>
   )
 }

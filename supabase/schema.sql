@@ -300,6 +300,74 @@ grant execute on function public.join_household(text) to authenticated;
 grant execute on function public.is_member(uuid) to authenticated;
 
 -- ---------------------------------------------------------------------------
+--  Push notifications (the 18:00 cooking reminder and cooking-mode timers)
+--
+--  The phone works out what to send and when (src/engine/reminders.ts,
+--  src/sync/push.ts) and hands it over through the `push` edge function; the
+--  server only sends each message when its time comes. Neither table syncs,
+--  and neither has a policy, so with RLS on only the edge function (service
+--  role) can reach them. A phone is identified by its push endpoint — an
+--  unguessable URL issued by Apple/Google — not by a household, so this
+--  works for a kitchen that never signed in too.
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.push_subscriptions (
+  endpoint   text primary key,
+  p256dh     text not null,
+  auth       text not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.push_messages (
+  id       uuid primary key default gen_random_uuid(),
+  endpoint text not null references public.push_subscriptions(endpoint) on delete cascade,
+  kind     text not null check (kind in ('daily', 'timer')),
+  -- Replaces the phone's earlier notification with the same tag.
+  tag      text not null,
+  fire_at  timestamptz not null,
+  title    text not null,
+  body     text not null default ''
+);
+
+create index if not exists push_messages_due_idx on public.push_messages (fire_at);
+
+alter table public.push_subscriptions enable row level security;
+alter table public.push_messages      enable row level security;
+
+-- Every 15 seconds, wake the `push` function — but only when something is
+-- actually due, so an idle kitchen costs no function calls at all. Timers are
+-- sent 5 seconds late on purpose: a phone with the app open rings by itself
+-- and cancels the server copy, and this gives that cancel time to land.
+-- The function URL and its shared secret come from Vault (set once by hand:
+-- select vault.create_secret('<url>', 'push_function_url');
+-- select vault.create_secret('<secret>', 'push_cron_secret');),
+-- so neither is written into this public file.
+create extension if not exists pg_cron with schema pg_catalog;
+create extension if not exists pg_net with schema extensions;
+
+select cron.unschedule('send-push')
+where exists (select 1 from cron.job where jobname = 'send-push');
+
+select cron.schedule(
+  'send-push',
+  '15 seconds',
+  $$
+  select net.http_post(
+    url := (select decrypted_secret from vault.decrypted_secrets where name = 'push_function_url'),
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'x-cron-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'push_cron_secret')
+    ),
+    body := '{"action":"send"}'::jsonb
+  )
+  where exists (
+    select 1 from public.push_messages where fire_at <= now() - interval '5 seconds'
+  );
+  $$
+);
+
+-- ---------------------------------------------------------------------------
 --  Realtime — so one phone's change reaches the other within seconds
 -- ---------------------------------------------------------------------------
 
