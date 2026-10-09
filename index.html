@@ -26,9 +26,14 @@
          to keep in sync. -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="מה מבשלים" />
-    <!-- The browser-tab icon: the same wheel as the installed app's icon. -->
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <!-- The browser-tab icon: the same wheel as the installed app's icon.
+         Also at the site root (favicon.ico, apple-touch-icon.png), because
+         new-tab pages and favicon services fetch those paths directly instead
+         of reading these tags. Relative, not "/favicon.ico": on GitHub Pages
+         the site lives under /MealRoulette/, and "/" is the bare domain. -->
+    <link rel="icon" href="favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
