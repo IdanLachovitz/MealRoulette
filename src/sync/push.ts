@@ -108,13 +108,25 @@ export async function enablePush(): Promise<string | null> {
     // permission prompt is answered, the tap no longer counts.
     const registration = await navigator.serviceWorker.getRegistration()
     if (!registration) return 'האפליקציה עוד נטענת. נסה שוב בעוד רגע.'
+    // Some phones never answer at all (Firefox on Android, when its push
+    // service can't be reached), which would leave the button on "מפעיל…"
+    // forever. Give up after a while and say so instead.
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), 20_000),
+    )
     sub =
       (await registration.pushManager.getSubscription()) ??
-      (await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: base64UrlToBytes(VAPID_PUBLIC_KEY),
-      }))
+      (await Promise.race([
+        registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: base64UrlToBytes(VAPID_PUBLIC_KEY),
+        }),
+        timeout,
+      ]))
   } catch (e) {
+    if (e instanceof Error && e.message === 'timeout') {
+      return 'הטלפון לא ענה לבקשת ההרשמה להתראות. כנראה שירות ההתראות של הטלפון חסום או לא זמין.'
+    }
     // Read again: the prompt inside subscribe() may just have been answered "no".
     if ((Notification.permission as NotificationPermission) === 'denied') {
       return 'ההתראות חסומות. אפשר להפעיל אותן בהגדרות של הטלפון.'
