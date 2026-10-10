@@ -36,9 +36,6 @@
   --beet-tonal: color-mix(in srgb, var(--beet) 13%, var(--surf));
   --pist-tonal: color-mix(in srgb, var(--pist) 13%, var(--surf));
   --veg-tonal: color-mix(in srgb, var(--veg) 14%, var(--surf));
-  /* The "מה מבשלים היום" card: the same light blue as cook days, but strong
-     enough to stand out from the rows below it. */
-  --today-bg: color-mix(in srgb, var(--saf) 50%, var(--surf));
 
   --shadow: 0 1px 2px rgba(93, 179, 210, 0.466), 0 10px 28px rgba(93, 179, 210, 0.466);
   --shadow-lift: 0 4px 10px rgba(42, 33, 54, 0.08), 0 16px 36px rgba(42, 33, 54, 0.1);
@@ -129,7 +126,6 @@
   --beet-tonal: color-mix(in srgb, var(--beet) 50%, var(--surf));
   --pist-tonal: color-mix(in srgb, var(--pist) 30%, var(--surf));
   --veg-tonal: color-mix(in srgb, var(--veg) 30%, var(--surf));
-  --today-bg: var(--beet-tonal);
   --beet-w: color-mix(in srgb, #ff0000 30%, var(--surf));
   --pist-w: color-mix(in srgb, var(--pist) 30%, var(--surf));
   --veg-w: color-mix(in srgb, #206935 60%, var(--surf));
@@ -180,7 +176,6 @@
     --beet-tonal: color-mix(in srgb, var(--beet) 50%, var(--surf));
     --pist-tonal: color-mix(in srgb, var(--pist) 30%, var(--surf));
     --veg-tonal: color-mix(in srgb, var(--veg) 30%, var(--surf));
-    --today-bg: var(--beet-tonal);
     --beet-w: color-mix(in srgb, #ff0000 30%, var(--surf));
     --pist-w: color-mix(in srgb, var(--pist) 30%, var(--surf));
     --veg-w: color-mix(in srgb, #206935 60%, var(--surf));
@@ -985,7 +980,7 @@ button {
 
 /* ---- Week screen ---------------------------------------------------------- */
 
-/* "מה מבשלים היום": today's meal in its own card above the day list, with a
+/* "מבשלים היום": today's meal in its own card above the day list, with a
    large round picture. Same tokens as the cook-day rows, just bigger. */
 .today {
   display: flex;
@@ -995,8 +990,8 @@ button {
   padding: 16px;
   margin-bottom: 16px;
   border-radius: var(--radius-lg);
-  border: 2px solid var(--saf);
-  background: var(--today-bg);
+  border: 1px solid color-mix(in srgb, var(--saf) 30%, var(--line));
+  background: var(--saf-tonal);
   box-shadow: var(--shadow-clay);
   text-align: start;
   color: var(--txt);
@@ -1051,20 +1046,23 @@ button {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
 }
 
-/* Rows are deliberately roomy (a bigger picture, date and name) so each day
-   reads as a solid block at a glance rather than a thin line. */
+/* Each row leads with the dish: a 56px picture (or, on a day with nothing
+   planned, a date tile of the same size), then the name, with the day in the
+   small line under it. Tight padding around the picture so the row reads as
+   one solid card. */
 .day {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 18px 16px;
-  border-radius: var(--radius);
+  gap: 12px;
+  padding: 8px;
+  padding-inline-end: 14px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--line);
   background: var(--surf);
-  margin-bottom: 11px;
+  margin-bottom: 10px;
   width: 100%;
   text-align: start;
-  min-height: 86px;
+  min-height: 72px;
   box-shadow: var(--shadow);
   transition: box-shadow 0.18s var(--ease-em), transform 0.12s var(--ease-em);
 }
@@ -1121,17 +1119,24 @@ button {
 
 .day__date {
   flex: none;
-  width: 50px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--w1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
-/* The dish picture, between the date and the name. Small, but a real picture —
-   at 60px the plate and its colour read at a glance while scrolling. */
+/* The dish picture that leads the row. Small, but a real picture: at 56px the
+   plate and its colour read at a glance while scrolling. */
 .day__shot {
   flex: none;
-  width: 60px;
-  height: 60px;
-  border-radius: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   object-fit: cover;
   display: block;
   background: var(--w1);
@@ -1146,14 +1151,14 @@ button {
 
 .day__dow {
   font-family: var(--font-label);
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--mut);
 }
 
 .day__num {
   font-family: var(--font-display);
-  font-size: 23px;
-  line-height: 1.2;
+  font-size: 19px;
+  line-height: 1.15;
 }
 
 .day__body {
@@ -1162,7 +1167,8 @@ button {
 }
 
 .day__title {
-  font-size: 16.5px;
+  font-size: 16px;
+  font-weight: 500;
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
@@ -1175,6 +1181,12 @@ button {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+/* The day, now that it sits in the meta line instead of its own column. */
+.day__when {
+  color: var(--txt);
+  font-weight: 500;
 }
 
 .day__badge {

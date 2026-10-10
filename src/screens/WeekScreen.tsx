@@ -519,7 +519,7 @@ export function WeekScreen({
           return (
             <button type="button" className="today" onClick={open}>
               <div className="today__body">
-                <span className="today__badge">מה מבשלים היום</span>
+                <span className="today__badge">מבשלים היום</span>
                 {session ? (
                   <>
                     <span className="today__title">{describe(session)}</span>
@@ -616,13 +616,9 @@ export function WeekScreen({
                   else setChooserDate(day.date)
                 }}
               >
-                <div className="day__date">
-                  <div className="day__dow">{dayName(day.date)}</div>
-                  <div className="day__num">{dayOfMonth(day.date)}</div>
-                </div>
-                {/* The picture sits between the date and the name, so the row
-                    reads day → what → details. Only days with something planned
-                    get one; an empty day keeps its dashed, deliberately bare look. */}
+                {/* The dish leads the row: its picture first, then the name, with
+                    the day moved into the line under it. A day with nothing on it
+                    has no picture, so it leads with a date tile instead. */}
                 {(() => {
                   const pic = pictureFor(session)
                   return pic ? (
@@ -632,7 +628,12 @@ export function WeekScreen({
                       ingredients={pic.ingredients}
                       imageUrl={pic.imageUrl}
                     />
-                  ) : null
+                  ) : (
+                    <div className="day__date">
+                      <div className="day__dow">{dayName(day.date)}</div>
+                      <div className="day__num">{dayOfMonth(day.date)}</div>
+                    </div>
+                  )
                 })()}
                 <div className="day__body">
                   {day.role === 'cook' && (
@@ -643,6 +644,10 @@ export function WeekScreen({
                           day this is, so the meta line doesn't need to repeat it
                           in words too. */}
                       <div className="day__meta">
+                        <span className="day__when">
+                          {dayName(day.date)} {dayOfMonth(day.date)}
+                        </span>
+                        <span>·</span>
                         <span>{session?.estimated_minutes} דק׳</span>
                         {session && session.covers_days > 1 && (
                           <>
@@ -660,6 +665,10 @@ export function WeekScreen({
                     <>
                       <div className="day__title">{describe(session)}</div>
                       <div className="day__meta">
+                        <span className="day__when">
+                          {dayName(day.date)} {dayOfMonth(day.date)}
+                        </span>
+                        <span>·</span>
                         <span className="row" style={{ gap: 3 }}>
                           <Icon name="refresh" size={13} />
                           שאריות
