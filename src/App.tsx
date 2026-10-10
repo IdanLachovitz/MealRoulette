@@ -30,6 +30,13 @@ function Shell() {
   // Lifted out of WeekScreen so the topbar's centered date can track the
   // same this/last/next week choice as WeekScreen's own chips.
   const [weekOffset, setWeekOffset] = useState(0)
+  // The day a spin is for, when the roulette was opened from an empty day on
+  // the week screen. Dropped as soon as the roulette tab is left, so a later
+  // visit through the nav bar is a plain spin again.
+  const [rouletteDate, setRouletteDate] = useState<string | null>(null)
+  useEffect(() => {
+    if (tab !== 'roulette') setRouletteDate(null)
+  }, [tab])
   // Keeps this phone's 18:00 cooking reminders in step with the plan.
   usePushSchedule(household?.id)
   const sync = useSyncStatus()
@@ -211,13 +218,22 @@ function Shell() {
           {tab === 'week' && (
             <WeekScreen
               householdId={household.id}
-              onGoToRoulette={() => setTab('roulette')}
+              onGoToRoulette={(date) => {
+                setRouletteDate(date ?? null)
+                setTab('roulette')
+              }}
               weekOffset={weekOffset}
               onWeekOffsetChange={setWeekOffset}
             />
           )}
           {tab === 'roulette' && (
-            <RouletteScreen householdId={household.id} onGoToLibrary={() => setTab('library')} />
+            <RouletteScreen
+              householdId={household.id}
+              onGoToLibrary={() => setTab('library')}
+              targetDate={rouletteDate}
+              onTargetDone={() => setTab('week')}
+              onCancelTarget={() => setRouletteDate(null)}
+            />
           )}
           {tab === 'library' && <LibraryScreen householdId={household.id} />}
           {tab === 'fridge' && <FridgeScreen householdId={household.id} />}

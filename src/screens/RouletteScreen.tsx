@@ -22,7 +22,9 @@ import {
 import type { Drawable } from '../engine/roulette'
 import { drawCombo } from '../engine/comboPairing'
 import { makeRng, randomSeed } from '../engine/rng'
-import { toISODate } from '../engine/dates'
+import { dayName, dayOfMonth, startOfWeek, toISODate } from '../engine/dates'
+import { assignToDay, ensureWeekPlan } from '../services/week'
+import type { SessionDraft } from '../services/week'
 import type { Component, ComponentType, CookHistory, Dish } from '../types'
 import { COMPONENT_LABEL, COMPONENT_LABEL_PLURAL, isFiltered } from '../types'
 import { AssignSheet } from './AssignSheet'
@@ -45,15 +47,29 @@ const emptySlot = (): Slot => ({ slices: [], winner: null, rotation: 0, locked: 
 export function RouletteScreen({
   householdId,
   onGoToLibrary,
+  targetDate,
+  onTargetDone,
+  onCancelTarget,
 }: {
   householdId: string
   onGoToLibrary?: () => void
+  /**
+   * The day the spin is for, when it was started by tapping an empty day on
+   * the week screen. "שבץ" then fills that day straight away instead of
+   * asking which day all over again.
+   */
+  targetDate?: string | null
+  /** The dish went into targetDate: back to the week. */
+  onTargetDone?: () => void
+  /** Spin for no particular day after all (the ✕ on the banner). */
+  onCancelTarget?: () => void
 }) {
   const { settings, updateSettings, toast } = useApp()
   const [mode, setMode] = useState<Mode>('dish')
   const [spinning, setSpinning] = useState(false)
   // 'result' when opened from the dish result window, so back returns there.
   const [assigning, setAssigning] = useState<false | 'inline' | 'result'>(false)
+  const [assigningTarget, setAssigningTarget] = useState(false)
   const [quickAdd, setQuickAdd] = useState(false)
   /** The dish result window, opened when the full-meal wheel stops. */
   const [showResult, setShowResult] = useState(false)
@@ -334,8 +350,49 @@ export function RouletteScreen({
     ? ((dishes ?? []).find((d) => d.id === dishSlot.winner!.id) ?? null)
     : null
 
+  const currentDraft = (): SessionDraft =>
+    mode === 'dish'
+      ? { source_type: 'dish', dish_id: dishSlot.winner!.id, minutes: dishSlot.winner!.prep_time_minutes }
+      : {
+          source_type: 'combo',
+          protein_id: rings.protein.winner?.id ?? null,
+          carb_id: rings.carb.winner?.id ?? null,
+          veg_id: vegOn ? (rings.veg.winner?.id ?? null) : null,
+          minutes: comboMinutes(comboParts),
+        }
+
+  // Straight into the day the spin was started from, as one day; the week
+  // screen's "להכין יותר" notice offers to stretch it after.
+  const assignToTarget = async () => {
+    if (!targetDate || assigningTarget) return
+    setAssigningTarget(true)
+    try {
+      const plan = await ensureWeekPlan(householdId, startOfWeek(targetDate, settings.week_starts_on), settings)
+      await assignToDay(householdId, plan, targetDate, currentDraft(), settings, 1)
+      toast(`שובץ ל${dayName(targetDate)}`)
+      setShowResult(false)
+      onTargetDone?.()
+    } finally {
+      setAssigningTarget(false)
+    }
+  }
+
+  const assignLabel = targetDate ? `שבץ ל${dayName(targetDate)}` : 'שבץ ליום…'
+  const startAssign = (from: 'inline' | 'result') => {
+    if (targetDate) void assignToTarget()
+    else {
+      if (from === 'result') setShowResult(false)
+      setAssigning(from)
+    }
+  }
+
   return (
     <div>
+      {targetDate && (
+        <Notice onDismiss={onCancelTarget}>
+          מגריל ליום {dayName(targetDate)} ה־{dayOfMonth(targetDate)}. המנה שתבחר תשובץ ישר אליו.
+        </Notice>
+      )}
       <div className="segmented" style={{ marginBottom: 12 }} role="group" aria-label="מצב רולטה">
         <button
           className="segmented__btn"
@@ -369,7 +426,8 @@ export function RouletteScreen({
           spinning={spinning}
           hasFilter={hasFilter}
           onSpin={spinDish}
-          onAssign={() => setAssigning('inline')}
+          onAssign={() => startAssign('inline')}
+          assignLabel={assignLabel}
           onExclude={excludeCurrentDish}
           onClearFilter={() =>
             void updateSettings({ max_prep_time_filter: null, min_prep_time_filter: null })
@@ -397,7 +455,8 @@ export function RouletteScreen({
           onSpinRing={(t) => spinRings(t)}
           onToggleLock={toggleLock}
           onExcludeRing={excludeComponent}
-          onAssign={() => setAssigning('inline')}
+          onAssign={() => startAssign('inline')}
+          assignLabel={assignLabel}
           saved={comboSaved}
           saving={savingCombo}
           onSave={() => setNamingCombo(true)}
@@ -412,10 +471,8 @@ export function RouletteScreen({
       {showResult && mode === 'dish' && !spinning && winnerDish && (
         <DishResultModal
           dish={winnerDish}
-          onAssign={() => {
-            setShowResult(false)
-            setAssigning('result')
-          }}
+          onAssign={() => startAssign('result')}
+          assignLabel={assignLabel}
           onSpinAgain={() => {
             setShowResult(false)
             spinDish()
@@ -428,17 +485,7 @@ export function RouletteScreen({
       {assigning && (
         <AssignSheet
           householdId={householdId}
-          draft={
-            mode === 'dish'
-              ? { source_type: 'dish', dish_id: dishSlot.winner!.id, minutes: dishSlot.winner!.prep_time_minutes }
-              : {
-                  source_type: 'combo',
-                  protein_id: rings.protein.winner?.id ?? null,
-                  carb_id: rings.carb.winner?.id ?? null,
-                  veg_id: vegOn ? (rings.veg.winner?.id ?? null) : null,
-                  minutes: comboMinutes(comboParts),
-                }
-          }
+          draft={currentDraft()}
           title={
             mode === 'dish' ? (dishSlot.winner?.name ?? '') : comboLabel(comboParts)
           }
@@ -532,12 +579,15 @@ function NameComboSheet({
 function DishResultModal({
   dish,
   onAssign,
+  assignLabel,
   onSpinAgain,
   onExclude,
   onClose,
 }: {
   dish: Dish
   onAssign: () => void
+  /** "שבץ ליום…", or "שבץ לרביעי" when the spin was started from a day. */
+  assignLabel: string
   onSpinAgain: () => void
   onExclude: () => void
   onClose: () => void
@@ -566,7 +616,7 @@ function DishResultModal({
 
       <div className="stack" style={{ marginTop: 14 }}>
         <button className="btn btn--primary btn--block" onClick={onAssign}>
-          שבץ ליום…
+          {assignLabel}
         </button>
         <button className="btn btn--ghost btn--block" onClick={onSpinAgain}>
           עוד פעם
@@ -588,6 +638,7 @@ function DishMode({
   hasFilter,
   onSpin,
   onAssign,
+  assignLabel,
   onExclude,
   onClearFilter,
   onAddDish,
@@ -600,6 +651,8 @@ function DishMode({
   hasFilter: boolean
   onSpin: () => void
   onAssign: () => void
+  /** "שבץ ליום…", or "שבץ לרביעי" when the spin was started from a day. */
+  assignLabel: string
   onExclude: () => void
   onClearFilter: () => void
   onAddDish: () => void
@@ -667,7 +720,7 @@ function DishMode({
             disabled={!winner || spinning}
             onClick={onAssign}
           >
-            שבץ ליום…
+            {assignLabel}
           </button>
           <button className="btn btn--ghost" style={{ flex: 1 }} disabled={spinning} onClick={onSpin}>
             {winner ? 'עוד פעם' : 'סובב'}
@@ -704,6 +757,7 @@ function ComboMode({
   onToggleLock,
   onExcludeRing,
   onAssign,
+  assignLabel,
   saved,
   saving,
   onSave,
@@ -732,6 +786,8 @@ function ComboMode({
   onToggleLock: (t: ComponentType) => void
   onExcludeRing: (t: ComponentType) => void
   onAssign: () => void
+  /** "שבץ ליום…", or "שבץ לרביעי" when the spin was started from a day. */
+  assignLabel: string
   /** The combo is already a library dish. */
   saved: boolean
   saving: boolean
@@ -878,7 +934,7 @@ function ComboMode({
             disabled={!comboReady}
             onClick={onAssign}
           >
-            שבץ ליום…
+            {assignLabel}
           </button>
           <button
             className="btn btn--ghost"

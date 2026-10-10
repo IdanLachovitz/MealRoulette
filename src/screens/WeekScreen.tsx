@@ -69,7 +69,8 @@ export function WeekScreen({
   onWeekOffsetChange,
 }: {
   householdId: string
-  onGoToRoulette: () => void
+  /** `date`: the empty day the spin is for, so the roulette can fill it directly. */
+  onGoToRoulette: (date?: string) => void
   /** 0 = the real current week, 1 = next week, -1 = last week, etc. — lifted
    *  to the app shell so the topbar's centered date can show this same
    *  changing week instead of always the real current week. */
@@ -502,6 +503,55 @@ export function WeekScreen({
         </div>
       )}
 
+      {/* "What are we cooking today" — today's meal lifted out of the list into
+          its own card, so it's the first thing on the screen. Only on the
+          current week; tapping it does what tapping today's row does. */}
+      {weekOffset === 0 &&
+        (() => {
+          const day = sortedDays.find((d) => d.date === today)
+          if (!day) return null
+          const session = day.cook_session_id ? sessionById.get(day.cook_session_id) : undefined
+          const pic = pictureFor(session)
+          const open = () => {
+            if (session) setEditingId(session.id)
+            else if (day.role !== 'none') setChooserDate(day.date)
+          }
+          return (
+            <button type="button" className="today" onClick={open}>
+              <div className="today__body">
+                <span className="today__badge">מה מבשלים היום</span>
+                {session ? (
+                  <>
+                    <span className="today__title">{describe(session)}</span>
+                    <span className="today__meta">
+                      {day.role === 'leftovers'
+                        ? 'שאריות, בלי בישול היום'
+                        : `${session.estimated_minutes} דק׳` +
+                          (session.covers_days > 1 ? ` · ל־${session.covers_days} ימים` : '')}
+                      {session.is_cooked && ' · בושל ✓'}
+                    </span>
+                  </>
+                ) : day.role === 'none' ? (
+                  <span className="today__title">היום לא מבשלים</span>
+                ) : (
+                  <>
+                    <span className="today__title">עוד לא נבחרה מנה</span>
+                    <span className="today__meta">הקש כדי לבחור מה לבשל</span>
+                  </>
+                )}
+              </div>
+              {pic && (
+                <DishPicture
+                  className="today__shot"
+                  name={pic.name}
+                  ingredients={pic.ingredients}
+                  imageUrl={pic.imageUrl}
+                />
+              )}
+            </button>
+          )
+        })()}
+
       <div>
           {sortedDays.map((day) => {
             const session = day.cook_session_id ? sessionById.get(day.cook_session_id) : undefined
@@ -712,7 +762,7 @@ export function WeekScreen({
               className="btn btn--primary btn--block"
               onClick={() => {
                 setChooserDate(null)
-                onGoToRoulette()
+                onGoToRoulette(chooserDate)
               }}
             >
               <Icon name="wheel" size={16} />
